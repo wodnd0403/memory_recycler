@@ -191,23 +191,13 @@ public static class MemoryRecycler3DSceneBuilder
         Material skinMat = CreateMaterial("MR3D_Skin", new Color(0.72f, 0.58f, 0.47f), false);
         Material shoeMat = CreateMaterial("MR3D_WornShoes", new Color(0.035f, 0.032f, 0.03f), false);
 
-        SetScenePart(visual, "Torso", PrimitiveType.Capsule, new Vector3(0f, 1.26f, 0f), Vector3.zero, new Vector3(0.42f, 0.50f, 0.28f), shirtMat);
-        SetScenePart(visual, "Coat", PrimitiveType.Cube, new Vector3(0f, 1.24f, -0.01f), Vector3.zero, new Vector3(0.54f, 0.78f, 0.34f), jacketMat);
-        SetScenePart(visual, "Coat Skirt", PrimitiveType.Cube, new Vector3(0f, 0.80f, 0f), Vector3.zero, new Vector3(0.46f, 0.18f, 0.30f), pantsMat);
+        SetScenePart(visual, "Torso", PrimitiveType.Capsule, new Vector3(0f, 1.26f, 0f), Vector3.zero, new Vector3(0.46f, 0.52f, 0.31f), shirtMat);
+        SetScenePart(visual, "Coat", PrimitiveType.Cube, new Vector3(0f, 1.24f, -0.01f), Vector3.zero, new Vector3(0.60f, 0.80f, 0.38f), jacketMat);
+        SetScenePart(visual, "Coat Skirt", PrimitiveType.Cube, new Vector3(0f, 0.80f, 0f), Vector3.zero, new Vector3(0.50f, 0.18f, 0.32f), pantsMat);
         SetScenePart(visual, "Head", PrimitiveType.Sphere, new Vector3(0f, 1.87f, 0.02f), Vector3.zero, Vector3.one * 0.285f, skinMat);
         SetScenePart(visual, "Neck", PrimitiveType.Cylinder, new Vector3(0f, 1.66f, 0.015f), Vector3.zero, new Vector3(0.085f, 0.11f, 0.085f), skinMat);
 
-        SetScenePart(visual, "Arm_L", PrimitiveType.Cylinder, new Vector3(-0.38f, 1.28f, 0.01f), new Vector3(0f, 0f, -7f), new Vector3(0.085f, 0.46f, 0.085f), jacketMat);
-        SetScenePart(visual, "Forearm_L", PrimitiveType.Cylinder, new Vector3(-0.46f, 0.78f, 0.025f), new Vector3(0f, 0f, -3f), new Vector3(0.075f, 0.40f, 0.075f), skinMat);
-        SetScenePart(visual, "Hand_L", PrimitiveType.Sphere, new Vector3(-0.49f, 0.39f, 0.045f), Vector3.zero, Vector3.one * 0.075f, skinMat);
-        SetScenePart(visual, "Arm_R", PrimitiveType.Cylinder, new Vector3(0.38f, 1.28f, 0.01f), new Vector3(0f, 0f, 7f), new Vector3(0.085f, 0.46f, 0.085f), jacketMat);
-        SetScenePart(visual, "Forearm_R", PrimitiveType.Cylinder, new Vector3(0.46f, 0.78f, 0.025f), new Vector3(0f, 0f, 3f), new Vector3(0.075f, 0.40f, 0.075f), skinMat);
-        SetScenePart(visual, "Hand_R", PrimitiveType.Sphere, new Vector3(0.49f, 0.39f, 0.045f), Vector3.zero, Vector3.one * 0.075f, skinMat);
-
-        SetScenePart(visual, "Leg_L", PrimitiveType.Cylinder, new Vector3(-0.15f, 0.55f, 0f), Vector3.zero, new Vector3(0.095f, 0.58f, 0.095f), pantsMat);
-        SetScenePart(visual, "Boot_L", PrimitiveType.Cube, new Vector3(-0.15f, 0.06f, 0.11f), Vector3.zero, new Vector3(0.16f, 0.09f, 0.30f), shoeMat);
-        SetScenePart(visual, "Leg_R", PrimitiveType.Cylinder, new Vector3(0.15f, 0.55f, 0f), Vector3.zero, new Vector3(0.095f, 0.58f, 0.095f), pantsMat);
-        SetScenePart(visual, "Boot_R", PrimitiveType.Cube, new Vector3(0.15f, 0.06f, 0.11f), Vector3.zero, new Vector3(0.16f, 0.09f, 0.30f), shoeMat);
+        BuildHumanoidSceneLimbRig(visual, jacketMat, skinMat, pantsMat, shoeMat);
     }
 
     private static GameObject FindRoot(Scene scene, string objectName)
@@ -229,10 +219,84 @@ public static class MemoryRecycler3DSceneBuilder
         {
             GameObject partObject = GameObject.CreatePrimitive(primitive);
             partObject.name = name;
-            partObject.transform.SetParent(visual);
+            partObject.transform.SetParent(visual, false);
             part = partObject.transform;
         }
 
+        part.localPosition = localPosition;
+        part.localEulerAngles = localEuler;
+        part.localScale = localScale;
+
+        Renderer renderer = part.GetComponent<Renderer>();
+        if (renderer != null)
+            renderer.sharedMaterial = material;
+
+        Collider collider = part.GetComponent<Collider>();
+        if (collider != null)
+            Object.DestroyImmediate(collider);
+
+        EditorUtility.SetDirty(part.gameObject);
+    }
+
+    private static void BuildHumanoidSceneLimbRig(Transform visual, Material jacketMat, Material skinMat, Material pantsMat, Material shoeMat)
+    {
+        Transform leftArmPivot = CreateScenePivot(visual, "ArmPivot_L", new Vector3(-0.39f, 1.47f, 0.015f), new Vector3(0f, 0f, -6f));
+        Transform leftForearmPivot = CreateScenePivot(leftArmPivot, "ForearmPivot_L", new Vector3(0f, -0.48f, 0f), Vector3.zero);
+        SetScenePartUnder(visual, leftArmPivot, "Arm_L", PrimitiveType.Cylinder, new Vector3(0f, -0.24f, 0f), Vector3.zero, new Vector3(0.12f, 0.25f, 0.12f), jacketMat);
+        SetScenePartUnder(visual, leftForearmPivot, "Elbow_L", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.105f, jacketMat);
+        SetScenePartUnder(visual, leftForearmPivot, "Forearm_L", PrimitiveType.Cylinder, new Vector3(0f, -0.23f, 0f), Vector3.zero, new Vector3(0.105f, 0.24f, 0.105f), skinMat);
+        SetScenePartUnder(visual, leftForearmPivot, "Hand_L", PrimitiveType.Sphere, new Vector3(0f, -0.50f, 0.035f), Vector3.zero, Vector3.one * 0.085f, skinMat);
+
+        Transform rightArmPivot = CreateScenePivot(visual, "ArmPivot_R", new Vector3(0.39f, 1.47f, 0.015f), new Vector3(0f, 0f, 6f));
+        Transform rightForearmPivot = CreateScenePivot(rightArmPivot, "ForearmPivot_R", new Vector3(0f, -0.48f, 0f), Vector3.zero);
+        SetScenePartUnder(visual, rightArmPivot, "Arm_R", PrimitiveType.Cylinder, new Vector3(0f, -0.24f, 0f), Vector3.zero, new Vector3(0.12f, 0.25f, 0.12f), jacketMat);
+        SetScenePartUnder(visual, rightForearmPivot, "Elbow_R", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.105f, jacketMat);
+        SetScenePartUnder(visual, rightForearmPivot, "Forearm_R", PrimitiveType.Cylinder, new Vector3(0f, -0.23f, 0f), Vector3.zero, new Vector3(0.105f, 0.24f, 0.105f), skinMat);
+        SetScenePartUnder(visual, rightForearmPivot, "Hand_R", PrimitiveType.Sphere, new Vector3(0f, -0.50f, 0.035f), Vector3.zero, Vector3.one * 0.085f, skinMat);
+
+        Transform leftLegPivot = CreateScenePivot(visual, "LegPivot_L", new Vector3(-0.15f, 0.97f, 0f), Vector3.zero);
+        Transform leftKneePivot = CreateScenePivot(leftLegPivot, "KneePivot_L", new Vector3(0f, -0.56f, 0f), Vector3.zero);
+        SetScenePartUnder(visual, leftLegPivot, "Leg_L", PrimitiveType.Cylinder, new Vector3(0f, -0.28f, 0f), Vector3.zero, new Vector3(0.12f, 0.29f, 0.12f), pantsMat);
+        SetScenePartUnder(visual, leftKneePivot, "Knee_L", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.115f, pantsMat);
+        SetScenePartUnder(visual, leftKneePivot, "Shin_L", PrimitiveType.Cylinder, new Vector3(0f, -0.27f, 0f), Vector3.zero, new Vector3(0.105f, 0.28f, 0.105f), pantsMat);
+        SetScenePartUnder(visual, leftKneePivot, "Boot_L", PrimitiveType.Cube, new Vector3(0f, -0.58f, 0.10f), Vector3.zero, new Vector3(0.18f, 0.10f, 0.32f), shoeMat);
+
+        Transform rightLegPivot = CreateScenePivot(visual, "LegPivot_R", new Vector3(0.15f, 0.97f, 0f), Vector3.zero);
+        Transform rightKneePivot = CreateScenePivot(rightLegPivot, "KneePivot_R", new Vector3(0f, -0.56f, 0f), Vector3.zero);
+        SetScenePartUnder(visual, rightLegPivot, "Leg_R", PrimitiveType.Cylinder, new Vector3(0f, -0.28f, 0f), Vector3.zero, new Vector3(0.12f, 0.29f, 0.12f), pantsMat);
+        SetScenePartUnder(visual, rightKneePivot, "Knee_R", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.115f, pantsMat);
+        SetScenePartUnder(visual, rightKneePivot, "Shin_R", PrimitiveType.Cylinder, new Vector3(0f, -0.27f, 0f), Vector3.zero, new Vector3(0.105f, 0.28f, 0.105f), pantsMat);
+        SetScenePartUnder(visual, rightKneePivot, "Boot_R", PrimitiveType.Cube, new Vector3(0f, -0.58f, 0.10f), Vector3.zero, new Vector3(0.18f, 0.10f, 0.32f), shoeMat);
+    }
+
+    private static Transform CreateScenePivot(Transform parent, string name, Vector3 localPosition, Vector3 localEuler)
+    {
+        Transform pivot = FindDeepChild(parent, name);
+        if (pivot == null)
+        {
+            GameObject pivotObject = new GameObject(name);
+            pivot = pivotObject.transform;
+        }
+
+        pivot.SetParent(parent, false);
+        pivot.localPosition = localPosition;
+        pivot.localEulerAngles = localEuler;
+        pivot.localScale = Vector3.one;
+        EditorUtility.SetDirty(pivot.gameObject);
+        return pivot;
+    }
+
+    private static void SetScenePartUnder(Transform searchRoot, Transform parent, string name, PrimitiveType primitive, Vector3 localPosition, Vector3 localEuler, Vector3 localScale, Material material)
+    {
+        Transform part = FindDeepChild(searchRoot, name);
+        if (part == null)
+        {
+            GameObject partObject = GameObject.CreatePrimitive(primitive);
+            partObject.name = name;
+            part = partObject.transform;
+        }
+
+        part.SetParent(parent, false);
         part.localPosition = localPosition;
         part.localEulerAngles = localEuler;
         part.localScale = localScale;
@@ -513,7 +577,7 @@ public static class MemoryRecycler3DSceneBuilder
         torso.name = "Torso";
         torso.transform.SetParent(visual.transform);
         torso.transform.localPosition = new Vector3(0f, 1.26f, 0f);
-        torso.transform.localScale = new Vector3(0.42f, 0.50f, 0.28f);
+        torso.transform.localScale = new Vector3(0.46f, 0.52f, 0.31f);
         torso.GetComponent<Renderer>().sharedMaterial = suitMat;
         Object.DestroyImmediate(torso.GetComponent<Collider>());
 
@@ -522,7 +586,7 @@ public static class MemoryRecycler3DSceneBuilder
         coat.name = "Coat";
         coat.transform.SetParent(visual.transform);
         coat.transform.localPosition = new Vector3(0f, 1.24f, -0.01f);
-        coat.transform.localScale = new Vector3(0.54f, 0.78f, 0.34f);
+        coat.transform.localScale = new Vector3(0.60f, 0.80f, 0.38f);
         coat.GetComponent<Renderer>().sharedMaterial = coatMat;
         Object.DestroyImmediate(coat.GetComponent<Collider>());
 
@@ -530,7 +594,7 @@ public static class MemoryRecycler3DSceneBuilder
         coatSkirt.name = "Coat Skirt";
         coatSkirt.transform.SetParent(visual.transform);
         coatSkirt.transform.localPosition = new Vector3(0f, 0.80f, 0f);
-        coatSkirt.transform.localScale = new Vector3(0.46f, 0.18f, 0.30f);
+        coatSkirt.transform.localScale = new Vector3(0.50f, 0.18f, 0.32f);
         coatSkirt.GetComponent<Renderer>().sharedMaterial = suitMat;
         Object.DestroyImmediate(coatSkirt.GetComponent<Collider>());
 
@@ -543,19 +607,7 @@ public static class MemoryRecycler3DSceneBuilder
         head.GetComponent<Renderer>().sharedMaterial = skinMat;
         Object.DestroyImmediate(head.GetComponent<Collider>());
 
-        // arms
-        CreateLimb(visual.transform, "Arm_L", new Vector3(-0.38f, 1.28f, 0.01f), new Vector3(0f, 0f, -7f), new Vector3(0.085f, 0.46f, 0.085f), coatMat);
-        CreateLimb(visual.transform, "Forearm_L", new Vector3(-0.46f, 0.78f, 0.025f), new Vector3(0f, 0f, -3f), new Vector3(0.075f, 0.40f, 0.075f), skinMat);
-        CreateLimb(visual.transform, "Arm_R", new Vector3(0.38f, 1.28f, 0.01f), new Vector3(0f, 0f, 7f), new Vector3(0.085f, 0.46f, 0.085f), coatMat);
-        CreateLimb(visual.transform, "Forearm_R", new Vector3(0.46f, 0.78f, 0.025f), new Vector3(0f, 0f, 3f), new Vector3(0.075f, 0.40f, 0.075f), skinMat);
-
-        // legs
-        CreateLimb(visual.transform, "Leg_L", new Vector3(-0.15f, 0.55f, 0f), Vector3.zero, new Vector3(0.095f, 0.58f, 0.095f), suitMat);
-        CreateLimb(visual.transform, "Leg_R", new Vector3(0.15f, 0.55f, 0f), Vector3.zero, new Vector3(0.095f, 0.58f, 0.095f), suitMat);
-        CreateLimb(visual.transform, "Boot_L", new Vector3(-0.15f, 0.06f, 0.11f), Vector3.zero, new Vector3(0.16f, 0.09f, 0.30f), accentMat, PrimitiveType.Cube);
-        CreateLimb(visual.transform, "Boot_R", new Vector3(0.15f, 0.06f, 0.11f), Vector3.zero, new Vector3(0.16f, 0.09f, 0.30f), accentMat, PrimitiveType.Cube);
-        CreateLimb(visual.transform, "Hand_L", new Vector3(-0.49f, 0.39f, 0.045f), Vector3.zero, Vector3.one * 0.075f, skinMat, PrimitiveType.Sphere);
-        CreateLimb(visual.transform, "Hand_R", new Vector3(0.49f, 0.39f, 0.045f), Vector3.zero, Vector3.one * 0.075f, skinMat, PrimitiveType.Sphere);
+        BuildHumanoidSceneLimbRig(visual.transform, coatMat, skinMat, suitMat, accentMat);
         CreateLimb(visual.transform, "Neck", new Vector3(0f, 1.66f, 0.015f), Vector3.zero, new Vector3(0.085f, 0.11f, 0.085f), skinMat);
 
         return player;

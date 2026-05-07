@@ -31,12 +31,22 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     private Transform visualRoot;
     private Transform torso;
     private Transform head;
+    private Transform armPivotL;
+    private Transform forearmPivotL;
+    private Transform armPivotR;
+    private Transform forearmPivotR;
+    private Transform legPivotL;
+    private Transform kneePivotL;
+    private Transform legPivotR;
+    private Transform kneePivotR;
     private Transform armL;
     private Transform forearmL;
     private Transform armR;
     private Transform forearmR;
     private Transform legL;
+    private Transform shinL;
     private Transform legR;
+    private Transform shinR;
     private Transform bootL;
     private Transform bootR;
     private Transform handL;
@@ -141,12 +151,22 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
         torso = FindDeepChild(visualRoot, "Torso");
         head = FindDeepChild(visualRoot, "Head");
+        armPivotL = FindDeepChild(visualRoot, "ArmPivot_L");
+        forearmPivotL = FindDeepChild(visualRoot, "ForearmPivot_L");
+        armPivotR = FindDeepChild(visualRoot, "ArmPivot_R");
+        forearmPivotR = FindDeepChild(visualRoot, "ForearmPivot_R");
+        legPivotL = FindDeepChild(visualRoot, "LegPivot_L");
+        kneePivotL = FindDeepChild(visualRoot, "KneePivot_L");
+        legPivotR = FindDeepChild(visualRoot, "LegPivot_R");
+        kneePivotR = FindDeepChild(visualRoot, "KneePivot_R");
         armL = FindDeepChild(visualRoot, "Arm_L");
         forearmL = FindDeepChild(visualRoot, "Forearm_L");
         armR = FindDeepChild(visualRoot, "Arm_R");
         forearmR = FindDeepChild(visualRoot, "Forearm_R");
         legL = FindDeepChild(visualRoot, "Leg_L");
+        shinL = FindDeepChild(visualRoot, "Shin_L");
         legR = FindDeepChild(visualRoot, "Leg_R");
+        shinR = FindDeepChild(visualRoot, "Shin_R");
         bootL = FindDeepChild(visualRoot, "Boot_L");
         bootR = FindDeepChild(visualRoot, "Boot_R");
         handL = FindDeepChild(visualRoot, "Hand_L");
@@ -160,12 +180,22 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         visualRootDefaultLocalPos = visualRoot.localPosition;
         CacheDefaultPose(torso);
         CacheDefaultPose(head);
+        CacheDefaultPose(armPivotL);
+        CacheDefaultPose(forearmPivotL);
+        CacheDefaultPose(armPivotR);
+        CacheDefaultPose(forearmPivotR);
+        CacheDefaultPose(legPivotL);
+        CacheDefaultPose(kneePivotL);
+        CacheDefaultPose(legPivotR);
+        CacheDefaultPose(kneePivotR);
         CacheDefaultPose(armL);
         CacheDefaultPose(forearmL);
         CacheDefaultPose(armR);
         CacheDefaultPose(forearmR);
         CacheDefaultPose(legL);
+        CacheDefaultPose(shinL);
         CacheDefaultPose(legR);
+        CacheDefaultPose(shinR);
         CacheDefaultPose(bootL);
         CacheDefaultPose(bootR);
         CacheDefaultPose(handL);
@@ -209,21 +239,25 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         float legAngle = Mathf.Lerp(walkLimbAngle, runLimbAngle, isRunning ? 1f : 0f) * moveBlend;
         float bob = Mathf.Lerp(bodyBobAmount, runBodyBobAmount, isRunning ? 1f : 0f) * moveBlend;
         float sway = Mathf.Sin(animationTime * 0.5f) * 5.5f * moveBlend;
-        float armReach = Mathf.Lerp(0.045f, 0.09f, isRunning ? 1f : 0f) * moveBlend;
-        float stepReach = Mathf.Lerp(0.055f, 0.12f, isRunning ? 1f : 0f) * moveBlend;
-        float footLift = Mathf.Lerp(0.055f, 0.13f, isRunning ? 1f : 0f) * moveBlend;
-        float elbowBend = Mathf.Lerp(12f, 24f, isRunning ? 1f : 0f) * moveBlend;
+        float elbowBase = Mathf.Lerp(8f, 16f, isRunning ? 1f : 0f) * moveBlend;
+        float elbowFlex = Mathf.Lerp(16f, 28f, isRunning ? 1f : 0f) * moveBlend;
+        float kneeBase = Mathf.Lerp(4f, 10f, isRunning ? 1f : 0f) * moveBlend;
+        float kneeFlex = Mathf.Lerp(20f, 38f, isRunning ? 1f : 0f) * moveBlend;
+        float footAngle = Mathf.Lerp(8f, 18f, isRunning ? 1f : 0f) * moveBlend;
 
-        SetLocalRotation(armL, GetDefaultRotation(armL) * Quaternion.Euler(stride * armAngle, 0f, -9f * moveBlend + Mathf.Abs(stride) * 4f * moveBlend));
-        SetLocalRotation(forearmL, GetDefaultRotation(forearmL) * Quaternion.Euler(stride * armAngle * 0.72f - Mathf.Abs(stride) * elbowBend, 0f, -5f * moveBlend));
-        SetLocalRotation(armR, GetDefaultRotation(armR) * Quaternion.Euler(counterStride * armAngle, 0f, 9f * moveBlend - Mathf.Abs(counterStride) * 4f * moveBlend));
-        SetLocalRotation(forearmR, GetDefaultRotation(forearmR) * Quaternion.Euler(counterStride * armAngle * 0.72f - Mathf.Abs(counterStride) * elbowBend, 0f, 5f * moveBlend));
-        SetLocalRotation(legL, GetDefaultRotation(legL) * Quaternion.Euler(counterStride * legAngle, 0f, -2f * moveBlend));
-        SetLocalRotation(legR, GetDefaultRotation(legR) * Quaternion.Euler(stride * legAngle, 0f, 2f * moveBlend));
-        SetLocalRotation(bootL, GetDefaultRotation(bootL) * Quaternion.Euler(counterStride * legAngle * 0.35f + Mathf.Max(0f, counterStride) * 14f * moveBlend, 0f, 0f));
-        SetLocalRotation(bootR, GetDefaultRotation(bootR) * Quaternion.Euler(stride * legAngle * 0.35f + Mathf.Max(0f, stride) * 14f * moveBlend, 0f, 0f));
-        SetLocalRotation(handL, GetDefaultRotation(handL) * Quaternion.Euler(stride * armAngle * 0.55f, 0f, -8f * moveBlend));
-        SetLocalRotation(handR, GetDefaultRotation(handR) * Quaternion.Euler(counterStride * armAngle * 0.55f, 0f, 8f * moveBlend));
+        SetLocalRotation(armPivotL, GetDefaultRotation(armPivotL) * Quaternion.Euler(stride * armAngle, 0f, -5f * moveBlend));
+        SetLocalRotation(forearmPivotL, GetDefaultRotation(forearmPivotL) * Quaternion.Euler(-elbowBase - Mathf.Abs(stride) * elbowFlex, 0f, 0f));
+        SetLocalRotation(armPivotR, GetDefaultRotation(armPivotR) * Quaternion.Euler(counterStride * armAngle, 0f, 5f * moveBlend));
+        SetLocalRotation(forearmPivotR, GetDefaultRotation(forearmPivotR) * Quaternion.Euler(-elbowBase - Mathf.Abs(counterStride) * elbowFlex, 0f, 0f));
+        SetLocalRotation(handL, GetDefaultRotation(handL) * Quaternion.Euler(stride * armAngle * 0.18f, 0f, -4f * moveBlend));
+        SetLocalRotation(handR, GetDefaultRotation(handR) * Quaternion.Euler(counterStride * armAngle * 0.18f, 0f, 4f * moveBlend));
+
+        SetLocalRotation(legPivotL, GetDefaultRotation(legPivotL) * Quaternion.Euler(counterStride * legAngle, 0f, -1.5f * moveBlend));
+        SetLocalRotation(kneePivotL, GetDefaultRotation(kneePivotL) * Quaternion.Euler(kneeBase + Mathf.Max(0f, counterStride) * kneeFlex, 0f, 0f));
+        SetLocalRotation(legPivotR, GetDefaultRotation(legPivotR) * Quaternion.Euler(stride * legAngle, 0f, 1.5f * moveBlend));
+        SetLocalRotation(kneePivotR, GetDefaultRotation(kneePivotR) * Quaternion.Euler(kneeBase + Mathf.Max(0f, stride) * kneeFlex, 0f, 0f));
+        SetLocalRotation(bootL, GetDefaultRotation(bootL) * Quaternion.Euler(-counterStride * footAngle + Mathf.Max(0f, counterStride) * footAngle, 0f, 0f));
+        SetLocalRotation(bootR, GetDefaultRotation(bootR) * Quaternion.Euler(-stride * footAngle + Mathf.Max(0f, stride) * footAngle, 0f, 0f));
         SetLocalRotation(kneePadL, GetDefaultRotation(kneePadL) * Quaternion.Euler(counterStride * legAngle, 0f, 0f));
         SetLocalRotation(kneePadR, GetDefaultRotation(kneePadR) * Quaternion.Euler(stride * legAngle, 0f, 0f));
         SetLocalRotation(torso, GetDefaultRotation(torso) * Quaternion.Euler(3f * moveBlend + Mathf.Abs(stride) * 2.5f * moveBlend, sway, -stride * 2f * moveBlend));
@@ -231,19 +265,6 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         SetLocalRotation(coat, GetDefaultRotation(coat) * Quaternion.Euler(-2f * moveBlend, 0f, 0f));
         SetLocalRotation(coatSkirt, GetDefaultRotation(coatSkirt) * Quaternion.Euler(1f * moveBlend + Mathf.Abs(counterStride) * 2f * moveBlend, 0f, 0f));
         SetLocalRotation(backpack, GetDefaultRotation(backpack) * Quaternion.Euler(Mathf.Abs(counterStride) * 4f * moveBlend, 0f, 0f));
-
-        SetLocalPosition(armL, GetDefaultPosition(armL) + new Vector3(0f, 0f, -stride * armReach));
-        SetLocalPosition(armR, GetDefaultPosition(armR) + new Vector3(0f, 0f, -counterStride * armReach));
-        SetLocalPosition(forearmL, GetDefaultPosition(forearmL) + new Vector3(0f, Mathf.Abs(stride) * 0.018f * moveBlend, -stride * armReach * 1.2f));
-        SetLocalPosition(forearmR, GetDefaultPosition(forearmR) + new Vector3(0f, Mathf.Abs(counterStride) * 0.018f * moveBlend, -counterStride * armReach * 1.2f));
-        SetLocalPosition(handL, GetDefaultPosition(handL) + new Vector3(0f, Mathf.Abs(stride) * 0.02f * moveBlend, -stride * armReach * 1.45f));
-        SetLocalPosition(handR, GetDefaultPosition(handR) + new Vector3(0f, Mathf.Abs(counterStride) * 0.02f * moveBlend, -counterStride * armReach * 1.45f));
-        SetLocalPosition(legL, GetDefaultPosition(legL) + new Vector3(0f, Mathf.Max(0f, counterStride) * footLift * 0.25f, -counterStride * stepReach));
-        SetLocalPosition(legR, GetDefaultPosition(legR) + new Vector3(0f, Mathf.Max(0f, stride) * footLift * 0.25f, -stride * stepReach));
-        SetLocalPosition(bootL, GetDefaultPosition(bootL) + new Vector3(0f, Mathf.Max(0f, counterStride) * footLift, -counterStride * stepReach * 1.35f));
-        SetLocalPosition(bootR, GetDefaultPosition(bootR) + new Vector3(0f, Mathf.Max(0f, stride) * footLift, -stride * stepReach * 1.35f));
-        SetLocalPosition(kneePadL, GetDefaultPosition(kneePadL) + new Vector3(0f, Mathf.Max(0f, counterStride) * footLift * 0.42f, -counterStride * stepReach * 1.08f));
-        SetLocalPosition(kneePadR, GetDefaultPosition(kneePadR) + new Vector3(0f, Mathf.Max(0f, stride) * footLift * 0.42f, -stride * stepReach * 1.08f));
 
         visualRoot.localPosition = visualRootDefaultLocalPos + Vector3.up * Mathf.Abs(stride) * bob;
     }
@@ -308,36 +329,49 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         EnsureCasualMaterials();
         RemoveSpaceSuitAccessories(root);
 
-        SetLocalTransform(FindDeepChild(root, "Torso"), new Vector3(0f, 1.26f, 0f), Vector3.zero, new Vector3(0.42f, 0.50f, 0.28f));
+        SetLocalTransform(FindDeepChild(root, "Torso"), new Vector3(0f, 1.26f, 0f), Vector3.zero, new Vector3(0.46f, 0.52f, 0.31f));
         SetRendererMaterial(FindDeepChild(root, "Torso"), casualShirtMaterial);
-        SetLocalTransform(FindDeepChild(root, "Coat"), new Vector3(0f, 1.24f, -0.01f), Vector3.zero, new Vector3(0.54f, 0.78f, 0.34f));
+        SetLocalTransform(FindDeepChild(root, "Coat"), new Vector3(0f, 1.24f, -0.01f), Vector3.zero, new Vector3(0.60f, 0.80f, 0.38f));
         SetRendererMaterial(FindDeepChild(root, "Coat"), casualJacketMaterial);
-        SetLocalTransform(FindDeepChild(root, "Coat Skirt"), new Vector3(0f, 0.80f, 0f), Vector3.zero, new Vector3(0.46f, 0.18f, 0.30f));
+        SetLocalTransform(FindDeepChild(root, "Coat Skirt"), new Vector3(0f, 0.80f, 0f), Vector3.zero, new Vector3(0.50f, 0.18f, 0.32f));
         SetRendererMaterial(FindDeepChild(root, "Coat Skirt"), casualPantsMaterial);
         SetLocalTransform(FindDeepChild(root, "Head"), new Vector3(0f, 1.87f, 0.02f), Vector3.zero, Vector3.one * 0.285f);
         SetRendererMaterial(FindDeepChild(root, "Head"), casualSkinMaterial);
 
-        SetLocalTransform(FindDeepChild(root, "Arm_L"), new Vector3(-0.38f, 1.28f, 0.01f), new Vector3(0f, 0f, -7f), new Vector3(0.085f, 0.46f, 0.085f));
-        SetRendererMaterial(FindDeepChild(root, "Arm_L"), casualJacketMaterial);
-        SetLocalTransform(FindDeepChild(root, "Forearm_L"), new Vector3(-0.46f, 0.78f, 0.025f), new Vector3(0f, 0f, -3f), new Vector3(0.075f, 0.40f, 0.075f));
-        SetRendererMaterial(FindDeepChild(root, "Forearm_L"), casualSkinMaterial);
-        SetLocalTransform(FindDeepChild(root, "Arm_R"), new Vector3(0.38f, 1.28f, 0.01f), new Vector3(0f, 0f, 7f), new Vector3(0.085f, 0.46f, 0.085f));
-        SetRendererMaterial(FindDeepChild(root, "Arm_R"), casualJacketMaterial);
-        SetLocalTransform(FindDeepChild(root, "Forearm_R"), new Vector3(0.46f, 0.78f, 0.025f), new Vector3(0f, 0f, 3f), new Vector3(0.075f, 0.40f, 0.075f));
-        SetRendererMaterial(FindDeepChild(root, "Forearm_R"), casualSkinMaterial);
-
-        SetLocalTransform(FindDeepChild(root, "Leg_L"), new Vector3(-0.15f, 0.55f, 0f), Vector3.zero, new Vector3(0.095f, 0.58f, 0.095f));
-        SetRendererMaterial(FindDeepChild(root, "Leg_L"), casualPantsMaterial);
-        SetLocalTransform(FindDeepChild(root, "Leg_R"), new Vector3(0.15f, 0.55f, 0f), Vector3.zero, new Vector3(0.095f, 0.58f, 0.095f));
-        SetRendererMaterial(FindDeepChild(root, "Leg_R"), casualPantsMaterial);
-        SetLocalTransform(FindDeepChild(root, "Boot_L"), new Vector3(-0.15f, 0.06f, 0.11f), Vector3.zero, new Vector3(0.16f, 0.09f, 0.30f));
-        SetRendererMaterial(FindDeepChild(root, "Boot_L"), casualShoeMaterial);
-        SetLocalTransform(FindDeepChild(root, "Boot_R"), new Vector3(0.15f, 0.06f, 0.11f), Vector3.zero, new Vector3(0.16f, 0.09f, 0.30f));
-        SetRendererMaterial(FindDeepChild(root, "Boot_R"), casualShoeMaterial);
+        BuildHumanoidLimbRig(root);
 
         CreateOrUpdatePrimitive(root, "Neck", PrimitiveType.Cylinder, new Vector3(0f, 1.66f, 0.015f), Vector3.zero, new Vector3(0.085f, 0.11f, 0.085f), casualSkinMaterial);
-        CreateOrUpdatePrimitive(root, "Hand_L", PrimitiveType.Sphere, new Vector3(-0.49f, 0.39f, 0.045f), Vector3.zero, Vector3.one * 0.075f, casualSkinMaterial);
-        CreateOrUpdatePrimitive(root, "Hand_R", PrimitiveType.Sphere, new Vector3(0.49f, 0.39f, 0.045f), Vector3.zero, Vector3.one * 0.075f, casualSkinMaterial);
+    }
+
+    private void BuildHumanoidLimbRig(Transform root)
+    {
+        Transform leftArmPivot = CreateOrUpdatePivot(root, "ArmPivot_L", new Vector3(-0.39f, 1.47f, 0.015f), new Vector3(0f, 0f, -6f));
+        Transform leftForearmPivot = CreateOrUpdatePivot(leftArmPivot, "ForearmPivot_L", new Vector3(0f, -0.48f, 0f), Vector3.zero);
+        CreateOrUpdatePrimitive(leftArmPivot, "Arm_L", PrimitiveType.Cylinder, new Vector3(0f, -0.24f, 0f), Vector3.zero, new Vector3(0.12f, 0.25f, 0.12f), casualJacketMaterial);
+        CreateOrUpdatePrimitive(leftForearmPivot, "Elbow_L", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.105f, casualJacketMaterial);
+        CreateOrUpdatePrimitive(leftForearmPivot, "Forearm_L", PrimitiveType.Cylinder, new Vector3(0f, -0.23f, 0f), Vector3.zero, new Vector3(0.105f, 0.24f, 0.105f), casualSkinMaterial);
+        CreateOrUpdatePrimitive(leftForearmPivot, "Hand_L", PrimitiveType.Sphere, new Vector3(0f, -0.50f, 0.035f), Vector3.zero, Vector3.one * 0.085f, casualSkinMaterial);
+
+        Transform rightArmPivot = CreateOrUpdatePivot(root, "ArmPivot_R", new Vector3(0.39f, 1.47f, 0.015f), new Vector3(0f, 0f, 6f));
+        Transform rightForearmPivot = CreateOrUpdatePivot(rightArmPivot, "ForearmPivot_R", new Vector3(0f, -0.48f, 0f), Vector3.zero);
+        CreateOrUpdatePrimitive(rightArmPivot, "Arm_R", PrimitiveType.Cylinder, new Vector3(0f, -0.24f, 0f), Vector3.zero, new Vector3(0.12f, 0.25f, 0.12f), casualJacketMaterial);
+        CreateOrUpdatePrimitive(rightForearmPivot, "Elbow_R", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.105f, casualJacketMaterial);
+        CreateOrUpdatePrimitive(rightForearmPivot, "Forearm_R", PrimitiveType.Cylinder, new Vector3(0f, -0.23f, 0f), Vector3.zero, new Vector3(0.105f, 0.24f, 0.105f), casualSkinMaterial);
+        CreateOrUpdatePrimitive(rightForearmPivot, "Hand_R", PrimitiveType.Sphere, new Vector3(0f, -0.50f, 0.035f), Vector3.zero, Vector3.one * 0.085f, casualSkinMaterial);
+
+        Transform leftLegPivot = CreateOrUpdatePivot(root, "LegPivot_L", new Vector3(-0.15f, 0.97f, 0f), Vector3.zero);
+        Transform leftKneePivot = CreateOrUpdatePivot(leftLegPivot, "KneePivot_L", new Vector3(0f, -0.56f, 0f), Vector3.zero);
+        CreateOrUpdatePrimitive(leftLegPivot, "Leg_L", PrimitiveType.Cylinder, new Vector3(0f, -0.28f, 0f), Vector3.zero, new Vector3(0.12f, 0.29f, 0.12f), casualPantsMaterial);
+        CreateOrUpdatePrimitive(leftKneePivot, "Knee_L", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.115f, casualPantsMaterial);
+        CreateOrUpdatePrimitive(leftKneePivot, "Shin_L", PrimitiveType.Cylinder, new Vector3(0f, -0.27f, 0f), Vector3.zero, new Vector3(0.105f, 0.28f, 0.105f), casualPantsMaterial);
+        CreateOrUpdatePrimitive(leftKneePivot, "Boot_L", PrimitiveType.Cube, new Vector3(0f, -0.58f, 0.10f), Vector3.zero, new Vector3(0.18f, 0.10f, 0.32f), casualShoeMaterial);
+
+        Transform rightLegPivot = CreateOrUpdatePivot(root, "LegPivot_R", new Vector3(0.15f, 0.97f, 0f), Vector3.zero);
+        Transform rightKneePivot = CreateOrUpdatePivot(rightLegPivot, "KneePivot_R", new Vector3(0f, -0.56f, 0f), Vector3.zero);
+        CreateOrUpdatePrimitive(rightLegPivot, "Leg_R", PrimitiveType.Cylinder, new Vector3(0f, -0.28f, 0f), Vector3.zero, new Vector3(0.12f, 0.29f, 0.12f), casualPantsMaterial);
+        CreateOrUpdatePrimitive(rightKneePivot, "Knee_R", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.115f, casualPantsMaterial);
+        CreateOrUpdatePrimitive(rightKneePivot, "Shin_R", PrimitiveType.Cylinder, new Vector3(0f, -0.27f, 0f), Vector3.zero, new Vector3(0.105f, 0.28f, 0.105f), casualPantsMaterial);
+        CreateOrUpdatePrimitive(rightKneePivot, "Boot_R", PrimitiveType.Cube, new Vector3(0f, -0.58f, 0.10f), Vector3.zero, new Vector3(0.18f, 0.10f, 0.32f), casualShoeMaterial);
     }
 
     private void EnsureCasualMaterials()
@@ -396,12 +430,30 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         t.localScale = localScale;
     }
 
+    private Transform CreateOrUpdatePivot(Transform parent, string name, Vector3 localPosition, Vector3 localEuler)
+    {
+        Transform pivot = FindDeepChild(parent, name);
+        if (pivot == null)
+        {
+            GameObject pivotObject = new GameObject(name);
+            pivot = pivotObject.transform;
+        }
+
+        pivot.SetParent(parent, false);
+        pivot.localPosition = localPosition;
+        pivot.localEulerAngles = localEuler;
+        pivot.localScale = Vector3.one;
+        return pivot;
+    }
+
     private void CreateOrUpdatePrimitive(Transform parent, string name, PrimitiveType primitive, Vector3 localPosition, Vector3 localEuler, Vector3 localScale, Material material)
     {
         Transform existing = FindDeepChild(parent, name);
+        if (existing == null && visualRoot != null)
+            existing = FindDeepChild(visualRoot, name);
         GameObject part = existing != null ? existing.gameObject : GameObject.CreatePrimitive(primitive);
         part.name = name;
-        part.transform.SetParent(parent);
+        part.transform.SetParent(parent, false);
         SetLocalTransform(part.transform, localPosition, localEuler, localScale);
 
         Renderer renderer = part.GetComponent<Renderer>();
