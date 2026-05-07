@@ -51,6 +51,7 @@ public static class MemoryRecycler3DSceneBuilder
         CreateMemories(memories, memoryMat);
         CreateArchiveTerminal(terminalMat, trimMat);
         CreateInstructionsSign();
+        ApplyPhotoReferenceSceneLook(scene);
 
         RenderSettings.fog = true;
         RenderSettings.fogColor = new Color(0.19f, 0.22f, 0.27f);
@@ -88,6 +89,16 @@ public static class MemoryRecycler3DSceneBuilder
         removed += RemoveAllSceneObjectsByName(scene, "Rust Exposed Edge");
         removed += RemoveAllSceneObjectsByName(scene, "Fresh Facade Rubble");
         removed += RemoveAllSceneObjectsByName(scene, "Broken Glass Slash");
+        removed += RemoveAllSceneObjectsByName(scene, "Ref Facade Pipe");
+        removed += RemoveAllSceneObjectsByName(scene, "Ref Neon Strip");
+        removed += RemoveAllSceneObjectsByName(scene, "Ref Wall Sign");
+        removed += RemoveAllSceneObjectsByName(scene, "Ref Recycle Mark");
+        removed += RemoveAllSceneObjectsByName(scene, "Ref Boarded Window");
+        removed += RemoveAllSceneObjectsByName(scene, "Ref Rooftop Antenna");
+        removed += RemoveAllSceneObjectsByName(scene, "Ref Wall Panel");
+        removed += RemoveAllSceneObjectsByName(scene, "Ref Hanging Cable");
+        removed += RemoveAllSceneObjectsByName(scene, "Ref Door Glow");
+        removed += RemoveAllSceneObjectsByName(scene, "Ref Distant Block");
 
         removed += RemoveAllSceneObjectsByName(scene, "Hood");
         removed += RemoveAllSceneObjectsByName(scene, "Visor");
@@ -102,6 +113,7 @@ public static class MemoryRecycler3DSceneBuilder
         removed += RemoveAllSceneObjectsByName(scene, "Recycler Small Light");
 
         ApplyAdultMaleScenePose(scene);
+        ApplyPhotoReferenceSceneLook(scene);
 
         EditorSceneManager.SaveScene(scene);
         AssetDatabase.SaveAssets();
@@ -190,6 +202,9 @@ public static class MemoryRecycler3DSceneBuilder
         Material pantsMat = CreateMaterial("MR3D_WorkPants", new Color(0.08f, 0.09f, 0.10f), false);
         Material skinMat = CreateMaterial("MR3D_Skin", new Color(0.72f, 0.58f, 0.47f), false);
         Material shoeMat = CreateMaterial("MR3D_WornShoes", new Color(0.035f, 0.032f, 0.03f), false);
+        Material hairMat = CreateMaterial("MR3D_DarkHair", new Color(0.025f, 0.024f, 0.022f), false);
+        Material bagMat = CreateMaterial("MR3D_WornBag", new Color(0.075f, 0.07f, 0.06f), false);
+        Material glowMat = CreateMaterial("MR3D_MemoryGlow", new Color(0.08f, 0.85f, 1f), true);
 
         SetScenePart(visual, "Torso", PrimitiveType.Capsule, new Vector3(0f, 1.26f, 0f), Vector3.zero, new Vector3(0.46f, 0.52f, 0.31f), shirtMat);
         SetScenePart(visual, "Coat", PrimitiveType.Cube, new Vector3(0f, 1.24f, -0.01f), Vector3.zero, new Vector3(0.60f, 0.80f, 0.38f), jacketMat);
@@ -198,6 +213,7 @@ public static class MemoryRecycler3DSceneBuilder
         SetScenePart(visual, "Neck", PrimitiveType.Cylinder, new Vector3(0f, 1.66f, 0.015f), Vector3.zero, new Vector3(0.085f, 0.11f, 0.085f), skinMat);
 
         BuildHumanoidSceneLimbRig(visual, jacketMat, skinMat, pantsMat, shoeMat);
+        BuildReferenceCharacterDetails(visual, jacketMat, skinMat, hairMat, bagMat, glowMat);
     }
 
     private static GameObject FindRoot(Scene scene, string objectName)
@@ -269,6 +285,17 @@ public static class MemoryRecycler3DSceneBuilder
         SetScenePartUnder(visual, rightKneePivot, "Boot_R", PrimitiveType.Cube, new Vector3(0f, -0.58f, 0.10f), Vector3.zero, new Vector3(0.18f, 0.10f, 0.32f), shoeMat);
     }
 
+    private static void BuildReferenceCharacterDetails(Transform visual, Material jacketMat, Material skinMat, Material hairMat, Material bagMat, Material glowMat)
+    {
+        SetScenePart(visual, "Hair Cap", PrimitiveType.Sphere, new Vector3(0f, 1.96f, -0.005f), Vector3.zero, new Vector3(0.31f, 0.17f, 0.27f), hairMat);
+        SetScenePart(visual, "Hair Fringe_L", PrimitiveType.Cube, new Vector3(-0.08f, 1.91f, 0.18f), new Vector3(0f, 0f, -18f), new Vector3(0.07f, 0.11f, 0.035f), hairMat);
+        SetScenePart(visual, "Hair Fringe_R", PrimitiveType.Cube, new Vector3(0.08f, 1.91f, 0.18f), new Vector3(0f, 0f, 18f), new Vector3(0.07f, 0.11f, 0.035f), hairMat);
+        SetScenePart(visual, "Long Coat Tail", PrimitiveType.Cube, new Vector3(0f, 0.61f, -0.04f), Vector3.zero, new Vector3(0.50f, 0.52f, 0.30f), jacketMat);
+        SetScenePart(visual, "Crossbody Strap", PrimitiveType.Cube, new Vector3(-0.08f, 1.22f, -0.20f), new Vector3(0f, 0f, -22f), new Vector3(0.065f, 0.78f, 0.045f), bagMat);
+        SetScenePart(visual, "Satchel", PrimitiveType.Cube, new Vector3(-0.23f, 0.92f, -0.30f), new Vector3(0f, 8f, -4f), new Vector3(0.30f, 0.22f, 0.16f), bagMat);
+        SetScenePart(visual, "Memory Vial", PrimitiveType.Cube, new Vector3(-0.08f, 0.86f, -0.41f), Vector3.zero, new Vector3(0.075f, 0.17f, 0.045f), glowMat);
+    }
+
     private static Transform CreateScenePivot(Transform parent, string name, Vector3 localPosition, Vector3 localEuler)
     {
         Transform pivot = FindDeepChild(parent, name);
@@ -329,6 +356,140 @@ public static class MemoryRecycler3DSceneBuilder
         }
 
         return null;
+    }
+
+    private static void ApplyPhotoReferenceSceneLook(Scene scene)
+    {
+        GameObject city = FindRoot(scene, "Silent City");
+        if (city == null)
+            return;
+
+        Material cyanMat = CreateMaterial("MR3D_RecyclerAccent", new Color(0.08f, 0.78f, 0.92f), true);
+        Material pipeMat = CreateMaterial("MR3D_BuildingTrim", new Color(0.06f, 0.07f, 0.075f), false);
+        Material darkPanelMat = CreateMaterial("MR3D_DarkPanel", new Color(0.025f, 0.032f, 0.038f), false);
+        Material boardMat = CreateMaterial("MR3D_WornBoards", new Color(0.11f, 0.095f, 0.075f), false);
+        Material buildingMat = CreateMaterial("MR3D_Building", new Color(0.11f, 0.12f, 0.125f), false);
+
+        int index = 0;
+        foreach (Transform child in city.transform)
+        {
+            if (child == null || !child.name.StartsWith("Silent Building"))
+                continue;
+
+            AddReferenceBuildingDetails(child, index, cyanMat, pipeMat, darkPanelMat, boardMat);
+            index++;
+        }
+
+        AddReferenceDistantBlocks(city.transform, buildingMat, pipeMat);
+    }
+
+    private static void AddReferenceBuildingDetails(Transform building, int index, Material cyanMat, Material pipeMat, Material darkPanelMat, Material boardMat)
+    {
+        Vector3 scale = building.localScale;
+        float frontZ = scale.z * 0.5f + 0.075f;
+        bool leftSide = building.position.x < 0f;
+
+        CreateReferenceFacadeBox(building, "Ref Wall Panel", new Vector3(0f, scale.y * 0.03f, frontZ), new Vector3(scale.x * 0.76f, scale.y * 0.46f, 0.045f), darkPanelMat, 0f);
+
+        for (int i = 0; i < 3; i++)
+        {
+            float x = -scale.x * 0.35f + i * scale.x * 0.32f + ReferenceRange(index, i + 0.2f, -0.18f, 0.18f);
+            CreateReferenceFacadeBox(building, "Ref Facade Pipe", new Vector3(x, scale.y * 0.03f, frontZ + 0.045f), new Vector3(0.055f, scale.y * ReferenceRange(index, i + 1.7f, 0.38f, 0.78f), 0.05f), pipeMat, 0f);
+        }
+
+        CreateReferenceFacadeBox(building, "Ref Neon Strip", new Vector3(leftSide ? scale.x * 0.35f : -scale.x * 0.35f, -scale.y * 0.02f, frontZ + 0.06f), new Vector3(0.07f, scale.y * 0.24f, 0.055f), cyanMat, 0f);
+        CreateReferenceFacadeBox(building, "Ref Door Glow", new Vector3(leftSide ? scale.x * 0.25f : -scale.x * 0.25f, -scale.y * 0.36f, frontZ + 0.07f), new Vector3(0.42f, 0.055f, 0.055f), cyanMat, 0f);
+
+        if (index % 2 == 0)
+        {
+            CreateReferenceText(building, "Ref Wall Sign", "MEMORY\nRECYCLER", new Vector3(-scale.x * 0.27f, scale.y * 0.15f, frontZ + 0.08f), 0.20f, cyanMat);
+            CreateReferenceText(building, "Ref Recycle Mark", "♻", new Vector3(-scale.x * 0.28f, scale.y * 0.33f, frontZ + 0.08f), 0.28f, cyanMat);
+        }
+        else
+        {
+            string signText = index % 3 == 0 ? "기억은\n자원이다" : "기억 회수소";
+            CreateReferenceText(building, "Ref Wall Sign", signText, new Vector3(scale.x * 0.18f, scale.y * 0.16f, frontZ + 0.08f), 0.18f, cyanMat);
+            CreateReferenceText(building, "Ref Recycle Mark", "♻", new Vector3(scale.x * 0.24f, scale.y * 0.31f, frontZ + 0.08f), 0.23f, cyanMat);
+        }
+
+        for (int i = 0; i < 2; i++)
+        {
+            float x = ReferenceRange(index, i + 5.4f, -scale.x * 0.26f, scale.x * 0.30f);
+            float y = ReferenceRange(index, i + 6.1f, -scale.y * 0.22f, scale.y * 0.15f);
+            CreateReferenceFacadeBox(building, "Ref Boarded Window", new Vector3(x, y, frontZ + 0.085f), new Vector3(0.58f, 0.10f, 0.055f), boardMat, ReferenceRange(index, i + 6.8f, -18f, 18f));
+            CreateReferenceFacadeBox(building, "Ref Boarded Window", new Vector3(x, y + 0.12f, frontZ + 0.09f), new Vector3(0.52f, 0.09f, 0.055f), boardMat, ReferenceRange(index, i + 7.3f, -22f, 22f));
+        }
+
+        CreateReferenceFacadeBox(building, "Ref Rooftop Antenna", new Vector3(ReferenceRange(index, 10.2f, -scale.x * 0.25f, scale.x * 0.25f), scale.y * 0.5f + 0.85f, 0f), new Vector3(0.035f, 1.15f, 0.035f), pipeMat, 0f);
+        CreateReferenceCable(building, scale, pipeMat, index);
+    }
+
+    private static void CreateReferenceFacadeBox(Transform building, string name, Vector3 worldOffset, Vector3 worldScale, Material material, float zRotation)
+    {
+        GameObject box = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        box.name = name;
+        box.transform.SetParent(building, false);
+        SetChildWorldBox(box.transform, building.localScale, worldOffset, worldScale);
+        box.transform.localRotation = Quaternion.Euler(0f, 0f, zRotation);
+        box.GetComponent<Renderer>().sharedMaterial = material;
+        Object.DestroyImmediate(box.GetComponent<Collider>());
+    }
+
+    private static void CreateReferenceText(Transform building, string name, string value, Vector3 worldOffset, float characterSize, Material material)
+    {
+        GameObject textObject = new GameObject(name);
+        textObject.transform.SetParent(building, false);
+        Vector3 parentScale = building.localScale;
+        textObject.transform.localPosition = new Vector3(worldOffset.x / parentScale.x, worldOffset.y / parentScale.y, worldOffset.z / parentScale.z);
+        textObject.transform.localRotation = Quaternion.identity;
+
+        TextMesh text = textObject.AddComponent<TextMesh>();
+        text.text = value;
+        text.fontSize = 64;
+        text.characterSize = characterSize;
+        text.anchor = TextAnchor.MiddleCenter;
+        text.alignment = TextAlignment.Center;
+        text.color = new Color(0.45f, 0.95f, 1f, 1f);
+
+        MeshRenderer renderer = textObject.GetComponent<MeshRenderer>();
+        if (renderer != null)
+            renderer.sharedMaterial = material;
+    }
+
+    private static void CreateReferenceCable(Transform building, Vector3 scale, Material material, int index)
+    {
+        float frontZ = scale.z * 0.5f + 0.1f;
+        float y = scale.y * ReferenceRange(index, 12.1f, 0.22f, 0.40f);
+        CreateReferenceFacadeBox(building, "Ref Hanging Cable", new Vector3(0f, y, frontZ), new Vector3(scale.x * 0.72f, 0.035f, 0.035f), material, ReferenceRange(index, 12.7f, -5f, 5f));
+    }
+
+    private static void AddReferenceDistantBlocks(Transform cityRoot, Material buildingMat, Material trimMat)
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            GameObject block = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            block.name = "Ref Distant Block";
+            block.transform.SetParent(cityRoot, false);
+            float x = -9f + i * 4.5f;
+            block.transform.position = new Vector3(x, 3.8f + i * 0.35f, 27f + i * 3f);
+            block.transform.localScale = new Vector3(4.4f, 7.6f + i * 0.8f, 4.2f);
+            block.GetComponent<Renderer>().sharedMaterial = buildingMat;
+            Object.DestroyImmediate(block.GetComponent<Collider>());
+
+            GameObject antenna = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            antenna.name = "Ref Rooftop Antenna";
+            antenna.transform.SetParent(block.transform, false);
+            antenna.transform.localPosition = new Vector3(0.2f, 0.56f, 0f);
+            antenna.transform.localScale = new Vector3(0.015f, 0.28f, 0.015f);
+            antenna.GetComponent<Renderer>().sharedMaterial = trimMat;
+            Object.DestroyImmediate(antenna.GetComponent<Collider>());
+        }
+    }
+
+    private static float ReferenceRange(int seed, float salt, float min, float max)
+    {
+        float n = Mathf.Repeat(Mathf.Sin(seed * 12.9898f + salt * 78.233f) * 43758.5453f, 1f);
+        return Mathf.Lerp(min, max, n);
     }
 
     private static void CreateManagers()

@@ -62,6 +62,9 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     private Material casualPantsMaterial;
     private Material casualShoeMaterial;
     private Material casualSkinMaterial;
+    private Material casualHairMaterial;
+    private Material casualBagMaterial;
+    private Material casualGlowMaterial;
 
     private readonly Dictionary<Transform, Quaternion> defaultRotations = new Dictionary<Transform, Quaternion>();
     private readonly Dictionary<Transform, Vector3> defaultLocalPositions = new Dictionary<Transform, Vector3>();
@@ -339,6 +342,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         SetRendererMaterial(FindDeepChild(root, "Head"), casualSkinMaterial);
 
         BuildHumanoidLimbRig(root);
+        BuildReferenceCharacterDetails(root);
 
         CreateOrUpdatePrimitive(root, "Neck", PrimitiveType.Cylinder, new Vector3(0f, 1.66f, 0.015f), Vector3.zero, new Vector3(0.085f, 0.11f, 0.085f), casualSkinMaterial);
     }
@@ -384,6 +388,20 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         casualPantsMaterial = CreateRuntimeMaterial("MR3D_Runtime_Work_Pants", new Color(0.08f, 0.09f, 0.10f), false);
         casualShoeMaterial = CreateRuntimeMaterial("MR3D_Runtime_Worn_Shoes", new Color(0.035f, 0.032f, 0.03f), false);
         casualSkinMaterial = CreateRuntimeMaterial("MR3D_Runtime_Skin", new Color(0.72f, 0.58f, 0.47f), false);
+        casualHairMaterial = CreateRuntimeMaterial("MR3D_Runtime_Dark_Hair", new Color(0.025f, 0.024f, 0.022f), false);
+        casualBagMaterial = CreateRuntimeMaterial("MR3D_Runtime_Worn_Bag", new Color(0.075f, 0.07f, 0.06f), false);
+        casualGlowMaterial = CreateRuntimeMaterial("MR3D_Runtime_Memory_Vial", new Color(0.08f, 0.85f, 1f), true);
+    }
+
+    private void BuildReferenceCharacterDetails(Transform root)
+    {
+        CreateOrUpdatePrimitive(root, "Hair Cap", PrimitiveType.Sphere, new Vector3(0f, 1.96f, -0.005f), Vector3.zero, new Vector3(0.31f, 0.17f, 0.27f), casualHairMaterial);
+        CreateOrUpdatePrimitive(root, "Hair Fringe_L", PrimitiveType.Cube, new Vector3(-0.08f, 1.91f, 0.18f), new Vector3(0f, 0f, -18f), new Vector3(0.07f, 0.11f, 0.035f), casualHairMaterial);
+        CreateOrUpdatePrimitive(root, "Hair Fringe_R", PrimitiveType.Cube, new Vector3(0.08f, 1.91f, 0.18f), new Vector3(0f, 0f, 18f), new Vector3(0.07f, 0.11f, 0.035f), casualHairMaterial);
+        CreateOrUpdatePrimitive(root, "Long Coat Tail", PrimitiveType.Cube, new Vector3(0f, 0.61f, -0.04f), Vector3.zero, new Vector3(0.50f, 0.52f, 0.30f), casualJacketMaterial);
+        CreateOrUpdatePrimitive(root, "Crossbody Strap", PrimitiveType.Cube, new Vector3(-0.08f, 1.22f, -0.20f), new Vector3(0f, 0f, -22f), new Vector3(0.065f, 0.78f, 0.045f), casualBagMaterial);
+        CreateOrUpdatePrimitive(root, "Satchel", PrimitiveType.Cube, new Vector3(-0.23f, 0.92f, -0.30f), new Vector3(0f, 8f, -4f), new Vector3(0.30f, 0.22f, 0.16f), casualBagMaterial);
+        CreateOrUpdatePrimitive(root, "Memory Vial", PrimitiveType.Cube, new Vector3(-0.08f, 0.86f, -0.41f), Vector3.zero, new Vector3(0.075f, 0.17f, 0.045f), casualGlowMaterial);
     }
 
     private void RemoveSpaceSuitAccessories(Transform root)
