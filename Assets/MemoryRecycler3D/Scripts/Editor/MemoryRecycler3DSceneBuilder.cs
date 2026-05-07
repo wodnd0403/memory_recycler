@@ -780,6 +780,9 @@ public static class MemoryRecycler3DSceneBuilder
         AddCinematicDepthHaze(root, mistMat);
         AddCinematicForegroundFraming(root, buildingMat, trimMat, cyanMat);
         AddCinematicPlayerSilhouette(scene, cyanMat, trimMat);
+        AddCinematicWindowDepth(city.transform, panelMat, trimMat);
+        AddCinematicRoofBreakup(city.transform, buildingMat, trimMat);
+        AddCinematicSideAlleyDepth(root, buildingMat, trimMat, cyanMat);
     }
 
     private static Transform CreateCinematicDetailRoot(Scene scene)
@@ -951,6 +954,76 @@ public static class MemoryRecycler3DSceneBuilder
         light.intensity = 0.85f;
         light.color = new Color(0.12f, 0.46f, 0.72f);
         light.shadows = LightShadows.None;
+    }
+
+    private static void AddCinematicWindowDepth(Transform cityRoot, Material panelMat, Material trimMat)
+    {
+        foreach (Transform building in cityRoot)
+        {
+            if (building == null || !building.name.StartsWith("Silent Building"))
+                continue;
+
+            Vector3 scale = building.localScale;
+            foreach (Transform child in building)
+            {
+                if (child == null || !child.name.StartsWith("Window_Front"))
+                    continue;
+
+                Vector3 local = child.localPosition;
+                Vector3 worldOffset = new Vector3(local.x * scale.x, local.y * scale.y, local.z * scale.z + 0.018f);
+                Vector3 windowWorld = new Vector3(Mathf.Abs(child.localScale.x * scale.x), Mathf.Abs(child.localScale.y * scale.y), Mathf.Abs(child.localScale.z * scale.z));
+                float width = Mathf.Max(0.42f, windowWorld.x);
+                float height = Mathf.Max(0.34f, windowWorld.y);
+
+                CreateReferenceFacadeBox(building, "Cinematic Window Recess", worldOffset + new Vector3(0f, 0f, 0.012f), new Vector3(width + 0.16f, height + 0.16f, 0.040f), panelMat, 0f);
+                CreateReferenceFacadeBox(building, "Cinematic Window Top Shadow", worldOffset + new Vector3(0f, height * 0.5f + 0.10f, 0.038f), new Vector3(width + 0.22f, 0.040f, 0.050f), trimMat, 0f);
+                CreateReferenceFacadeBox(building, "Cinematic Window Side Shadow", worldOffset + new Vector3(-width * 0.5f - 0.10f, 0f, 0.038f), new Vector3(0.040f, height + 0.18f, 0.050f), trimMat, 0f);
+                CreateReferenceFacadeBox(building, "Cinematic Window Side Shadow", worldOffset + new Vector3(width * 0.5f + 0.10f, 0f, 0.038f), new Vector3(0.040f, height + 0.18f, 0.050f), trimMat, 0f);
+            }
+        }
+    }
+
+    private static void AddCinematicRoofBreakup(Transform cityRoot, Material buildingMat, Material trimMat)
+    {
+        int index = 0;
+        foreach (Transform building in cityRoot)
+        {
+            if (building == null || !building.name.StartsWith("Silent Building"))
+                continue;
+
+            Vector3 scale = building.localScale;
+            for (int i = 0; i < 4; i++)
+            {
+                float x = ReferenceRange(index, i + 101.2f, -scale.x * 0.42f, scale.x * 0.42f);
+                float z = ReferenceRange(index, i + 102.2f, -scale.z * 0.42f, scale.z * 0.42f);
+                float width = ReferenceRange(index, i + 103.2f, 0.30f, 0.86f);
+                float height = ReferenceRange(index, i + 104.2f, 0.16f, 0.62f);
+                CreateReferenceFacadeBox(building, "Cinematic Broken Roof Lip", new Vector3(x, scale.y * 0.5f + height * 0.5f, z), new Vector3(width, height, 0.18f), buildingMat, ReferenceRange(index, i + 105.2f, -6f, 6f));
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                float x = ReferenceRange(index, i + 106.2f, -scale.x * 0.32f, scale.x * 0.32f);
+                float z = ReferenceRange(index, i + 107.2f, -scale.z * 0.32f, scale.z * 0.32f);
+                CreateReferenceFacadeBox(building, "Cinematic Rooftop Pipe Cluster", new Vector3(x, scale.y * 0.5f + 0.42f, z), new Vector3(0.055f, 0.84f, 0.055f), trimMat, 0f);
+            }
+
+            index++;
+        }
+    }
+
+    private static void AddCinematicSideAlleyDepth(Transform root, Material buildingMat, Material trimMat, Material cyanMat)
+    {
+        for (int i = 0; i < 6; i++)
+        {
+            float side = i % 2 == 0 ? -1f : 1f;
+            float z = -8f + i * 5.8f;
+            CreateCinematicWorldBox(root, "Cinematic Side Alley Wall", new Vector3(side * 7.2f, 2.1f, z), new Vector3(0.32f, 4.2f, 3.6f), buildingMat, new Vector3(0f, side * 12f, 0f));
+            CreateCinematicWorldBox(root, "Cinematic Alley Pipe", new Vector3(side * 6.9f, 2.0f, z + 0.42f), new Vector3(0.070f, 2.9f, 0.070f), trimMat, Vector3.zero);
+
+            if (i % 3 == 0)
+                CreateCinematicWorldBox(root, "Cinematic Alley Blue Pin", new Vector3(side * 6.82f, 1.45f, z - 0.75f), new Vector3(0.060f, 0.58f, 0.060f), cyanMat, Vector3.zero);
+        }
     }
 
     private static Material CreateCinematicPuddleMaterial()
