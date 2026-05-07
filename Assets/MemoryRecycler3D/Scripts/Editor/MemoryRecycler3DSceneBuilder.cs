@@ -754,6 +754,7 @@ public static class MemoryRecycler3DSceneBuilder
         Material boardMat = CreateMaterial("MR3D_WornBoards", new Color(0.095f, 0.078f, 0.060f), false);
         Material grimeMat = CreateMaterial("MR3D_CinematicGrime", new Color(0.028f, 0.034f, 0.038f), false);
         Material roadPatchMat = CreateMaterial("MR3D_CinematicRoadPatch", new Color(0.030f, 0.035f, 0.040f), false);
+        Material debrisMat = CreateMaterial("MR3D_Debris", new Color(0.12f, 0.125f, 0.120f), false);
         Material puddleMat = CreateCinematicPuddleMaterial();
         Material cyanMat = CreateMaterial("MR3D_RecyclerAccent", new Color(0.055f, 0.72f, 0.88f), true);
         ApplyCinematicMaterialTextures();
@@ -773,11 +774,13 @@ public static class MemoryRecycler3DSceneBuilder
                 renderer.sharedMaterial = buildingMat;
 
             AddCinematicBuildingDetails(child, index, grimeMat, panelMat, trimMat, boardMat, cyanMat);
+            AddCinematicConcreteDamage(child, index, debrisMat, grimeMat, trimMat);
             AddCinematicFacadeBaseWear(child, index, grimeMat, trimMat);
             index++;
         }
 
-        AddCinematicRoadDetails(root, roadPatchMat, grimeMat, boardMat);
+        AlignCinematicStreetLights(city.transform);
+        AddCinematicRoadDetails(root, roadPatchMat, debrisMat, boardMat);
         AddCinematicAvenueDepthCues(root, panelMat, trimMat, cyanMat, roadPatchMat);
         AddCinematicBackgroundDepth(root, buildingMat, trimMat);
         AddCinematicOverheadCables(root, trimMat);
@@ -853,7 +856,7 @@ public static class MemoryRecycler3DSceneBuilder
         }
     }
 
-    private static void AddCinematicRoadDetails(Transform root, Material roadPatchMat, Material grimeMat, Material boardMat)
+    private static void AddCinematicRoadDetails(Transform root, Material roadPatchMat, Material debrisMat, Material boardMat)
     {
         for (int i = 0; i < 22; i++)
         {
@@ -868,13 +871,70 @@ public static class MemoryRecycler3DSceneBuilder
             float side = i % 2 == 0 ? -1f : 1f;
             Vector3 position = new Vector3(side * ReferenceRange(i, 77.2f, 3.4f, 5.2f), 0.13f, ReferenceRange(i, 78.1f, -18f, 20f));
             Vector3 size = new Vector3(ReferenceRange(i, 79.3f, 0.25f, 0.85f), ReferenceRange(i, 80.2f, 0.08f, 0.24f), ReferenceRange(i, 81.1f, 0.35f, 1.2f));
-            CreateCinematicWorldBox(root, "Cinematic Street Rubble", position, size, grimeMat, new Vector3(0f, ReferenceRange(i, 82.5f, 0f, 180f), ReferenceRange(i, 83.4f, -10f, 10f)));
+            CreateCinematicWorldBox(root, "Cinematic Street Rubble", position, size, debrisMat, new Vector3(0f, ReferenceRange(i, 82.5f, 0f, 180f), ReferenceRange(i, 83.4f, -10f, 10f)));
         }
 
         for (int i = 0; i < 6; i++)
         {
             float side = i % 2 == 0 ? -1f : 1f;
             CreateCinematicWorldBox(root, "Cinematic Fallen Board", new Vector3(side * ReferenceRange(i, 84.4f, 4.0f, 5.8f), 0.17f, ReferenceRange(i, 85.4f, -14f, 18f)), new Vector3(0.24f, 0.10f, 1.65f), boardMat, new Vector3(ReferenceRange(i, 86.4f, -4f, 4f), ReferenceRange(i, 87.4f, -32f, 32f), ReferenceRange(i, 88.4f, -12f, 12f)));
+        }
+    }
+
+    private static void AddCinematicConcreteDamage(Transform building, int index, Material debrisMat, Material grimeMat, Material trimMat)
+    {
+        Vector3 scale = building.localScale;
+        float frontZ = scale.z * 0.5f + 0.158f;
+
+        for (int i = 0; i < 3; i++)
+        {
+            float x = ReferenceRange(index, i + 141.4f, -scale.x * 0.34f, scale.x * 0.34f);
+            float y = ReferenceRange(index, i + 142.4f, -scale.y * 0.22f, scale.y * 0.36f);
+            float width = ReferenceRange(index, i + 143.4f, 0.46f, 1.18f);
+            float height = ReferenceRange(index, i + 144.4f, 0.28f, 0.92f);
+            CreateReferenceFacadeBox(building, "Cinematic Exposed Concrete Skin", new Vector3(x, y, frontZ), new Vector3(width, height, 0.052f), debrisMat, ReferenceRange(index, i + 145.4f, -5f, 5f));
+        }
+
+        for (int i = 0; i < 2; i++)
+        {
+            float x = ReferenceRange(index, i + 151.6f, -scale.x * 0.26f, scale.x * 0.26f);
+            float y = ReferenceRange(index, i + 152.6f, -scale.y * 0.08f, scale.y * 0.30f);
+            CreateReferenceFacadeBox(building, "Cinematic Burned Concrete Scar", new Vector3(x, y, frontZ + 0.035f), new Vector3(ReferenceRange(index, i + 153.6f, 0.38f, 0.80f), ReferenceRange(index, i + 154.6f, 0.20f, 0.58f), 0.045f), grimeMat, ReferenceRange(index, i + 155.6f, -12f, 12f));
+        }
+
+        if (index % 2 == 1)
+        {
+            float rebarX = building.position.x < 0f ? scale.x * 0.24f : -scale.x * 0.24f;
+            CreateReferenceFacadeBox(building, "Cinematic Exposed Rebar", new Vector3(rebarX, scale.y * 0.08f, frontZ + 0.060f), new Vector3(0.040f, 1.10f, 0.045f), trimMat, 9f);
+            CreateReferenceFacadeBox(building, "Cinematic Exposed Rebar", new Vector3(rebarX + 0.14f, scale.y * 0.03f, frontZ + 0.062f), new Vector3(0.035f, 0.82f, 0.045f), trimMat, -7f);
+        }
+    }
+
+    private static void AlignCinematicStreetLights(Transform cityRoot)
+    {
+        List<Transform> lights = new List<Transform>();
+        foreach (Transform child in cityRoot)
+        {
+            if (child != null && child.name.StartsWith("Broken Streetlight_"))
+                lights.Add(child);
+        }
+
+        lights.Sort((a, b) => string.CompareOrdinal(a.name, b.name));
+
+        for (int i = 0; i < lights.Count; i++)
+        {
+            Transform lightRoot = lights[i];
+            float side = i % 2 == 0 ? -1f : 1f;
+            float z = -16.5f + (i / 2) * 8.0f;
+            lightRoot.localPosition = new Vector3(side * 4.65f, 0f, z);
+            lightRoot.localEulerAngles = new Vector3(0f, side > 0f ? 180f : 0f, side * ReferenceRange(i, 161.2f, -3.0f, 2.0f));
+            lightRoot.localScale = Vector3.one;
+
+            Transform lamp = FindDeepChild(lightRoot, "Streetlight Lamp");
+            if (lamp != null)
+                lamp.localScale = Vector3.one * 0.115f;
+
+            EditorUtility.SetDirty(lightRoot.gameObject);
         }
     }
 
@@ -1230,7 +1290,9 @@ public static class MemoryRecycler3DSceneBuilder
 
         for (int i = 0; i < 8; i++)
         {
-            CreateStreetLight(cityRoot.transform, i, new Vector3(-3.5f + i, 0f, -14f + i * 4f), trimMat, accentMat);
+            float side = i % 2 == 0 ? -1f : 1f;
+            float z = -16.5f + (i / 2) * 8.0f;
+            CreateStreetLight(cityRoot.transform, i, new Vector3(side * 4.65f, 0f, z), trimMat, accentMat);
         }
     }
 
@@ -1333,18 +1395,21 @@ public static class MemoryRecycler3DSceneBuilder
         root.transform.position = position;
 
         GameObject pole = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        pole.name = "Streetlight Pole";
         pole.transform.SetParent(root.transform);
         pole.transform.localPosition = new Vector3(0f, 1.6f, 0f);
         pole.transform.localScale = new Vector3(0.08f, 1.6f, 0.08f);
         pole.GetComponent<Renderer>().sharedMaterial = poleMat;
 
         GameObject arm = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        arm.name = "Streetlight Arm";
         arm.transform.SetParent(root.transform);
         arm.transform.localPosition = new Vector3(0.28f, 3.05f, 0f);
         arm.transform.localScale = new Vector3(0.55f, 0.06f, 0.06f);
         arm.GetComponent<Renderer>().sharedMaterial = poleMat;
 
         GameObject lamp = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        lamp.name = "Streetlight Lamp";
         lamp.transform.SetParent(root.transform);
         lamp.transform.localPosition = new Vector3(0.55f, 2.9f, 0f);
         lamp.transform.localScale = Vector3.one * 0.16f;
@@ -1355,6 +1420,9 @@ public static class MemoryRecycler3DSceneBuilder
         light.range = 7f;
         light.intensity = 0.9f;
         light.color = new Color(0.22f, 0.72f, 1f);
+
+        float side = position.x > 0f ? 1f : -1f;
+        root.transform.localEulerAngles = new Vector3(0f, side > 0f ? 180f : 0f, side * ReferenceRange(index, 161.2f, -3.0f, 2.0f));
     }
 
     private static GameObject CreatePlayer(Material suitMat, Material coatMat, Material skinMat, Material accentMat)
@@ -1598,7 +1666,8 @@ public static class MemoryRecycler3DSceneBuilder
         Road,
         Window,
         SignPanel,
-        Grime
+        Grime,
+        Debris
     }
 
     private static void EnsureCinematicTextureAssets()
@@ -1611,12 +1680,15 @@ public static class MemoryRecycler3DSceneBuilder
         CreateProceduralTexture("MR3D_CinematicWindowDust", CinematicTextureKind.Window, 512);
         CreateProceduralTexture("MR3D_CinematicSignPanel", CinematicTextureKind.SignPanel, 512);
         CreateProceduralTexture("MR3D_CinematicGrime", CinematicTextureKind.Grime, 512);
+        CreateProceduralTexture("MR3D_CinematicBrokenConcrete", CinematicTextureKind.Debris, 512);
         AssetDatabase.Refresh();
     }
 
     private static void ApplyCinematicMaterialTextures()
     {
-        AssignMaterialTexture(CreateMaterial("MR3D_Building", new Color(0.075f, 0.086f, 0.092f), false), "MR3D_CinematicConcrete", new Vector2(1.6f, 1.6f), 0.025f);
+        AssignMaterialTexture(CreateMaterial("MR3D_Building", new Color(0.062f, 0.071f, 0.076f), false), "MR3D_CinematicConcrete", new Vector2(2.25f, 2.25f), 0.018f);
+        AssignMaterialTexture(CreateMaterial("MR3D_BuildingTrim", new Color(0.030f, 0.034f, 0.036f), false), "MR3D_CinematicGrime", new Vector2(1.4f, 1.4f), 0.018f);
+        AssignMaterialTexture(CreateMaterial("MR3D_Debris", new Color(0.12f, 0.125f, 0.120f), false), "MR3D_CinematicBrokenConcrete", new Vector2(1.35f, 1.35f), 0.015f);
         AssignMaterialTexture(CreateMaterial("MR3D_Road", new Color(0.045f, 0.050f, 0.055f), false), "MR3D_CinematicRoad", new Vector2(2.0f, 7.0f), 0.018f);
         AssignMaterialTexture(CreateMaterial("MR3D_Window", new Color(0.018f, 0.030f, 0.038f), false), "MR3D_CinematicWindowDust", new Vector2(1.0f, 1.0f), 0.18f);
         AssignMaterialTexture(CreateMaterial("MR3D_DarkPanel", new Color(0.017f, 0.023f, 0.030f), false), "MR3D_CinematicSignPanel", new Vector2(1.0f, 1.0f), 0.055f);
@@ -1697,6 +1769,8 @@ public static class MemoryRecycler3DSceneBuilder
                 return EvaluateSignPanelTexture(u, v);
             case CinematicTextureKind.Grime:
                 return EvaluateGrimeTexture(u, v);
+            case CinematicTextureKind.Debris:
+                return EvaluateDebrisTexture(u, v);
             default:
                 return EvaluateConcreteTexture(u, v);
         }
@@ -1704,14 +1778,18 @@ public static class MemoryRecycler3DSceneBuilder
 
     private static Color EvaluateConcreteTexture(float u, float v)
     {
-        float grain = FractalNoise(u * 7.5f, v * 9.5f, 11f);
-        float pores = FractalNoise(u * 34f, v * 40f, 17f) * 0.22f;
-        float seam = Mathf.Max(StepLine(Mathf.Repeat(u * 2.0f, 1f), 0.012f), StepLine(Mathf.Repeat(v * 3.0f, 1f), 0.010f));
+        float grain = FractalNoise(u * 9.5f, v * 11.5f, 11f);
+        float pores = FractalNoise(u * 38f, v * 44f, 17f) * 0.24f;
+        float slabX = StepLine(Mathf.Repeat(u * 2.0f + SmoothNoise(v * 2.0f, 0f, 18f) * 0.035f, 1f), 0.010f);
+        float slabY = StepLine(Mathf.Repeat(v * 3.0f + SmoothNoise(0f, u * 2.0f, 19f) * 0.025f, 1f), 0.009f);
+        float seam = Mathf.Max(slabX, slabY);
         float crackA = 1f - Mathf.Clamp01(Mathf.Abs(u - (0.27f + Mathf.Sin(v * 16f) * 0.018f)) * 180f);
         float crackB = 1f - Mathf.Clamp01(Mathf.Abs(u - (0.70f + Mathf.Sin(v * 22f + 2.2f) * 0.014f)) * 220f);
-        float rain = Mathf.Pow(SmoothNoise(u * 18f, v * 5f, 23f), 2.7f) * Mathf.Lerp(0.28f, 0.04f, v);
-        float tone = 0.10f + grain * 0.105f + pores - seam * 0.06f - Mathf.Max(crackA, crackB) * 0.10f - rain * 0.12f;
-        return new Color(tone * 0.78f, tone * 0.88f, tone, 1f);
+        float spall = Mathf.Pow(FractalNoise(u * 5.5f, v * 7.0f, 21f), 4.2f);
+        float rain = Mathf.Pow(SmoothNoise(u * 20f, v * 5f, 23f), 2.7f) * Mathf.Lerp(0.34f, 0.04f, v);
+        float tone = 0.078f + grain * 0.105f + pores - seam * 0.075f - Mathf.Max(crackA, crackB) * 0.12f - rain * 0.13f + spall * 0.050f;
+        float cold = Mathf.Clamp01(tone);
+        return new Color(cold * 0.72f, cold * 0.84f, cold * 0.92f, 1f);
     }
 
     private static Color EvaluateRoadTexture(float u, float v)
@@ -1749,6 +1827,19 @@ public static class MemoryRecycler3DSceneBuilder
         float drip = Mathf.Pow(SmoothNoise(u * 18f, v * 2f, 71f), 2.4f) * Mathf.Lerp(0.85f, 0.15f, v);
         float tone = 0.018f + soot * 0.065f + drip * 0.080f;
         return new Color(tone * 0.75f, tone * 0.84f, tone, 1f);
+    }
+
+    private static Color EvaluateDebrisTexture(float u, float v)
+    {
+        float aggregate = FractalNoise(u * 42f, v * 42f, 83f);
+        float chipped = Mathf.Pow(FractalNoise(u * 8f, v * 10f, 89f), 2.6f);
+        float edgeCrackA = 1f - Mathf.Clamp01(Mathf.Abs((u + Mathf.Sin(v * 18f) * 0.025f) - 0.42f) * 90f);
+        float edgeCrackB = 1f - Mathf.Clamp01(Mathf.Abs((v + Mathf.Sin(u * 15f + 1.2f) * 0.020f) - 0.62f) * 105f);
+        float exposedStone = Mathf.Pow(SmoothNoise(u * 55f, v * 55f, 97f), 5.0f);
+        float dust = Mathf.Pow(1f - v, 1.7f) * 0.045f;
+        float tone = 0.088f + aggregate * 0.095f + chipped * 0.055f + exposedStone * 0.09f - Mathf.Max(edgeCrackA, edgeCrackB) * 0.12f + dust;
+        tone = Mathf.Clamp01(tone);
+        return new Color(tone * 0.82f, tone * 0.86f, tone * 0.84f, 1f);
     }
 
     private static float StepLine(float value, float width)
