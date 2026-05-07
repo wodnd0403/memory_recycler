@@ -774,6 +774,7 @@ public static class MemoryRecycler3DSceneBuilder
                 renderer.sharedMaterial = buildingMat;
 
             AddCinematicBuildingDetails(child, index, grimeMat, panelMat, trimMat, boardMat, cyanMat);
+            AddCinematicFacadeStructure(child, index, panelMat, trimMat, debrisMat, grimeMat);
             AddCinematicConcreteDamage(child, index, debrisMat, grimeMat, trimMat);
             AddCinematicFacadeBaseWear(child, index, grimeMat, trimMat);
             index++;
@@ -872,12 +873,57 @@ public static class MemoryRecycler3DSceneBuilder
             Vector3 position = new Vector3(side * ReferenceRange(i, 77.2f, 3.4f, 5.2f), 0.13f, ReferenceRange(i, 78.1f, -18f, 20f));
             Vector3 size = new Vector3(ReferenceRange(i, 79.3f, 0.25f, 0.85f), ReferenceRange(i, 80.2f, 0.08f, 0.24f), ReferenceRange(i, 81.1f, 0.35f, 1.2f));
             CreateCinematicWorldBox(root, "Cinematic Street Rubble", position, size, debrisMat, new Vector3(0f, ReferenceRange(i, 82.5f, 0f, 180f), ReferenceRange(i, 83.4f, -10f, 10f)));
+
+            if (i % 2 == 0)
+                AddCinematicRubbleCluster(root, position + new Vector3(-side * 0.18f, 0.025f, 0.12f), i, debrisMat);
         }
 
         for (int i = 0; i < 6; i++)
         {
             float side = i % 2 == 0 ? -1f : 1f;
             CreateCinematicWorldBox(root, "Cinematic Fallen Board", new Vector3(side * ReferenceRange(i, 84.4f, 4.0f, 5.8f), 0.17f, ReferenceRange(i, 85.4f, -14f, 18f)), new Vector3(0.24f, 0.10f, 1.65f), boardMat, new Vector3(ReferenceRange(i, 86.4f, -4f, 4f), ReferenceRange(i, 87.4f, -32f, 32f), ReferenceRange(i, 88.4f, -12f, 12f)));
+        }
+    }
+
+    private static void AddCinematicFacadeStructure(Transform building, int index, Material panelMat, Material trimMat, Material debrisMat, Material grimeMat)
+    {
+        Vector3 scale = building.localScale;
+        float frontZ = scale.z * 0.5f + 0.145f;
+        float doorX = building.position.x < 0f ? scale.x * 0.24f : -scale.x * 0.24f;
+        float doorY = -scale.y * 0.34f;
+
+        CreateReferenceFacadeBox(building, "Cinematic Door Recess", new Vector3(doorX, doorY, frontZ), new Vector3(0.72f, 1.18f, 0.070f), panelMat, 0f);
+        CreateReferenceFacadeBox(building, "Cinematic Door Header", new Vector3(doorX, doorY + 0.64f, frontZ + 0.045f), new Vector3(0.86f, 0.085f, 0.080f), trimMat, 0f);
+        CreateReferenceFacadeBox(building, "Cinematic Door Side Frame", new Vector3(doorX - 0.42f, doorY, frontZ + 0.045f), new Vector3(0.065f, 1.18f, 0.075f), trimMat, 0f);
+        CreateReferenceFacadeBox(building, "Cinematic Door Side Frame", new Vector3(doorX + 0.42f, doorY, frontZ + 0.045f), new Vector3(0.065f, 1.18f, 0.075f), trimMat, 0f);
+
+        for (int i = 0; i < 4; i++)
+        {
+            float y = -scale.y * 0.32f + i * (scale.y * 0.18f);
+            CreateReferenceFacadeBox(building, "Cinematic Panel Seam", new Vector3(0f, y, frontZ + 0.020f), new Vector3(scale.x * 0.78f, 0.025f, 0.035f), grimeMat, ReferenceRange(index, i + 171.4f, -1.5f, 1.5f));
+        }
+
+        for (int i = 0; i < 3; i++)
+        {
+            float x = -scale.x * 0.30f + i * (scale.x * 0.30f);
+            CreateReferenceFacadeBox(building, "Cinematic Vertical Panel Seam", new Vector3(x, scale.y * 0.03f, frontZ + 0.022f), new Vector3(0.024f, scale.y * 0.48f, 0.035f), grimeMat, ReferenceRange(index, i + 174.4f, -1.0f, 1.0f));
+        }
+
+        if (index % 2 == 0)
+        {
+            CreateReferenceFacadeBox(building, "Cinematic Collapsed Lintel", new Vector3(-doorX * 0.55f, -scale.y * 0.42f, frontZ + 0.060f), new Vector3(0.78f, 0.16f, 0.090f), debrisMat, ReferenceRange(index, 181.4f, -10f, 10f));
+            CreateReferenceFacadeBox(building, "Cinematic Wall Chunk", new Vector3(-doorX * 0.70f, -scale.y * 0.50f + 0.18f, frontZ + 0.075f), new Vector3(0.30f, 0.22f, 0.120f), debrisMat, ReferenceRange(index, 182.4f, -18f, 18f));
+        }
+    }
+
+    private static void AddCinematicRubbleCluster(Transform root, Vector3 center, int index, Material debrisMat)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            float x = center.x + ReferenceRange(index, i + 191.1f, -0.34f, 0.34f);
+            float z = center.z + ReferenceRange(index, i + 192.1f, -0.38f, 0.38f);
+            Vector3 size = new Vector3(ReferenceRange(index, i + 193.1f, 0.10f, 0.34f), ReferenceRange(index, i + 194.1f, 0.045f, 0.12f), ReferenceRange(index, i + 195.1f, 0.12f, 0.42f));
+            CreateCinematicWorldBox(root, "Cinematic Concrete Fragment", new Vector3(x, 0.075f + size.y * 0.5f, z), size, debrisMat, new Vector3(ReferenceRange(index, i + 196.1f, -8f, 8f), ReferenceRange(index, i + 197.1f, 0f, 180f), ReferenceRange(index, i + 198.1f, -12f, 12f)));
         }
     }
 
