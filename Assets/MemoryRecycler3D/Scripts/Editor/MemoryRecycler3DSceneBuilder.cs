@@ -750,6 +750,8 @@ public static class MemoryRecycler3DSceneBuilder
         Material boardMat = CreateMaterial("MR3D_WornBoards", new Color(0.095f, 0.078f, 0.060f), false);
         Material grimeMat = CreateMaterial("MR3D_CinematicGrime", new Color(0.028f, 0.034f, 0.038f), false);
         Material roadPatchMat = CreateMaterial("MR3D_CinematicRoadPatch", new Color(0.030f, 0.035f, 0.040f), false);
+        Material puddleMat = CreateCinematicPuddleMaterial();
+        Material mistMat = CreateCinematicTransparentMaterial("MR3D_CinematicMist", new Color(0.16f, 0.28f, 0.42f, 0.16f), 0.12f);
         Material cyanMat = CreateMaterial("MR3D_RecyclerAccent", new Color(0.055f, 0.72f, 0.88f), true);
         ApplyCinematicMaterialTextures();
 
@@ -774,6 +776,10 @@ public static class MemoryRecycler3DSceneBuilder
         AddCinematicRoadDetails(root, roadPatchMat, grimeMat, boardMat);
         AddCinematicBackgroundDepth(root, buildingMat, trimMat);
         AddCinematicOverheadCables(root, trimMat);
+        AddCinematicWetHighlights(root, puddleMat, cyanMat);
+        AddCinematicDepthHaze(root, mistMat);
+        AddCinematicForegroundFraming(root, buildingMat, trimMat, cyanMat);
+        AddCinematicPlayerSilhouette(scene, cyanMat, trimMat);
     }
 
     private static Transform CreateCinematicDetailRoot(Scene scene)
@@ -885,6 +891,102 @@ public static class MemoryRecycler3DSceneBuilder
             float y = 4.6f + (i % 3) * 0.34f;
             CreateCinematicWorldBox(root, "Cinematic Overhead Cable", new Vector3(0f, y, z), new Vector3(15.5f, 0.032f, 0.032f), trimMat, new Vector3(0f, ReferenceRange(i, 91.4f, -4f, 4f), ReferenceRange(i, 92.4f, -3f, 3f)));
         }
+    }
+
+    private static void AddCinematicWetHighlights(Transform root, Material puddleMat, Material cyanMat)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            float z = -16f + i * 3.7f + ReferenceRange(i, 94.5f, -0.7f, 0.7f);
+            float x = ReferenceRange(i, 95.5f, -2.2f, 2.2f);
+            Vector3 size = new Vector3(ReferenceRange(i, 96.5f, 0.55f, 1.8f), 0.012f, ReferenceRange(i, 97.5f, 0.18f, 0.62f));
+            CreateCinematicWorldBox(root, "Cinematic Wet Puddle", new Vector3(x, 0.083f, z), size, puddleMat, new Vector3(0f, ReferenceRange(i, 98.5f, -14f, 14f), 0f));
+
+            if (i % 3 == 0)
+            {
+                CreateCinematicWorldBox(root, "Cinematic Neon Reflection", new Vector3(x + 0.12f, 0.091f, z), new Vector3(size.x * 0.45f, 0.010f, 0.035f), cyanMat, new Vector3(0f, ReferenceRange(i, 99.5f, -10f, 10f), 0f));
+            }
+        }
+    }
+
+    private static void AddCinematicDepthHaze(Transform root, Material mistMat)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            float z = 5f + i * 8f;
+            float y = 1.55f + i * 0.45f;
+            CreateCinematicWorldBox(root, "Cinematic Distant Haze", new Vector3(0f, y, z), new Vector3(17.5f + i * 2.5f, 3.1f + i * 0.65f, 0.025f), mistMat, Vector3.zero);
+        }
+    }
+
+    private static void AddCinematicForegroundFraming(Transform root, Material buildingMat, Material trimMat, Material cyanMat)
+    {
+        CreateCinematicWorldBox(root, "Cinematic Foreground Wall_L", new Vector3(-13.4f, 3.4f, -13.5f), new Vector3(3.0f, 6.8f, 5.8f), buildingMat, new Vector3(0f, 4f, 0f));
+        CreateCinematicWorldBox(root, "Cinematic Foreground Wall_R", new Vector3(13.6f, 4.1f, -12.2f), new Vector3(3.3f, 8.2f, 5.2f), buildingMat, new Vector3(0f, -5f, 0f));
+        CreateCinematicWorldBox(root, "Cinematic Foreground Pipe_L", new Vector3(-11.75f, 2.3f, -10.7f), new Vector3(0.10f, 3.7f, 0.10f), trimMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Foreground Pipe_R", new Vector3(11.85f, 2.6f, -9.9f), new Vector3(0.10f, 4.1f, 0.10f), trimMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Foreground Neon", new Vector3(-11.68f, 2.1f, -7.85f), new Vector3(0.065f, 1.15f, 0.065f), cyanMat, Vector3.zero);
+    }
+
+    private static void AddCinematicPlayerSilhouette(Scene scene, Material cyanMat, Material trimMat)
+    {
+        GameObject player = FindRoot(scene, "Player_Recycler");
+        if (player == null)
+            return;
+
+        Transform visual = FindDeepChild(player.transform, "RecyclerVisual");
+        if (visual != null)
+        {
+            SetScenePart(visual, "Cinematic Backpack Light", PrimitiveType.Cube, new Vector3(-0.08f, 0.81f, -0.505f), Vector3.zero, new Vector3(0.070f, 0.24f, 0.040f), cyanMat);
+            SetScenePart(visual, "Cinematic Coat Shoulder Line_L", PrimitiveType.Cube, new Vector3(-0.31f, 1.50f, -0.17f), new Vector3(0f, 0f, -12f), new Vector3(0.18f, 0.030f, 0.035f), trimMat);
+            SetScenePart(visual, "Cinematic Coat Shoulder Line_R", PrimitiveType.Cube, new Vector3(0.31f, 1.50f, -0.17f), new Vector3(0f, 0f, 12f), new Vector3(0.18f, 0.030f, 0.035f), trimMat);
+        }
+
+        GameObject rimLight = new GameObject("Cinematic Player Rim Light");
+        rimLight.transform.SetParent(player.transform, false);
+        rimLight.transform.localPosition = new Vector3(0f, 1.35f, -1.15f);
+        Light light = rimLight.AddComponent<Light>();
+        light.type = LightType.Point;
+        light.range = 3.2f;
+        light.intensity = 0.85f;
+        light.color = new Color(0.12f, 0.46f, 0.72f);
+        light.shadows = LightShadows.None;
+    }
+
+    private static Material CreateCinematicPuddleMaterial()
+    {
+        Material material = CreateMaterial("MR3D_CinematicPuddle", new Color(0.012f, 0.020f, 0.030f), false);
+        if (material.HasProperty("_Smoothness"))
+            material.SetFloat("_Smoothness", 0.78f);
+        if (material.HasProperty("_Metallic"))
+            material.SetFloat("_Metallic", 0.0f);
+
+        EditorUtility.SetDirty(material);
+        return material;
+    }
+
+    private static Material CreateCinematicTransparentMaterial(string name, Color color, float smoothness)
+    {
+        Material material = CreateMaterial(name, color, false);
+        if (material.HasProperty("_BaseColor"))
+            material.SetColor("_BaseColor", color);
+        if (material.HasProperty("_Color"))
+            material.SetColor("_Color", color);
+        if (material.HasProperty("_Smoothness"))
+            material.SetFloat("_Smoothness", smoothness);
+        if (material.HasProperty("_Surface"))
+            material.SetFloat("_Surface", 1f);
+        if (material.HasProperty("_SrcBlend"))
+            material.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        if (material.HasProperty("_DstBlend"))
+            material.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        if (material.HasProperty("_ZWrite"))
+            material.SetFloat("_ZWrite", 0f);
+
+        material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+        EditorUtility.SetDirty(material);
+        return material;
     }
 
     private static GameObject CreateCinematicWorldBox(Transform parent, string name, Vector3 position, Vector3 scale, Material material, Vector3 euler, bool local = false)
