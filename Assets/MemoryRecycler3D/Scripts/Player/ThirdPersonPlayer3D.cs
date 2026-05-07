@@ -418,6 +418,10 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         CreateOrUpdatePrimitive(root, "Cinematic Backpack Light", PrimitiveType.Cube, new Vector3(-0.08f, 0.81f, -0.505f), Vector3.zero, new Vector3(0.070f, 0.24f, 0.040f), casualGlowMaterial);
         CreateOrUpdatePrimitive(root, "Cinematic Coat Shoulder Line_L", PrimitiveType.Cube, new Vector3(-0.31f, 1.50f, -0.17f), new Vector3(0f, 0f, -12f), new Vector3(0.18f, 0.030f, 0.035f), casualBagMaterial);
         CreateOrUpdatePrimitive(root, "Cinematic Coat Shoulder Line_R", PrimitiveType.Cube, new Vector3(0.31f, 1.50f, -0.17f), new Vector3(0f, 0f, 12f), new Vector3(0.18f, 0.030f, 0.035f), casualBagMaterial);
+        CreateOrUpdatePrimitive(root, "Coat Back Fold_L", PrimitiveType.Cube, new Vector3(-0.15f, 1.10f, -0.252f), new Vector3(0f, 0f, -4f), new Vector3(0.024f, 0.60f, 0.035f), casualBagMaterial);
+        CreateOrUpdatePrimitive(root, "Coat Back Fold_R", PrimitiveType.Cube, new Vector3(0.15f, 1.10f, -0.252f), new Vector3(0f, 0f, 4f), new Vector3(0.024f, 0.60f, 0.035f), casualBagMaterial);
+        CreateOrUpdatePrimitive(root, "Satchel Flap", PrimitiveType.Cube, new Vector3(-0.25f, 0.95f, -0.435f), new Vector3(0f, 8f, -4f), new Vector3(0.30f, 0.065f, 0.035f), casualBagMaterial);
+        CreateOrUpdatePrimitive(root, "Satchel Buckle", PrimitiveType.Cube, new Vector3(-0.25f, 0.88f, -0.535f), Vector3.zero, new Vector3(0.060f, 0.050f, 0.030f), casualGlowMaterial);
     }
 
     private void RemoveSpaceSuitAccessories(Transform root)

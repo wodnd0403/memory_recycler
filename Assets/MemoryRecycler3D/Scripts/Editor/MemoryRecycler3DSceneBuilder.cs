@@ -379,6 +379,10 @@ public static class MemoryRecycler3DSceneBuilder
         SetScenePart(visual, "Crossbody Strap", PrimitiveType.Cube, new Vector3(-0.08f, 1.22f, -0.20f), new Vector3(0f, 0f, -22f), new Vector3(0.065f, 0.78f, 0.045f), bagMat);
         SetScenePart(visual, "Satchel", PrimitiveType.Cube, new Vector3(-0.25f, 0.88f, -0.33f), new Vector3(0f, 8f, -4f), new Vector3(0.34f, 0.25f, 0.18f), bagMat);
         SetScenePart(visual, "Memory Vial", PrimitiveType.Cube, new Vector3(-0.08f, 0.82f, -0.45f), Vector3.zero, new Vector3(0.085f, 0.20f, 0.050f), glowMat);
+        SetScenePart(visual, "Coat Back Fold_L", PrimitiveType.Cube, new Vector3(-0.15f, 1.10f, -0.252f), new Vector3(0f, 0f, -4f), new Vector3(0.024f, 0.60f, 0.035f), bagMat);
+        SetScenePart(visual, "Coat Back Fold_R", PrimitiveType.Cube, new Vector3(0.15f, 1.10f, -0.252f), new Vector3(0f, 0f, 4f), new Vector3(0.024f, 0.60f, 0.035f), bagMat);
+        SetScenePart(visual, "Satchel Flap", PrimitiveType.Cube, new Vector3(-0.25f, 0.95f, -0.435f), new Vector3(0f, 8f, -4f), new Vector3(0.30f, 0.065f, 0.035f), bagMat);
+        SetScenePart(visual, "Satchel Buckle", PrimitiveType.Cube, new Vector3(-0.25f, 0.88f, -0.535f), Vector3.zero, new Vector3(0.060f, 0.050f, 0.030f), glowMat);
     }
 
     private static Transform CreateScenePivot(Transform parent, string name, Vector3 localPosition, Vector3 localEuler)
@@ -752,6 +756,7 @@ public static class MemoryRecycler3DSceneBuilder
         Material roadPatchMat = CreateMaterial("MR3D_CinematicRoadPatch", new Color(0.030f, 0.035f, 0.040f), false);
         Material puddleMat = CreateCinematicPuddleMaterial();
         Material mistMat = CreateCinematicTransparentMaterial("MR3D_CinematicMist", new Color(0.16f, 0.28f, 0.42f, 0.16f), 0.12f);
+        Material shadowMat = CreateCinematicTransparentMaterial("MR3D_CinematicShadowLayer", new Color(0.005f, 0.008f, 0.012f, 0.44f), 0.02f);
         Material cyanMat = CreateMaterial("MR3D_RecyclerAccent", new Color(0.055f, 0.72f, 0.88f), true);
         ApplyCinematicMaterialTextures();
 
@@ -770,10 +775,12 @@ public static class MemoryRecycler3DSceneBuilder
                 renderer.sharedMaterial = buildingMat;
 
             AddCinematicBuildingDetails(child, index, grimeMat, panelMat, trimMat, boardMat, cyanMat);
+            AddCinematicFacadeBaseWear(child, index, grimeMat, shadowMat, trimMat);
             index++;
         }
 
         AddCinematicRoadDetails(root, roadPatchMat, grimeMat, boardMat);
+        AddCinematicAvenueDepthCues(root, panelMat, trimMat, cyanMat, shadowMat, mistMat);
         AddCinematicBackgroundDepth(root, buildingMat, trimMat);
         AddCinematicOverheadCables(root, trimMat);
         AddCinematicWetHighlights(root, puddleMat, cyanMat);
@@ -871,6 +878,50 @@ public static class MemoryRecycler3DSceneBuilder
         {
             float side = i % 2 == 0 ? -1f : 1f;
             CreateCinematicWorldBox(root, "Cinematic Fallen Board", new Vector3(side * ReferenceRange(i, 84.4f, 4.0f, 5.8f), 0.17f, ReferenceRange(i, 85.4f, -14f, 18f)), new Vector3(0.24f, 0.10f, 1.65f), boardMat, new Vector3(ReferenceRange(i, 86.4f, -4f, 4f), ReferenceRange(i, 87.4f, -32f, 32f), ReferenceRange(i, 88.4f, -12f, 12f)));
+        }
+    }
+
+    private static void AddCinematicFacadeBaseWear(Transform building, int index, Material grimeMat, Material shadowMat, Material trimMat)
+    {
+        Vector3 scale = building.localScale;
+        float frontZ = scale.z * 0.5f + 0.132f;
+
+        CreateReferenceFacadeBox(building, "Cinematic Base Soot Band", new Vector3(0f, -scale.y * 0.42f, frontZ), new Vector3(scale.x * 0.86f, 0.26f, 0.040f), shadowMat, 0f);
+
+        for (int i = 0; i < 3; i++)
+        {
+            float x = ReferenceRange(index, i + 121.3f, -scale.x * 0.34f, scale.x * 0.34f);
+            float y = ReferenceRange(index, i + 122.3f, -scale.y * 0.38f, -scale.y * 0.20f);
+            float height = ReferenceRange(index, i + 123.3f, 0.32f, 0.86f);
+            CreateReferenceFacadeBox(building, "Cinematic Rain Streak", new Vector3(x, y, frontZ + 0.028f), new Vector3(0.032f, height, 0.040f), grimeMat, ReferenceRange(index, i + 124.3f, -8f, 8f));
+        }
+
+        if (index % 3 == 0)
+        {
+            float pipeX = building.position.x < 0f ? scale.x * 0.40f : -scale.x * 0.40f;
+            CreateReferenceFacadeBox(building, "Cinematic Facade Downpipe", new Vector3(pipeX, -scale.y * 0.05f, frontZ + 0.055f), new Vector3(0.070f, scale.y * 0.72f, 0.065f), trimMat, 0f);
+        }
+    }
+
+    private static void AddCinematicAvenueDepthCues(Transform root, Material panelMat, Material trimMat, Material cyanMat, Material shadowMat, Material mistMat)
+    {
+        for (int i = 0; i < 9; i++)
+        {
+            float z = -17f + i * 4.2f;
+            float width = Mathf.Lerp(5.4f, 2.2f, i / 8f);
+            CreateCinematicWorldBox(root, "Cinematic Street Cross Shadow", new Vector3(0f, 0.102f, z + 0.55f), new Vector3(width, 0.012f, 0.42f), shadowMat, new Vector3(0f, ReferenceRange(i, 131.2f, -5f, 5f), 0f));
+        }
+
+        CreateCinematicWorldBox(root, "Cinematic Distant Memory Gate", new Vector3(0f, 1.55f, 24.5f), new Vector3(0.86f, 2.35f, 0.12f), cyanMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Distant Gate Core", new Vector3(0f, 1.55f, 24.42f), new Vector3(0.48f, 1.70f, 0.08f), panelMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Distant Gate Cap", new Vector3(0f, 2.80f, 24.38f), new Vector3(1.05f, 0.08f, 0.16f), trimMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Gate Haze", new Vector3(0f, 1.65f, 24.1f), new Vector3(3.0f, 2.8f, 0.025f), mistMat, Vector3.zero);
+
+        for (int i = 0; i < 4; i++)
+        {
+            float side = i % 2 == 0 ? -1f : 1f;
+            float z = 6f + i * 5.5f;
+            CreateCinematicWorldBox(root, "Cinematic Tiny Signal", new Vector3(side * 4.85f, 1.15f, z), new Vector3(0.050f, 0.38f, 0.050f), cyanMat, Vector3.zero);
         }
     }
 
