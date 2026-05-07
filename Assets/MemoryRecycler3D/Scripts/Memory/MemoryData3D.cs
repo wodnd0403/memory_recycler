@@ -1,0 +1,19 @@
+using UnityEngine;
+
+[CreateAssetMenu(fileName = "MemoryData3D", menuName = "Memory Recycler 3D/Memory Data")]
+public class MemoryData3D : ScriptableObject
+{
+    [Header("Basic")]
+    public string id;
+    public string memoryTitle;
+    [TextArea(3, 8)] public string description;
+    public EmotionType3D emotion = EmotionType3D.Loss;
+    [Range(0, 100)] public int corruptionLevel = 30;
+
+    [Header("Puzzle")]
+    [TextArea(1, 3)] public string[] sentencePieces;
+    [TextArea(1, 3)] public string[] correctOrder;
+
+    [Header("Recovered Text")]
+    [TextArea(3, 8)] public string restoredText;
+}

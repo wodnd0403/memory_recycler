@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f56a2d34c017caa488381d6fdaf8999f, type: 3}
+  m_Name: MR3D_001
+  m_EditorClassIdentifier: Assembly-CSharp::MemoryData3D
+  id: MR3D_001
+  memoryTitle: "\uC2DD\uD0C1 \uC544\uB798\uC758 \uC6C3\uC74C"
+  description: "\uC544\uD30C\uD2B8 \uD3D0\uD5C8\uC758 \uC2DD\uD0C1 \uC544\uB798\uC5D0\uC11C
+    \uBC1C\uACAC\uB41C \uAC00\uC871\uC758 \uAE30\uC5B5\uC785\uB2C8\uB2E4. \uC6C3\uC74C\uC18C\uB9AC\uB294
+    \uC120\uBA85\uD558\uC9C0\uB9CC \uC5BC\uAD74\uC740 \uD750\uB824\uC838 \uC788\uC2B5\uB2C8\uB2E4."
+  emotion: 0
+  corruptionLevel: 22
+  sentencePieces:
+  - "\uC544\uBC84\uC9C0\uB294 \uC811\uC2DC\uB97C \uB193\uCCE4\uB2E4"
+  - "\uC544\uC774\uB294 \uCC98\uC74C\uC73C\uB85C \uC6C3\uC5C8\uB2E4"
+  - "\uC5B4\uBA38\uB2C8\uB294 \uADF8 \uC21C\uAC04\uC744 \uC9C0\uC6B0\uC9C0 \uB9D0\uC790\uACE0
+    \uD588\uB2E4"
+  correctOrder:
+  - "\uC544\uBC84\uC9C0\uB294 \uC811\uC2DC\uB97C \uB193\uCCE4\uB2E4"
+  - "\uC544\uC774\uB294 \uCC98\uC74C\uC73C\uB85C \uC6C3\uC5C8\uB2E4"
+  - "\uC5B4\uBA38\uB2C8\uB294 \uADF8 \uC21C\uAC04\uC744 \uC9C0\uC6B0\uC9C0 \uB9D0\uC790\uACE0
+    \uD588\uB2E4"
+  restoredText: "\uC0AC\uC18C\uD55C \uC2E4\uC218\uAC00 \uAC00\uC871\uC758 \uAC00\uC7A5
+    \uB530\uB73B\uD55C \uC7A5\uBA74\uC73C\uB85C \uB0A8\uC544 \uC788\uC5C8\uC2B5\uB2C8\uB2E4."
