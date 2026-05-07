@@ -65,6 +65,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     private Material casualHairMaterial;
     private Material casualBagMaterial;
     private Material casualGlowMaterial;
+    private Material casualAmberMaterial;
 
     private readonly Dictionary<Transform, Quaternion> defaultRotations = new Dictionary<Transform, Quaternion>();
     private readonly Dictionary<Transform, Vector3> defaultLocalPositions = new Dictionary<Transform, Vector3>();
@@ -334,10 +335,10 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
         SetLocalTransform(FindDeepChild(root, "Torso"), new Vector3(0f, 1.26f, 0f), Vector3.zero, new Vector3(0.46f, 0.52f, 0.31f));
         SetRendererMaterial(FindDeepChild(root, "Torso"), casualShirtMaterial);
-        SetLocalTransform(FindDeepChild(root, "Coat"), new Vector3(0f, 1.24f, -0.01f), Vector3.zero, new Vector3(0.60f, 0.80f, 0.38f));
+        SetLocalTransform(FindDeepChild(root, "Coat"), new Vector3(0f, 1.21f, -0.01f), Vector3.zero, new Vector3(0.64f, 0.90f, 0.40f));
         SetRendererMaterial(FindDeepChild(root, "Coat"), casualJacketMaterial);
-        SetLocalTransform(FindDeepChild(root, "Coat Skirt"), new Vector3(0f, 0.80f, 0f), Vector3.zero, new Vector3(0.50f, 0.18f, 0.32f));
-        SetRendererMaterial(FindDeepChild(root, "Coat Skirt"), casualPantsMaterial);
+        SetLocalTransform(FindDeepChild(root, "Coat Skirt"), new Vector3(0f, 0.67f, 0f), Vector3.zero, new Vector3(0.56f, 0.46f, 0.34f));
+        SetRendererMaterial(FindDeepChild(root, "Coat Skirt"), casualJacketMaterial);
         SetLocalTransform(FindDeepChild(root, "Head"), new Vector3(0f, 1.87f, 0.02f), Vector3.zero, Vector3.one * 0.285f);
         SetRendererMaterial(FindDeepChild(root, "Head"), casualSkinMaterial);
 
@@ -354,16 +355,16 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         CreateOrUpdatePrimitive(leftArmPivot, "Shoulder_L", PrimitiveType.Sphere, new Vector3(0f, 0.02f, 0f), Vector3.zero, new Vector3(0.15f, 0.12f, 0.13f), casualJacketMaterial);
         CreateOrUpdatePrimitive(leftArmPivot, "Arm_L", PrimitiveType.Cylinder, new Vector3(0f, -0.24f, 0f), Vector3.zero, new Vector3(0.135f, 0.255f, 0.135f), casualJacketMaterial);
         CreateOrUpdatePrimitive(leftForearmPivot, "Elbow_L", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.118f, casualJacketMaterial);
-        CreateOrUpdatePrimitive(leftForearmPivot, "Forearm_L", PrimitiveType.Cylinder, new Vector3(0f, -0.23f, 0f), Vector3.zero, new Vector3(0.112f, 0.25f, 0.112f), casualSkinMaterial);
-        CreateOrUpdatePrimitive(leftForearmPivot, "Hand_L", PrimitiveType.Sphere, new Vector3(0f, -0.51f, 0.035f), Vector3.zero, new Vector3(0.090f, 0.080f, 0.070f), casualSkinMaterial);
+        CreateOrUpdatePrimitive(leftForearmPivot, "Forearm_L", PrimitiveType.Cylinder, new Vector3(0f, -0.23f, 0f), Vector3.zero, new Vector3(0.116f, 0.25f, 0.116f), casualJacketMaterial);
+        CreateOrUpdatePrimitive(leftForearmPivot, "Hand_L", PrimitiveType.Sphere, new Vector3(0f, -0.51f, 0.035f), Vector3.zero, new Vector3(0.090f, 0.080f, 0.070f), casualShoeMaterial);
 
         Transform rightArmPivot = CreateOrUpdatePivot(root, "ArmPivot_R", new Vector3(0.39f, 1.47f, 0.015f), new Vector3(0f, 0f, 6f));
         Transform rightForearmPivot = CreateOrUpdatePivot(rightArmPivot, "ForearmPivot_R", new Vector3(0f, -0.48f, 0f), Vector3.zero);
         CreateOrUpdatePrimitive(rightArmPivot, "Shoulder_R", PrimitiveType.Sphere, new Vector3(0f, 0.02f, 0f), Vector3.zero, new Vector3(0.15f, 0.12f, 0.13f), casualJacketMaterial);
         CreateOrUpdatePrimitive(rightArmPivot, "Arm_R", PrimitiveType.Cylinder, new Vector3(0f, -0.24f, 0f), Vector3.zero, new Vector3(0.135f, 0.255f, 0.135f), casualJacketMaterial);
         CreateOrUpdatePrimitive(rightForearmPivot, "Elbow_R", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.118f, casualJacketMaterial);
-        CreateOrUpdatePrimitive(rightForearmPivot, "Forearm_R", PrimitiveType.Cylinder, new Vector3(0f, -0.23f, 0f), Vector3.zero, new Vector3(0.112f, 0.25f, 0.112f), casualSkinMaterial);
-        CreateOrUpdatePrimitive(rightForearmPivot, "Hand_R", PrimitiveType.Sphere, new Vector3(0f, -0.51f, 0.035f), Vector3.zero, new Vector3(0.090f, 0.080f, 0.070f), casualSkinMaterial);
+        CreateOrUpdatePrimitive(rightForearmPivot, "Forearm_R", PrimitiveType.Cylinder, new Vector3(0f, -0.23f, 0f), Vector3.zero, new Vector3(0.116f, 0.25f, 0.116f), casualJacketMaterial);
+        CreateOrUpdatePrimitive(rightForearmPivot, "Hand_R", PrimitiveType.Sphere, new Vector3(0f, -0.51f, 0.035f), Vector3.zero, new Vector3(0.090f, 0.080f, 0.070f), casualShoeMaterial);
 
         Transform leftLegPivot = CreateOrUpdatePivot(root, "LegPivot_L", new Vector3(-0.15f, 0.97f, 0f), Vector3.zero);
         Transform leftKneePivot = CreateOrUpdatePivot(leftLegPivot, "KneePivot_L", new Vector3(0f, -0.56f, 0f), Vector3.zero);
@@ -393,6 +394,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         casualHairMaterial = CreateRuntimeMaterial("MR3D_Runtime_Dark_Hair", new Color(0.025f, 0.024f, 0.022f), false);
         casualBagMaterial = CreateRuntimeMaterial("MR3D_Runtime_Worn_Bag", new Color(0.075f, 0.07f, 0.06f), false);
         casualGlowMaterial = CreateRuntimeMaterial("MR3D_Runtime_Memory_Vial", new Color(0.08f, 0.85f, 1f), true);
+        casualAmberMaterial = CreateRuntimeMaterial("MR3D_Runtime_Amber_Detail", new Color(0.95f, 0.48f, 0.09f), true);
     }
 
     private void BuildReferenceCharacterDetails(Transform root)
@@ -407,21 +409,48 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         CreateOrUpdatePrimitive(root, "Ear_L", PrimitiveType.Sphere, new Vector3(-0.205f, 1.855f, 0.025f), Vector3.zero, new Vector3(0.052f, 0.082f, 0.040f), casualSkinMaterial);
         CreateOrUpdatePrimitive(root, "Ear_R", PrimitiveType.Sphere, new Vector3(0.205f, 1.855f, 0.025f), Vector3.zero, new Vector3(0.052f, 0.082f, 0.040f), casualSkinMaterial);
         CreateOrUpdatePrimitive(root, "Chin", PrimitiveType.Cube, new Vector3(0f, 1.755f, 0.122f), new Vector3(8f, 0f, 0f), new Vector3(0.145f, 0.055f, 0.065f), casualSkinMaterial);
-        CreateOrUpdatePrimitive(root, "High Collar", PrimitiveType.Cube, new Vector3(0f, 1.58f, -0.13f), new Vector3(-8f, 0f, 0f), new Vector3(0.43f, 0.19f, 0.12f), casualJacketMaterial);
-        CreateOrUpdatePrimitive(root, "Long Coat Tail", PrimitiveType.Cube, new Vector3(0f, 0.61f, -0.04f), Vector3.zero, new Vector3(0.50f, 0.52f, 0.30f), casualJacketMaterial);
+        CreateOrUpdatePrimitive(root, "Face Mask", PrimitiveType.Cube, new Vector3(0f, 1.82f, 0.215f), new Vector3(-5f, 0f, 0f), new Vector3(0.27f, 0.18f, 0.070f), casualBagMaterial);
+        CreateOrUpdatePrimitive(root, "Eye Light Band", PrimitiveType.Cube, new Vector3(0f, 1.90f, 0.250f), Vector3.zero, new Vector3(0.25f, 0.032f, 0.035f), casualGlowMaterial);
+        CreateOrUpdatePrimitive(root, "Visor Housing", PrimitiveType.Cube, new Vector3(0f, 1.90f, 0.232f), Vector3.zero, new Vector3(0.31f, 0.070f, 0.040f), casualBagMaterial);
+        CreateOrUpdatePrimitive(root, "Raised Collar", PrimitiveType.Cube, new Vector3(0f, 1.58f, -0.11f), new Vector3(-8f, 0f, 0f), new Vector3(0.50f, 0.25f, 0.15f), casualJacketMaterial);
+        CreateOrUpdatePrimitive(root, "Collar Guard_L", PrimitiveType.Cube, new Vector3(-0.29f, 1.58f, 0.02f), new Vector3(0f, 0f, -12f), new Vector3(0.08f, 0.22f, 0.15f), casualJacketMaterial);
+        CreateOrUpdatePrimitive(root, "Collar Guard_R", PrimitiveType.Cube, new Vector3(0.29f, 1.58f, 0.02f), new Vector3(0f, 0f, 12f), new Vector3(0.08f, 0.22f, 0.15f), casualJacketMaterial);
+        CreateOrUpdatePrimitive(root, "Long Coat Tail", PrimitiveType.Cube, new Vector3(0f, 0.50f, -0.04f), Vector3.zero, new Vector3(0.54f, 0.58f, 0.31f), casualJacketMaterial);
         CreateOrUpdatePrimitive(root, "Coat Back Seam", PrimitiveType.Cube, new Vector3(0f, 1.05f, -0.245f), Vector3.zero, new Vector3(0.035f, 0.72f, 0.040f), casualBagMaterial);
-        CreateOrUpdatePrimitive(root, "Coat Hem_L", PrimitiveType.Cube, new Vector3(-0.18f, 0.50f, -0.06f), new Vector3(0f, 0f, 5f), new Vector3(0.17f, 0.28f, 0.25f), casualJacketMaterial);
-        CreateOrUpdatePrimitive(root, "Coat Hem_R", PrimitiveType.Cube, new Vector3(0.18f, 0.50f, -0.06f), new Vector3(0f, 0f, -5f), new Vector3(0.17f, 0.28f, 0.25f), casualJacketMaterial);
-        CreateOrUpdatePrimitive(root, "Crossbody Strap", PrimitiveType.Cube, new Vector3(-0.08f, 1.22f, -0.20f), new Vector3(0f, 0f, -22f), new Vector3(0.065f, 0.78f, 0.045f), casualBagMaterial);
+        CreateOrUpdatePrimitive(root, "Coat Hem_L", PrimitiveType.Cube, new Vector3(-0.19f, 0.44f, -0.06f), new Vector3(0f, 0f, 5f), new Vector3(0.18f, 0.34f, 0.25f), casualJacketMaterial);
+        CreateOrUpdatePrimitive(root, "Coat Hem_R", PrimitiveType.Cube, new Vector3(0.19f, 0.44f, -0.06f), new Vector3(0f, 0f, -5f), new Vector3(0.18f, 0.34f, 0.25f), casualJacketMaterial);
+        CreateOrUpdatePrimitive(root, "Crossbody Strap", PrimitiveType.Cube, new Vector3(-0.08f, 1.22f, -0.20f), new Vector3(0f, 0f, -22f), new Vector3(0.070f, 0.82f, 0.048f), casualBagMaterial);
+        CreateOrUpdatePrimitive(root, "Amber Strap Clips", PrimitiveType.Cube, new Vector3(-0.22f, 1.26f, -0.255f), new Vector3(0f, 0f, -22f), new Vector3(0.050f, 0.070f, 0.040f), casualAmberMaterial);
         CreateOrUpdatePrimitive(root, "Satchel", PrimitiveType.Cube, new Vector3(-0.25f, 0.88f, -0.33f), new Vector3(0f, 8f, -4f), new Vector3(0.34f, 0.25f, 0.18f), casualBagMaterial);
+        CreateOrUpdatePrimitive(root, "Memory Backpack", PrimitiveType.Cube, new Vector3(0f, 1.12f, -0.46f), Vector3.zero, new Vector3(0.43f, 0.58f, 0.16f), casualBagMaterial);
+        CreateOrUpdatePrimitive(root, "Backpack Top Module", PrimitiveType.Cube, new Vector3(0f, 1.43f, -0.55f), Vector3.zero, new Vector3(0.36f, 0.11f, 0.10f), casualBagMaterial);
+        CreateOrUpdatePrimitive(root, "Backpack Cyan Core", PrimitiveType.Cube, new Vector3(0f, 1.10f, -0.555f), Vector3.zero, new Vector3(0.070f, 0.24f, 0.035f), casualGlowMaterial);
+        CreateOrUpdatePrimitive(root, "Backpack Side Canister_L", PrimitiveType.Cylinder, new Vector3(-0.29f, 1.08f, -0.50f), Vector3.zero, new Vector3(0.050f, 0.28f, 0.050f), casualBagMaterial);
+        CreateOrUpdatePrimitive(root, "Backpack Side Canister_R", PrimitiveType.Cylinder, new Vector3(0.29f, 1.08f, -0.50f), Vector3.zero, new Vector3(0.050f, 0.28f, 0.050f), casualBagMaterial);
         CreateOrUpdatePrimitive(root, "Memory Vial", PrimitiveType.Cube, new Vector3(-0.08f, 0.82f, -0.45f), Vector3.zero, new Vector3(0.085f, 0.20f, 0.050f), casualGlowMaterial);
         CreateOrUpdatePrimitive(root, "Cinematic Backpack Light", PrimitiveType.Cube, new Vector3(-0.08f, 0.81f, -0.505f), Vector3.zero, new Vector3(0.070f, 0.24f, 0.040f), casualGlowMaterial);
         CreateOrUpdatePrimitive(root, "Cinematic Coat Shoulder Line_L", PrimitiveType.Cube, new Vector3(-0.31f, 1.50f, -0.17f), new Vector3(0f, 0f, -12f), new Vector3(0.18f, 0.030f, 0.035f), casualBagMaterial);
         CreateOrUpdatePrimitive(root, "Cinematic Coat Shoulder Line_R", PrimitiveType.Cube, new Vector3(0.31f, 1.50f, -0.17f), new Vector3(0f, 0f, 12f), new Vector3(0.18f, 0.030f, 0.035f), casualBagMaterial);
+        CreateOrUpdatePrimitive(root, "Coat Amber Trim_L", PrimitiveType.Cube, new Vector3(-0.285f, 1.02f, 0.205f), Vector3.zero, new Vector3(0.030f, 0.62f, 0.030f), casualAmberMaterial);
+        CreateOrUpdatePrimitive(root, "Coat Amber Trim_R", PrimitiveType.Cube, new Vector3(0.285f, 1.02f, 0.205f), Vector3.zero, new Vector3(0.030f, 0.62f, 0.030f), casualAmberMaterial);
         CreateOrUpdatePrimitive(root, "Coat Back Fold_L", PrimitiveType.Cube, new Vector3(-0.15f, 1.10f, -0.252f), new Vector3(0f, 0f, -4f), new Vector3(0.024f, 0.60f, 0.035f), casualBagMaterial);
         CreateOrUpdatePrimitive(root, "Coat Back Fold_R", PrimitiveType.Cube, new Vector3(0.15f, 1.10f, -0.252f), new Vector3(0f, 0f, 4f), new Vector3(0.024f, 0.60f, 0.035f), casualBagMaterial);
         CreateOrUpdatePrimitive(root, "Satchel Flap", PrimitiveType.Cube, new Vector3(-0.25f, 0.95f, -0.435f), new Vector3(0f, 8f, -4f), new Vector3(0.30f, 0.065f, 0.035f), casualBagMaterial);
         CreateOrUpdatePrimitive(root, "Satchel Buckle", PrimitiveType.Cube, new Vector3(-0.25f, 0.88f, -0.535f), Vector3.zero, new Vector3(0.060f, 0.050f, 0.030f), casualGlowMaterial);
+
+        Transform leftForearm = FindDeepChild(root, "ForearmPivot_L");
+        Transform rightForearm = FindDeepChild(root, "ForearmPivot_R");
+        if (leftForearm != null)
+        {
+            CreateOrUpdatePrimitive(leftForearm, "Arm Scanner_L", PrimitiveType.Cube, new Vector3(0f, -0.17f, 0.125f), new Vector3(8f, 0f, 0f), new Vector3(0.15f, 0.20f, 0.050f), casualBagMaterial);
+            CreateOrUpdatePrimitive(leftForearm, "Scanner Glow_L", PrimitiveType.Cube, new Vector3(0f, -0.17f, 0.157f), Vector3.zero, new Vector3(0.090f, 0.050f, 0.030f), casualGlowMaterial);
+        }
+
+        if (rightForearm != null)
+        {
+            CreateOrUpdatePrimitive(rightForearm, "Arm Scanner_R", PrimitiveType.Cube, new Vector3(0f, -0.17f, 0.125f), new Vector3(8f, 0f, 0f), new Vector3(0.15f, 0.20f, 0.050f), casualBagMaterial);
+            CreateOrUpdatePrimitive(rightForearm, "Scanner Glow_R", PrimitiveType.Cube, new Vector3(0f, -0.17f, 0.157f), Vector3.zero, new Vector3(0.090f, 0.050f, 0.030f), casualGlowMaterial);
+        }
     }
 
     private void RemoveSpaceSuitAccessories(Transform root)

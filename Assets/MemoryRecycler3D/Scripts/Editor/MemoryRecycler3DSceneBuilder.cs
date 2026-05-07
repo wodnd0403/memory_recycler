@@ -277,15 +277,16 @@ public static class MemoryRecycler3DSceneBuilder
         Material hairMat = CreateMaterial("MR3D_DarkHair", new Color(0.025f, 0.024f, 0.022f), false);
         Material bagMat = CreateMaterial("MR3D_WornBag", new Color(0.075f, 0.07f, 0.06f), false);
         Material glowMat = CreateMaterial("MR3D_MemoryGlow", new Color(0.08f, 0.85f, 1f), true);
+        Material amberMat = CreateMaterial("MR3D_AmberDetail", new Color(0.95f, 0.48f, 0.09f), true);
 
         SetScenePart(visual, "Torso", PrimitiveType.Capsule, new Vector3(0f, 1.26f, 0f), Vector3.zero, new Vector3(0.46f, 0.52f, 0.31f), shirtMat);
-        SetScenePart(visual, "Coat", PrimitiveType.Cube, new Vector3(0f, 1.24f, -0.01f), Vector3.zero, new Vector3(0.60f, 0.80f, 0.38f), jacketMat);
-        SetScenePart(visual, "Coat Skirt", PrimitiveType.Cube, new Vector3(0f, 0.80f, 0f), Vector3.zero, new Vector3(0.50f, 0.18f, 0.32f), pantsMat);
+        SetScenePart(visual, "Coat", PrimitiveType.Cube, new Vector3(0f, 1.21f, -0.01f), Vector3.zero, new Vector3(0.64f, 0.90f, 0.40f), jacketMat);
+        SetScenePart(visual, "Coat Skirt", PrimitiveType.Cube, new Vector3(0f, 0.67f, 0f), Vector3.zero, new Vector3(0.56f, 0.46f, 0.34f), jacketMat);
         SetScenePart(visual, "Head", PrimitiveType.Sphere, new Vector3(0f, 1.87f, 0.02f), Vector3.zero, Vector3.one * 0.285f, skinMat);
         SetScenePart(visual, "Neck", PrimitiveType.Cylinder, new Vector3(0f, 1.66f, 0.015f), Vector3.zero, new Vector3(0.085f, 0.11f, 0.085f), skinMat);
 
         BuildHumanoidSceneLimbRig(visual, jacketMat, skinMat, pantsMat, shoeMat);
-        BuildReferenceCharacterDetails(visual, jacketMat, skinMat, hairMat, bagMat, glowMat);
+        BuildReferenceCharacterDetails(visual, jacketMat, skinMat, hairMat, bagMat, glowMat, amberMat);
     }
 
     private static GameObject FindRoot(Scene scene, string objectName)
@@ -333,16 +334,16 @@ public static class MemoryRecycler3DSceneBuilder
         SetScenePartUnder(visual, leftArmPivot, "Shoulder_L", PrimitiveType.Sphere, new Vector3(0f, 0.02f, 0f), Vector3.zero, new Vector3(0.15f, 0.12f, 0.13f), jacketMat);
         SetScenePartUnder(visual, leftArmPivot, "Arm_L", PrimitiveType.Cylinder, new Vector3(0f, -0.24f, 0f), Vector3.zero, new Vector3(0.135f, 0.255f, 0.135f), jacketMat);
         SetScenePartUnder(visual, leftForearmPivot, "Elbow_L", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.118f, jacketMat);
-        SetScenePartUnder(visual, leftForearmPivot, "Forearm_L", PrimitiveType.Cylinder, new Vector3(0f, -0.23f, 0f), Vector3.zero, new Vector3(0.112f, 0.25f, 0.112f), skinMat);
-        SetScenePartUnder(visual, leftForearmPivot, "Hand_L", PrimitiveType.Sphere, new Vector3(0f, -0.51f, 0.035f), Vector3.zero, new Vector3(0.090f, 0.080f, 0.070f), skinMat);
+        SetScenePartUnder(visual, leftForearmPivot, "Forearm_L", PrimitiveType.Cylinder, new Vector3(0f, -0.23f, 0f), Vector3.zero, new Vector3(0.116f, 0.25f, 0.116f), jacketMat);
+        SetScenePartUnder(visual, leftForearmPivot, "Hand_L", PrimitiveType.Sphere, new Vector3(0f, -0.51f, 0.035f), Vector3.zero, new Vector3(0.090f, 0.080f, 0.070f), shoeMat);
 
         Transform rightArmPivot = CreateScenePivot(visual, "ArmPivot_R", new Vector3(0.39f, 1.47f, 0.015f), new Vector3(0f, 0f, 6f));
         Transform rightForearmPivot = CreateScenePivot(rightArmPivot, "ForearmPivot_R", new Vector3(0f, -0.48f, 0f), Vector3.zero);
         SetScenePartUnder(visual, rightArmPivot, "Shoulder_R", PrimitiveType.Sphere, new Vector3(0f, 0.02f, 0f), Vector3.zero, new Vector3(0.15f, 0.12f, 0.13f), jacketMat);
         SetScenePartUnder(visual, rightArmPivot, "Arm_R", PrimitiveType.Cylinder, new Vector3(0f, -0.24f, 0f), Vector3.zero, new Vector3(0.135f, 0.255f, 0.135f), jacketMat);
         SetScenePartUnder(visual, rightForearmPivot, "Elbow_R", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.118f, jacketMat);
-        SetScenePartUnder(visual, rightForearmPivot, "Forearm_R", PrimitiveType.Cylinder, new Vector3(0f, -0.23f, 0f), Vector3.zero, new Vector3(0.112f, 0.25f, 0.112f), skinMat);
-        SetScenePartUnder(visual, rightForearmPivot, "Hand_R", PrimitiveType.Sphere, new Vector3(0f, -0.51f, 0.035f), Vector3.zero, new Vector3(0.090f, 0.080f, 0.070f), skinMat);
+        SetScenePartUnder(visual, rightForearmPivot, "Forearm_R", PrimitiveType.Cylinder, new Vector3(0f, -0.23f, 0f), Vector3.zero, new Vector3(0.116f, 0.25f, 0.116f), jacketMat);
+        SetScenePartUnder(visual, rightForearmPivot, "Hand_R", PrimitiveType.Sphere, new Vector3(0f, -0.51f, 0.035f), Vector3.zero, new Vector3(0.090f, 0.080f, 0.070f), shoeMat);
 
         Transform leftLegPivot = CreateScenePivot(visual, "LegPivot_L", new Vector3(-0.15f, 0.97f, 0f), Vector3.zero);
         Transform leftKneePivot = CreateScenePivot(leftLegPivot, "KneePivot_L", new Vector3(0f, -0.56f, 0f), Vector3.zero);
@@ -359,7 +360,7 @@ public static class MemoryRecycler3DSceneBuilder
         SetScenePartUnder(visual, rightKneePivot, "Boot_R", PrimitiveType.Cube, new Vector3(0f, -0.58f, 0.10f), Vector3.zero, new Vector3(0.18f, 0.10f, 0.32f), shoeMat);
     }
 
-    private static void BuildReferenceCharacterDetails(Transform visual, Material jacketMat, Material skinMat, Material hairMat, Material bagMat, Material glowMat)
+    private static void BuildReferenceCharacterDetails(Transform visual, Material jacketMat, Material skinMat, Material hairMat, Material bagMat, Material glowMat, Material amberMat)
     {
         SetScenePart(visual, "Hair Cap", PrimitiveType.Sphere, new Vector3(0f, 1.96f, -0.005f), Vector3.zero, new Vector3(0.31f, 0.17f, 0.27f), hairMat);
         SetScenePart(visual, "Hair Back", PrimitiveType.Sphere, new Vector3(0f, 1.91f, -0.13f), Vector3.zero, new Vector3(0.27f, 0.18f, 0.16f), hairMat);
@@ -371,18 +372,45 @@ public static class MemoryRecycler3DSceneBuilder
         SetScenePart(visual, "Ear_L", PrimitiveType.Sphere, new Vector3(-0.205f, 1.855f, 0.025f), Vector3.zero, new Vector3(0.052f, 0.082f, 0.040f), skinMat);
         SetScenePart(visual, "Ear_R", PrimitiveType.Sphere, new Vector3(0.205f, 1.855f, 0.025f), Vector3.zero, new Vector3(0.052f, 0.082f, 0.040f), skinMat);
         SetScenePart(visual, "Chin", PrimitiveType.Cube, new Vector3(0f, 1.755f, 0.122f), new Vector3(8f, 0f, 0f), new Vector3(0.145f, 0.055f, 0.065f), skinMat);
-        SetScenePart(visual, "High Collar", PrimitiveType.Cube, new Vector3(0f, 1.58f, -0.13f), new Vector3(-8f, 0f, 0f), new Vector3(0.43f, 0.19f, 0.12f), jacketMat);
-        SetScenePart(visual, "Long Coat Tail", PrimitiveType.Cube, new Vector3(0f, 0.61f, -0.04f), Vector3.zero, new Vector3(0.50f, 0.52f, 0.30f), jacketMat);
+        SetScenePart(visual, "Face Mask", PrimitiveType.Cube, new Vector3(0f, 1.82f, 0.215f), new Vector3(-5f, 0f, 0f), new Vector3(0.27f, 0.18f, 0.070f), bagMat);
+        SetScenePart(visual, "Eye Light Band", PrimitiveType.Cube, new Vector3(0f, 1.90f, 0.250f), Vector3.zero, new Vector3(0.25f, 0.032f, 0.035f), glowMat);
+        SetScenePart(visual, "Visor Housing", PrimitiveType.Cube, new Vector3(0f, 1.90f, 0.232f), Vector3.zero, new Vector3(0.31f, 0.070f, 0.040f), bagMat);
+        SetScenePart(visual, "Raised Collar", PrimitiveType.Cube, new Vector3(0f, 1.58f, -0.11f), new Vector3(-8f, 0f, 0f), new Vector3(0.50f, 0.25f, 0.15f), jacketMat);
+        SetScenePart(visual, "Collar Guard_L", PrimitiveType.Cube, new Vector3(-0.29f, 1.58f, 0.02f), new Vector3(0f, 0f, -12f), new Vector3(0.08f, 0.22f, 0.15f), jacketMat);
+        SetScenePart(visual, "Collar Guard_R", PrimitiveType.Cube, new Vector3(0.29f, 1.58f, 0.02f), new Vector3(0f, 0f, 12f), new Vector3(0.08f, 0.22f, 0.15f), jacketMat);
+        SetScenePart(visual, "Long Coat Tail", PrimitiveType.Cube, new Vector3(0f, 0.50f, -0.04f), Vector3.zero, new Vector3(0.54f, 0.58f, 0.31f), jacketMat);
         SetScenePart(visual, "Coat Back Seam", PrimitiveType.Cube, new Vector3(0f, 1.05f, -0.245f), Vector3.zero, new Vector3(0.035f, 0.72f, 0.040f), bagMat);
-        SetScenePart(visual, "Coat Hem_L", PrimitiveType.Cube, new Vector3(-0.18f, 0.50f, -0.06f), new Vector3(0f, 0f, 5f), new Vector3(0.17f, 0.28f, 0.25f), jacketMat);
-        SetScenePart(visual, "Coat Hem_R", PrimitiveType.Cube, new Vector3(0.18f, 0.50f, -0.06f), new Vector3(0f, 0f, -5f), new Vector3(0.17f, 0.28f, 0.25f), jacketMat);
-        SetScenePart(visual, "Crossbody Strap", PrimitiveType.Cube, new Vector3(-0.08f, 1.22f, -0.20f), new Vector3(0f, 0f, -22f), new Vector3(0.065f, 0.78f, 0.045f), bagMat);
+        SetScenePart(visual, "Coat Hem_L", PrimitiveType.Cube, new Vector3(-0.19f, 0.44f, -0.06f), new Vector3(0f, 0f, 5f), new Vector3(0.18f, 0.34f, 0.25f), jacketMat);
+        SetScenePart(visual, "Coat Hem_R", PrimitiveType.Cube, new Vector3(0.19f, 0.44f, -0.06f), new Vector3(0f, 0f, -5f), new Vector3(0.18f, 0.34f, 0.25f), jacketMat);
+        SetScenePart(visual, "Crossbody Strap", PrimitiveType.Cube, new Vector3(-0.08f, 1.22f, -0.20f), new Vector3(0f, 0f, -22f), new Vector3(0.070f, 0.82f, 0.048f), bagMat);
+        SetScenePart(visual, "Amber Strap Clips", PrimitiveType.Cube, new Vector3(-0.22f, 1.26f, -0.255f), new Vector3(0f, 0f, -22f), new Vector3(0.050f, 0.070f, 0.040f), amberMat);
         SetScenePart(visual, "Satchel", PrimitiveType.Cube, new Vector3(-0.25f, 0.88f, -0.33f), new Vector3(0f, 8f, -4f), new Vector3(0.34f, 0.25f, 0.18f), bagMat);
+        SetScenePart(visual, "Memory Backpack", PrimitiveType.Cube, new Vector3(0f, 1.12f, -0.46f), Vector3.zero, new Vector3(0.43f, 0.58f, 0.16f), bagMat);
+        SetScenePart(visual, "Backpack Top Module", PrimitiveType.Cube, new Vector3(0f, 1.43f, -0.55f), Vector3.zero, new Vector3(0.36f, 0.11f, 0.10f), bagMat);
+        SetScenePart(visual, "Backpack Cyan Core", PrimitiveType.Cube, new Vector3(0f, 1.10f, -0.555f), Vector3.zero, new Vector3(0.070f, 0.24f, 0.035f), glowMat);
+        SetScenePart(visual, "Backpack Side Canister_L", PrimitiveType.Cylinder, new Vector3(-0.29f, 1.08f, -0.50f), new Vector3(0f, 0f, 0f), new Vector3(0.050f, 0.28f, 0.050f), bagMat);
+        SetScenePart(visual, "Backpack Side Canister_R", PrimitiveType.Cylinder, new Vector3(0.29f, 1.08f, -0.50f), new Vector3(0f, 0f, 0f), new Vector3(0.050f, 0.28f, 0.050f), bagMat);
         SetScenePart(visual, "Memory Vial", PrimitiveType.Cube, new Vector3(-0.08f, 0.82f, -0.45f), Vector3.zero, new Vector3(0.085f, 0.20f, 0.050f), glowMat);
+        SetScenePart(visual, "Coat Amber Trim_L", PrimitiveType.Cube, new Vector3(-0.285f, 1.02f, 0.205f), Vector3.zero, new Vector3(0.030f, 0.62f, 0.030f), amberMat);
+        SetScenePart(visual, "Coat Amber Trim_R", PrimitiveType.Cube, new Vector3(0.285f, 1.02f, 0.205f), Vector3.zero, new Vector3(0.030f, 0.62f, 0.030f), amberMat);
         SetScenePart(visual, "Coat Back Fold_L", PrimitiveType.Cube, new Vector3(-0.15f, 1.10f, -0.252f), new Vector3(0f, 0f, -4f), new Vector3(0.024f, 0.60f, 0.035f), bagMat);
         SetScenePart(visual, "Coat Back Fold_R", PrimitiveType.Cube, new Vector3(0.15f, 1.10f, -0.252f), new Vector3(0f, 0f, 4f), new Vector3(0.024f, 0.60f, 0.035f), bagMat);
         SetScenePart(visual, "Satchel Flap", PrimitiveType.Cube, new Vector3(-0.25f, 0.95f, -0.435f), new Vector3(0f, 8f, -4f), new Vector3(0.30f, 0.065f, 0.035f), bagMat);
         SetScenePart(visual, "Satchel Buckle", PrimitiveType.Cube, new Vector3(-0.25f, 0.88f, -0.535f), Vector3.zero, new Vector3(0.060f, 0.050f, 0.030f), glowMat);
+
+        Transform leftForearm = FindDeepChild(visual, "ForearmPivot_L");
+        Transform rightForearm = FindDeepChild(visual, "ForearmPivot_R");
+        if (leftForearm != null)
+        {
+            SetScenePartUnder(visual, leftForearm, "Arm Scanner_L", PrimitiveType.Cube, new Vector3(0f, -0.17f, 0.125f), new Vector3(8f, 0f, 0f), new Vector3(0.15f, 0.20f, 0.050f), bagMat);
+            SetScenePartUnder(visual, leftForearm, "Scanner Glow_L", PrimitiveType.Cube, new Vector3(0f, -0.17f, 0.157f), Vector3.zero, new Vector3(0.090f, 0.050f, 0.030f), glowMat);
+        }
+
+        if (rightForearm != null)
+        {
+            SetScenePartUnder(visual, rightForearm, "Arm Scanner_R", PrimitiveType.Cube, new Vector3(0f, -0.17f, 0.125f), new Vector3(8f, 0f, 0f), new Vector3(0.15f, 0.20f, 0.050f), bagMat);
+            SetScenePartUnder(visual, rightForearm, "Scanner Glow_R", PrimitiveType.Cube, new Vector3(0f, -0.17f, 0.157f), Vector3.zero, new Vector3(0.090f, 0.050f, 0.030f), glowMat);
+        }
     }
 
     private static Transform CreateScenePivot(Transform parent, string name, Vector3 localPosition, Vector3 localEuler)
