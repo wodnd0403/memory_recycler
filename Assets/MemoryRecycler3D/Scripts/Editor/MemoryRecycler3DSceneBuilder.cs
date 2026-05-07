@@ -788,8 +788,24 @@ public static class MemoryRecycler3DSceneBuilder
         ApplyCinematicMaterialTextures();
 
         GameObject avenue = FindRoot(scene, "Main Avenue");
-        if (avenue != null && avenue.TryGetComponent(out Renderer avenueRenderer))
-            avenueRenderer.sharedMaterial = roadMat;
+        if (avenue != null)
+        {
+            avenue.transform.position = new Vector3(0f, 0.02f, 0f);
+            avenue.transform.localScale = new Vector3(12.5f, 0.04f, 58f);
+            if (avenue.TryGetComponent(out Renderer avenueRenderer))
+                avenueRenderer.sharedMaterial = roadMat;
+            EditorUtility.SetDirty(avenue);
+        }
+
+        GameObject ground = FindRoot(scene, "Abandoned City Ground");
+        if (ground != null)
+        {
+            ground.transform.localScale = new Vector3(14f, 1f, 14f);
+            EditorUtility.SetDirty(ground);
+        }
+
+        ExpandCinematicCityLayout(city.transform);
+        BuildArchiveTower(scene, cyanMat, trimMat, panelMat);
 
         int index = 0;
         foreach (Transform child in city.transform)
@@ -898,7 +914,7 @@ public static class MemoryRecycler3DSceneBuilder
         for (int i = 0; i < 16; i++)
         {
             float side = i % 2 == 0 ? -1f : 1f;
-            Vector3 position = new Vector3(side * ReferenceRange(i, 77.2f, 3.4f, 5.2f), 0.13f, ReferenceRange(i, 78.1f, -18f, 20f));
+            Vector3 position = new Vector3(side * ReferenceRange(i, 77.2f, 5.0f, 7.2f), 0.13f, ReferenceRange(i, 78.1f, -24f, 27f));
             Vector3 size = new Vector3(ReferenceRange(i, 79.3f, 0.25f, 0.85f), ReferenceRange(i, 80.2f, 0.08f, 0.24f), ReferenceRange(i, 81.1f, 0.35f, 1.2f));
             CreateCinematicWorldBox(root, "Cinematic Street Rubble", position, size, debrisMat, new Vector3(0f, ReferenceRange(i, 82.5f, 0f, 180f), ReferenceRange(i, 83.4f, -10f, 10f)));
 
@@ -909,8 +925,109 @@ public static class MemoryRecycler3DSceneBuilder
         for (int i = 0; i < 6; i++)
         {
             float side = i % 2 == 0 ? -1f : 1f;
-            CreateCinematicWorldBox(root, "Cinematic Fallen Board", new Vector3(side * ReferenceRange(i, 84.4f, 4.0f, 5.8f), 0.17f, ReferenceRange(i, 85.4f, -14f, 18f)), new Vector3(0.24f, 0.10f, 1.65f), boardMat, new Vector3(ReferenceRange(i, 86.4f, -4f, 4f), ReferenceRange(i, 87.4f, -32f, 32f), ReferenceRange(i, 88.4f, -12f, 12f)));
+            CreateCinematicWorldBox(root, "Cinematic Fallen Board", new Vector3(side * ReferenceRange(i, 84.4f, 6.0f, 7.8f), 0.17f, ReferenceRange(i, 85.4f, -20f, 24f)), new Vector3(0.24f, 0.10f, 1.65f), boardMat, new Vector3(ReferenceRange(i, 86.4f, -4f, 4f), ReferenceRange(i, 87.4f, -32f, 32f), ReferenceRange(i, 88.4f, -12f, 12f)));
         }
+    }
+
+    private static void ExpandCinematicCityLayout(Transform cityRoot)
+    {
+        Vector3[] expandedPositions =
+        {
+            new Vector3(-14.5f, 2.8f, -22f), new Vector3(14.8f, 3.8f, -21f),
+            new Vector3(-15.5f, 4.6f, -10f), new Vector3(15.2f, 4.2f, -10f),
+            new Vector3(-14.8f, 3.1f, 2f), new Vector3(14.6f, 5.4f, 3f),
+            new Vector3(-15.0f, 4.8f, 15f), new Vector3(15.4f, 6.2f, 16f),
+            new Vector3(-20.2f, 3.4f, 8f), new Vector3(20.2f, 4.1f, 8f)
+        };
+
+        for (int i = 0; i < expandedPositions.Length; i++)
+        {
+            Transform building = FindDeepChild(cityRoot, "Silent Building_" + i);
+            if (building == null)
+                continue;
+
+            building.position = expandedPositions[i];
+            EditorUtility.SetDirty(building.gameObject);
+        }
+    }
+
+    private static void BuildArchiveTower(Scene scene, Material cyanMat, Material trimMat, Material panelMat)
+    {
+        GameObject terminal = FindRoot(scene, "Central Archive Terminal");
+        if (terminal == null)
+            return;
+
+        terminal.transform.position = new Vector3(0f, 3.9f, 31.5f);
+        terminal.transform.localScale = new Vector3(3.4f, 7.8f, 1.6f);
+
+        Renderer renderer = terminal.GetComponent<Renderer>();
+        if (renderer != null)
+            renderer.sharedMaterial = panelMat;
+
+        Collider collider = terminal.GetComponent<Collider>();
+        if (collider != null)
+        {
+            collider.isTrigger = true;
+            collider.enabled = true;
+        }
+
+        SetTerminalPart(terminal.transform, "Archive Tower Core", PrimitiveType.Cube, new Vector3(0f, 0.04f, -0.08f), Vector3.zero, new Vector3(0.62f, 1.03f, 0.42f), panelMat);
+        SetTerminalPart(terminal.transform, "Archive Tower Crown", PrimitiveType.Cube, new Vector3(0f, 0.58f, 0f), Vector3.zero, new Vector3(1.18f, 0.16f, 1.10f), trimMat);
+        SetTerminalPart(terminal.transform, "Archive Tower Base", PrimitiveType.Cube, new Vector3(0f, -0.54f, 0.04f), Vector3.zero, new Vector3(1.28f, 0.16f, 1.16f), trimMat);
+        SetTerminalPart(terminal.transform, "Archive Vertical Light", PrimitiveType.Cube, new Vector3(0f, 0.03f, -0.53f), Vector3.zero, new Vector3(0.055f, 0.72f, 0.045f), cyanMat);
+        SetTerminalPart(terminal.transform, "Archive Memory Eye", PrimitiveType.Sphere, new Vector3(0f, 0.35f, -0.56f), Vector3.zero, new Vector3(0.18f, 0.18f, 0.045f), cyanMat);
+
+        for (int i = 0; i < 4; i++)
+        {
+            float x = i < 2 ? -0.42f : 0.42f;
+            float y = -0.34f + (i % 2) * 0.46f;
+            SetTerminalPart(terminal.transform, "Archive Side Light_" + i, PrimitiveType.Cube, new Vector3(x, y, -0.53f), Vector3.zero, new Vector3(0.050f, 0.20f, 0.040f), cyanMat);
+        }
+
+        GameObject beacon = FindRoot(scene, "Terminal Beacon");
+        if (beacon == null)
+        {
+            beacon = new GameObject("Terminal Beacon");
+            SceneManager.MoveGameObjectToScene(beacon, scene);
+        }
+
+        beacon.transform.position = terminal.transform.position + Vector3.up * 5.0f;
+        Light light = beacon.GetComponent<Light>();
+        if (light == null)
+            light = beacon.AddComponent<Light>();
+        light.type = LightType.Point;
+        light.range = 24f;
+        light.intensity = 4.0f;
+        light.color = new Color(0.1f, 1f, 0.75f);
+
+        EditorUtility.SetDirty(terminal);
+        EditorUtility.SetDirty(beacon);
+    }
+
+    private static void SetTerminalPart(Transform parent, string name, PrimitiveType primitive, Vector3 localPosition, Vector3 localEuler, Vector3 localScale, Material material)
+    {
+        Transform part = FindDeepChild(parent, name);
+        if (part == null)
+        {
+            GameObject partObject = GameObject.CreatePrimitive(primitive);
+            partObject.name = name;
+            part = partObject.transform;
+        }
+
+        part.SetParent(parent, false);
+        part.localPosition = localPosition;
+        part.localEulerAngles = localEuler;
+        part.localScale = localScale;
+
+        Renderer renderer = part.GetComponent<Renderer>();
+        if (renderer != null)
+            renderer.sharedMaterial = material;
+
+        Collider collider = part.GetComponent<Collider>();
+        if (collider != null)
+            Object.DestroyImmediate(collider);
+
+        EditorUtility.SetDirty(part.gameObject);
     }
 
     private static void AddCinematicFacadeStructure(Transform building, int index, Material panelMat, Material trimMat, Material debrisMat, Material grimeMat)
@@ -1000,7 +1117,7 @@ public static class MemoryRecycler3DSceneBuilder
             Transform lightRoot = lights[i];
             float side = i % 2 == 0 ? -1f : 1f;
             float z = -16.5f + (i / 2) * 8.0f;
-            lightRoot.localPosition = new Vector3(side * 4.65f, 0f, z);
+            lightRoot.localPosition = new Vector3(side * 6.8f, 0f, z);
             lightRoot.localEulerAngles = new Vector3(0f, side > 0f ? 180f : 0f, side * ReferenceRange(i, 161.2f, -3.0f, 2.0f));
             lightRoot.localScale = Vector3.one;
 
@@ -1038,20 +1155,20 @@ public static class MemoryRecycler3DSceneBuilder
     {
         for (int i = 0; i < 6; i++)
         {
-            float z = -14f + i * 5.4f;
+            float z = -20f + i * 7.2f;
             float width = Mathf.Lerp(4.8f, 2.0f, i / 5f);
             CreateCinematicWorldBox(root, "Cinematic Street Cross Shadow", new Vector3(0f, 0.064f, z + 0.55f), new Vector3(width, 0.010f, 0.34f), roadPatchMat, new Vector3(0f, ReferenceRange(i, 131.2f, -5f, 5f), 0f));
         }
 
-        CreateCinematicWorldBox(root, "Cinematic Distant Memory Gate", new Vector3(0f, 1.55f, 24.5f), new Vector3(0.86f, 2.35f, 0.12f), cyanMat, Vector3.zero);
-        CreateCinematicWorldBox(root, "Cinematic Distant Gate Core", new Vector3(0f, 1.55f, 24.42f), new Vector3(0.48f, 1.70f, 0.08f), panelMat, Vector3.zero);
-        CreateCinematicWorldBox(root, "Cinematic Distant Gate Cap", new Vector3(0f, 2.80f, 24.38f), new Vector3(1.05f, 0.08f, 0.16f), trimMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Distant Memory Gate", new Vector3(0f, 2.6f, 32.2f), new Vector3(1.15f, 4.1f, 0.16f), cyanMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Distant Gate Core", new Vector3(0f, 2.45f, 32.08f), new Vector3(0.62f, 3.15f, 0.10f), panelMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Distant Gate Cap", new Vector3(0f, 4.58f, 32.0f), new Vector3(1.45f, 0.10f, 0.18f), trimMat, Vector3.zero);
 
         for (int i = 0; i < 4; i++)
         {
             float side = i % 2 == 0 ? -1f : 1f;
-            float z = 6f + i * 5.5f;
-            CreateCinematicWorldBox(root, "Cinematic Tiny Signal", new Vector3(side * 4.85f, 1.15f, z), new Vector3(0.050f, 0.38f, 0.050f), cyanMat, Vector3.zero);
+            float z = 8f + i * 7.0f;
+            CreateCinematicWorldBox(root, "Cinematic Tiny Signal", new Vector3(side * 6.6f, 1.15f, z), new Vector3(0.050f, 0.38f, 0.050f), cyanMat, Vector3.zero);
         }
     }
 
@@ -1060,9 +1177,9 @@ public static class MemoryRecycler3DSceneBuilder
         for (int i = 0; i < 8; i++)
         {
             float side = i % 2 == 0 ? -1f : 1f;
-            float z = 24f + i * 4.2f;
+            float z = 31f + i * 5.2f;
             float height = 8.2f + (i % 4) * 1.45f;
-            GameObject block = CreateCinematicWorldBox(root, "Cinematic Background Block", new Vector3(side * (8.5f + i * 0.7f), height * 0.5f, z), new Vector3(3.6f + i * 0.18f, height, 3.8f), buildingMat, Vector3.zero);
+            GameObject block = CreateCinematicWorldBox(root, "Cinematic Background Block", new Vector3(side * (12.0f + i * 0.9f), height * 0.5f, z), new Vector3(4.0f + i * 0.20f, height, 4.6f), buildingMat, Vector3.zero);
             CreateCinematicWorldBox(block.transform, "Cinematic Roof Antenna", new Vector3(0.32f, 0.56f, 0f), new Vector3(0.035f, 0.26f, 0.035f), trimMat, Vector3.zero, true);
         }
     }
@@ -1071,9 +1188,9 @@ public static class MemoryRecycler3DSceneBuilder
     {
         for (int i = 0; i < 7; i++)
         {
-            float z = -13f + i * 5.1f;
+            float z = -18f + i * 6.3f;
             float y = 4.6f + (i % 3) * 0.34f;
-            CreateCinematicWorldBox(root, "Cinematic Overhead Cable", new Vector3(0f, y, z), new Vector3(15.5f, 0.032f, 0.032f), trimMat, new Vector3(0f, ReferenceRange(i, 91.4f, -4f, 4f), ReferenceRange(i, 92.4f, -3f, 3f)));
+            CreateCinematicWorldBox(root, "Cinematic Overhead Cable", new Vector3(0f, y, z), new Vector3(22.0f, 0.032f, 0.032f), trimMat, new Vector3(0f, ReferenceRange(i, 91.4f, -4f, 4f), ReferenceRange(i, 92.4f, -3f, 3f)));
         }
     }
 
@@ -1081,8 +1198,8 @@ public static class MemoryRecycler3DSceneBuilder
     {
         for (int i = 0; i < 10; i++)
         {
-            float z = -16f + i * 3.7f + ReferenceRange(i, 94.5f, -0.7f, 0.7f);
-            float x = ReferenceRange(i, 95.5f, -2.2f, 2.2f);
+            float z = -22f + i * 5.2f + ReferenceRange(i, 94.5f, -0.7f, 0.7f);
+            float x = ReferenceRange(i, 95.5f, -3.6f, 3.6f);
             Vector3 size = new Vector3(ReferenceRange(i, 96.5f, 0.55f, 1.8f), 0.012f, ReferenceRange(i, 97.5f, 0.18f, 0.62f));
             CreateCinematicWorldBox(root, "Cinematic Wet Puddle", new Vector3(x, 0.083f, z), size, puddleMat, new Vector3(0f, ReferenceRange(i, 98.5f, -14f, 14f), 0f));
 
@@ -1095,9 +1212,9 @@ public static class MemoryRecycler3DSceneBuilder
 
     private static void AddCinematicForegroundFraming(Transform root, Material buildingMat, Material trimMat, Material cyanMat)
     {
-        CreateCinematicWorldBox(root, "Cinematic Foreground Pipe_L", new Vector3(-6.25f, 2.1f, -7.4f), new Vector3(0.075f, 3.1f, 0.075f), trimMat, Vector3.zero);
-        CreateCinematicWorldBox(root, "Cinematic Foreground Pipe_R", new Vector3(6.25f, 2.4f, -6.3f), new Vector3(0.075f, 3.4f, 0.075f), trimMat, Vector3.zero);
-        CreateCinematicWorldBox(root, "Cinematic Foreground Neon", new Vector3(-6.18f, 1.9f, -6.2f), new Vector3(0.052f, 0.92f, 0.052f), cyanMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Foreground Pipe_L", new Vector3(-8.25f, 2.1f, -8.2f), new Vector3(0.075f, 3.1f, 0.075f), trimMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Foreground Pipe_R", new Vector3(8.25f, 2.4f, -7.1f), new Vector3(0.075f, 3.4f, 0.075f), trimMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Foreground Neon", new Vector3(-8.18f, 1.9f, -7.0f), new Vector3(0.052f, 0.92f, 0.052f), cyanMat, Vector3.zero);
     }
 
     private static void AddCinematicPlayerSilhouette(Scene scene, Material cyanMat, Material trimMat)
@@ -1187,11 +1304,11 @@ public static class MemoryRecycler3DSceneBuilder
         {
             float side = i % 2 == 0 ? -1f : 1f;
             float z = -8f + i * 5.8f;
-            CreateCinematicWorldBox(root, "Cinematic Side Alley Wall", new Vector3(side * 7.2f, 2.1f, z), new Vector3(0.32f, 4.2f, 3.6f), buildingMat, new Vector3(0f, side * 12f, 0f));
-            CreateCinematicWorldBox(root, "Cinematic Alley Pipe", new Vector3(side * 6.9f, 2.0f, z + 0.42f), new Vector3(0.070f, 2.9f, 0.070f), trimMat, Vector3.zero);
+            CreateCinematicWorldBox(root, "Cinematic Side Alley Wall", new Vector3(side * 9.6f, 2.1f, z), new Vector3(0.32f, 4.2f, 3.6f), buildingMat, new Vector3(0f, side * 12f, 0f));
+            CreateCinematicWorldBox(root, "Cinematic Alley Pipe", new Vector3(side * 9.25f, 2.0f, z + 0.42f), new Vector3(0.070f, 2.9f, 0.070f), trimMat, Vector3.zero);
 
             if (i % 3 == 0)
-                CreateCinematicWorldBox(root, "Cinematic Alley Blue Pin", new Vector3(side * 6.82f, 1.45f, z - 0.75f), new Vector3(0.060f, 0.58f, 0.060f), cyanMat, Vector3.zero);
+                CreateCinematicWorldBox(root, "Cinematic Alley Blue Pin", new Vector3(side * 9.12f, 1.45f, z - 0.75f), new Vector3(0.060f, 0.58f, 0.060f), cyanMat, Vector3.zero);
         }
     }
 
@@ -1305,13 +1422,13 @@ public static class MemoryRecycler3DSceneBuilder
     {
         GameObject ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
         ground.name = "Abandoned City Ground";
-        ground.transform.localScale = new Vector3(10f, 1f, 10f);
+        ground.transform.localScale = new Vector3(14f, 1f, 14f);
         ground.GetComponent<Renderer>().sharedMaterial = groundMat;
 
         GameObject avenue = GameObject.CreatePrimitive(PrimitiveType.Cube);
         avenue.name = "Main Avenue";
         avenue.transform.position = new Vector3(0f, 0.02f, 0f);
-        avenue.transform.localScale = new Vector3(8f, 0.04f, 42f);
+        avenue.transform.localScale = new Vector3(12.5f, 0.04f, 58f);
         avenue.GetComponent<Renderer>().sharedMaterial = roadMat;
 
         for (int i = 0; i < 10; i++)
@@ -1327,8 +1444,8 @@ public static class MemoryRecycler3DSceneBuilder
         {
             GameObject rubble = GameObject.CreatePrimitive(PrimitiveType.Cube);
             rubble.name = "Rubble_" + i;
-            float side = (i % 2 == 0) ? -5.2f : 5.2f;
-            rubble.transform.position = new Vector3(side + Random.Range(-1.4f, 1.4f), 0.14f + Random.Range(0f, 0.12f), -18f + i * 2.2f);
+            float side = (i % 2 == 0) ? -7.4f : 7.4f;
+            rubble.transform.position = new Vector3(side + Random.Range(-1.8f, 1.8f), 0.14f + Random.Range(0f, 0.12f), -24f + i * 3.0f);
             rubble.transform.rotation = Quaternion.Euler(0f, Random.Range(0f, 180f), Random.Range(0f, 12f));
             rubble.transform.localScale = new Vector3(Random.Range(0.3f, 0.9f), Random.Range(0.18f, 0.4f), Random.Range(0.35f, 1.0f));
             rubble.GetComponent<Renderer>().sharedMaterial = debrisMat;
@@ -1341,11 +1458,11 @@ public static class MemoryRecycler3DSceneBuilder
 
         Vector3[] positions =
         {
-            new Vector3(-10.5f, 2.8f, -16f), new Vector3(10.5f, 3.8f, -15f),
-            new Vector3(-11f, 4.6f, -7f), new Vector3(10.8f, 4.2f, -7f),
-            new Vector3(-10.6f, 3.1f, 2f), new Vector3(10.4f, 5.4f, 3f),
-            new Vector3(-10.8f, 4.8f, 12f), new Vector3(11f, 6.2f, 13f),
-            new Vector3(-15f, 3.4f, 8f), new Vector3(15f, 4.1f, 8f)
+            new Vector3(-14.5f, 2.8f, -22f), new Vector3(14.8f, 3.8f, -21f),
+            new Vector3(-15.5f, 4.6f, -10f), new Vector3(15.2f, 4.2f, -10f),
+            new Vector3(-14.8f, 3.1f, 2f), new Vector3(14.6f, 5.4f, 3f),
+            new Vector3(-15.0f, 4.8f, 15f), new Vector3(15.4f, 6.2f, 16f),
+            new Vector3(-20.2f, 3.4f, 8f), new Vector3(20.2f, 4.1f, 8f)
         };
 
         Vector3[] scales =
@@ -1366,7 +1483,7 @@ public static class MemoryRecycler3DSceneBuilder
         {
             float side = i % 2 == 0 ? -1f : 1f;
             float z = -16.5f + (i / 2) * 8.0f;
-            CreateStreetLight(cityRoot.transform, i, new Vector3(side * 4.65f, 0f, z), trimMat, accentMat);
+            CreateStreetLight(cityRoot.transform, i, new Vector3(side * 6.8f, 0f, z), trimMat, accentMat);
         }
     }
 
@@ -1631,24 +1748,38 @@ public static class MemoryRecycler3DSceneBuilder
     {
         GameObject terminal = GameObject.CreatePrimitive(PrimitiveType.Cube);
         terminal.name = "Central Archive Terminal";
-        terminal.transform.position = new Vector3(0f, 1.2f, 19f);
-        terminal.transform.localScale = new Vector3(3f, 2.4f, 1.2f);
+        terminal.transform.position = new Vector3(0f, 3.9f, 31.5f);
+        terminal.transform.localScale = new Vector3(3.4f, 7.8f, 1.6f);
         terminal.GetComponent<Renderer>().sharedMaterial = terminalMat;
         terminal.AddComponent<ArchiveTerminal3D>();
 
         GameObject frame = GameObject.CreatePrimitive(PrimitiveType.Cube);
         frame.name = "Terminal Frame";
         frame.transform.SetParent(terminal.transform);
-        frame.transform.localPosition = new Vector3(0f, 0f, -0.05f);
-        frame.transform.localScale = new Vector3(1.08f, 1.08f, 0.16f);
+        frame.transform.localPosition = new Vector3(0f, 0f, -0.50f);
+        frame.transform.localScale = new Vector3(1.08f, 0.72f, 0.12f);
         frame.GetComponent<Renderer>().sharedMaterial = trimMat;
 
+        GameObject crown = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        crown.name = "Archive Tower Crown";
+        crown.transform.SetParent(terminal.transform);
+        crown.transform.localPosition = new Vector3(0f, 0.58f, 0f);
+        crown.transform.localScale = new Vector3(1.18f, 0.16f, 1.10f);
+        crown.GetComponent<Renderer>().sharedMaterial = trimMat;
+
+        GameObject beam = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        beam.name = "Archive Vertical Light";
+        beam.transform.SetParent(terminal.transform);
+        beam.transform.localPosition = new Vector3(0f, 0.03f, -0.53f);
+        beam.transform.localScale = new Vector3(0.055f, 0.72f, 0.045f);
+        beam.GetComponent<Renderer>().sharedMaterial = terminalMat;
+
         GameObject lightObject = new GameObject("Terminal Beacon");
-        lightObject.transform.position = terminal.transform.position + Vector3.up * 2f;
+        lightObject.transform.position = terminal.transform.position + Vector3.up * 5f;
         Light light = lightObject.AddComponent<Light>();
         light.type = LightType.Point;
-        light.range = 12f;
-        light.intensity = 2.5f;
+        light.range = 24f;
+        light.intensity = 4f;
         light.color = new Color(0.1f, 1f, 0.75f);
     }
 
