@@ -93,6 +93,9 @@ public static class MemoryRecycler3DSceneBuilder
         removed += RemoveAllSceneObjectsByName(scene, "Ref Neon Strip");
         removed += RemoveAllSceneObjectsByName(scene, "Ref Wall Sign");
         removed += RemoveAllSceneObjectsByName(scene, "Ref Recycle Mark");
+        removed += RemoveAllSceneObjectsByName(scene, "Ref Sign Panel");
+        removed += RemoveAllSceneObjectsByName(scene, "Ref Sign Glow");
+        removed += RemoveAllSceneObjectsByName(scene, "Ref Recycle Glyph");
         removed += RemoveAllSceneObjectsByName(scene, "Ref Boarded Window");
         removed += RemoveAllSceneObjectsByName(scene, "Ref Rooftop Antenna");
         removed += RemoveAllSceneObjectsByName(scene, "Ref Wall Panel");
@@ -258,38 +261,47 @@ public static class MemoryRecycler3DSceneBuilder
     {
         Transform leftArmPivot = CreateScenePivot(visual, "ArmPivot_L", new Vector3(-0.39f, 1.47f, 0.015f), new Vector3(0f, 0f, -6f));
         Transform leftForearmPivot = CreateScenePivot(leftArmPivot, "ForearmPivot_L", new Vector3(0f, -0.48f, 0f), Vector3.zero);
-        SetScenePartUnder(visual, leftArmPivot, "Arm_L", PrimitiveType.Cylinder, new Vector3(0f, -0.24f, 0f), Vector3.zero, new Vector3(0.12f, 0.25f, 0.12f), jacketMat);
-        SetScenePartUnder(visual, leftForearmPivot, "Elbow_L", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.105f, jacketMat);
-        SetScenePartUnder(visual, leftForearmPivot, "Forearm_L", PrimitiveType.Cylinder, new Vector3(0f, -0.23f, 0f), Vector3.zero, new Vector3(0.105f, 0.24f, 0.105f), skinMat);
-        SetScenePartUnder(visual, leftForearmPivot, "Hand_L", PrimitiveType.Sphere, new Vector3(0f, -0.50f, 0.035f), Vector3.zero, Vector3.one * 0.085f, skinMat);
+        SetScenePartUnder(visual, leftArmPivot, "Shoulder_L", PrimitiveType.Sphere, new Vector3(0f, 0.02f, 0f), Vector3.zero, new Vector3(0.15f, 0.12f, 0.13f), jacketMat);
+        SetScenePartUnder(visual, leftArmPivot, "Arm_L", PrimitiveType.Cylinder, new Vector3(0f, -0.24f, 0f), Vector3.zero, new Vector3(0.135f, 0.255f, 0.135f), jacketMat);
+        SetScenePartUnder(visual, leftForearmPivot, "Elbow_L", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.118f, jacketMat);
+        SetScenePartUnder(visual, leftForearmPivot, "Forearm_L", PrimitiveType.Cylinder, new Vector3(0f, -0.23f, 0f), Vector3.zero, new Vector3(0.112f, 0.25f, 0.112f), skinMat);
+        SetScenePartUnder(visual, leftForearmPivot, "Hand_L", PrimitiveType.Sphere, new Vector3(0f, -0.51f, 0.035f), Vector3.zero, new Vector3(0.090f, 0.080f, 0.070f), skinMat);
 
         Transform rightArmPivot = CreateScenePivot(visual, "ArmPivot_R", new Vector3(0.39f, 1.47f, 0.015f), new Vector3(0f, 0f, 6f));
         Transform rightForearmPivot = CreateScenePivot(rightArmPivot, "ForearmPivot_R", new Vector3(0f, -0.48f, 0f), Vector3.zero);
-        SetScenePartUnder(visual, rightArmPivot, "Arm_R", PrimitiveType.Cylinder, new Vector3(0f, -0.24f, 0f), Vector3.zero, new Vector3(0.12f, 0.25f, 0.12f), jacketMat);
-        SetScenePartUnder(visual, rightForearmPivot, "Elbow_R", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.105f, jacketMat);
-        SetScenePartUnder(visual, rightForearmPivot, "Forearm_R", PrimitiveType.Cylinder, new Vector3(0f, -0.23f, 0f), Vector3.zero, new Vector3(0.105f, 0.24f, 0.105f), skinMat);
-        SetScenePartUnder(visual, rightForearmPivot, "Hand_R", PrimitiveType.Sphere, new Vector3(0f, -0.50f, 0.035f), Vector3.zero, Vector3.one * 0.085f, skinMat);
+        SetScenePartUnder(visual, rightArmPivot, "Shoulder_R", PrimitiveType.Sphere, new Vector3(0f, 0.02f, 0f), Vector3.zero, new Vector3(0.15f, 0.12f, 0.13f), jacketMat);
+        SetScenePartUnder(visual, rightArmPivot, "Arm_R", PrimitiveType.Cylinder, new Vector3(0f, -0.24f, 0f), Vector3.zero, new Vector3(0.135f, 0.255f, 0.135f), jacketMat);
+        SetScenePartUnder(visual, rightForearmPivot, "Elbow_R", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.118f, jacketMat);
+        SetScenePartUnder(visual, rightForearmPivot, "Forearm_R", PrimitiveType.Cylinder, new Vector3(0f, -0.23f, 0f), Vector3.zero, new Vector3(0.112f, 0.25f, 0.112f), skinMat);
+        SetScenePartUnder(visual, rightForearmPivot, "Hand_R", PrimitiveType.Sphere, new Vector3(0f, -0.51f, 0.035f), Vector3.zero, new Vector3(0.090f, 0.080f, 0.070f), skinMat);
 
         Transform leftLegPivot = CreateScenePivot(visual, "LegPivot_L", new Vector3(-0.15f, 0.97f, 0f), Vector3.zero);
         Transform leftKneePivot = CreateScenePivot(leftLegPivot, "KneePivot_L", new Vector3(0f, -0.56f, 0f), Vector3.zero);
-        SetScenePartUnder(visual, leftLegPivot, "Leg_L", PrimitiveType.Cylinder, new Vector3(0f, -0.28f, 0f), Vector3.zero, new Vector3(0.12f, 0.29f, 0.12f), pantsMat);
-        SetScenePartUnder(visual, leftKneePivot, "Knee_L", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.115f, pantsMat);
-        SetScenePartUnder(visual, leftKneePivot, "Shin_L", PrimitiveType.Cylinder, new Vector3(0f, -0.27f, 0f), Vector3.zero, new Vector3(0.105f, 0.28f, 0.105f), pantsMat);
+        SetScenePartUnder(visual, leftLegPivot, "Leg_L", PrimitiveType.Cylinder, new Vector3(0f, -0.28f, 0f), Vector3.zero, new Vector3(0.135f, 0.29f, 0.135f), pantsMat);
+        SetScenePartUnder(visual, leftKneePivot, "Knee_L", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.125f, pantsMat);
+        SetScenePartUnder(visual, leftKneePivot, "Shin_L", PrimitiveType.Cylinder, new Vector3(0f, -0.27f, 0f), Vector3.zero, new Vector3(0.115f, 0.28f, 0.115f), pantsMat);
         SetScenePartUnder(visual, leftKneePivot, "Boot_L", PrimitiveType.Cube, new Vector3(0f, -0.58f, 0.10f), Vector3.zero, new Vector3(0.18f, 0.10f, 0.32f), shoeMat);
 
         Transform rightLegPivot = CreateScenePivot(visual, "LegPivot_R", new Vector3(0.15f, 0.97f, 0f), Vector3.zero);
         Transform rightKneePivot = CreateScenePivot(rightLegPivot, "KneePivot_R", new Vector3(0f, -0.56f, 0f), Vector3.zero);
-        SetScenePartUnder(visual, rightLegPivot, "Leg_R", PrimitiveType.Cylinder, new Vector3(0f, -0.28f, 0f), Vector3.zero, new Vector3(0.12f, 0.29f, 0.12f), pantsMat);
-        SetScenePartUnder(visual, rightKneePivot, "Knee_R", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.115f, pantsMat);
-        SetScenePartUnder(visual, rightKneePivot, "Shin_R", PrimitiveType.Cylinder, new Vector3(0f, -0.27f, 0f), Vector3.zero, new Vector3(0.105f, 0.28f, 0.105f), pantsMat);
+        SetScenePartUnder(visual, rightLegPivot, "Leg_R", PrimitiveType.Cylinder, new Vector3(0f, -0.28f, 0f), Vector3.zero, new Vector3(0.135f, 0.29f, 0.135f), pantsMat);
+        SetScenePartUnder(visual, rightKneePivot, "Knee_R", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.125f, pantsMat);
+        SetScenePartUnder(visual, rightKneePivot, "Shin_R", PrimitiveType.Cylinder, new Vector3(0f, -0.27f, 0f), Vector3.zero, new Vector3(0.115f, 0.28f, 0.115f), pantsMat);
         SetScenePartUnder(visual, rightKneePivot, "Boot_R", PrimitiveType.Cube, new Vector3(0f, -0.58f, 0.10f), Vector3.zero, new Vector3(0.18f, 0.10f, 0.32f), shoeMat);
     }
 
     private static void BuildReferenceCharacterDetails(Transform visual, Material jacketMat, Material skinMat, Material hairMat, Material bagMat, Material glowMat)
     {
         SetScenePart(visual, "Hair Cap", PrimitiveType.Sphere, new Vector3(0f, 1.96f, -0.005f), Vector3.zero, new Vector3(0.31f, 0.17f, 0.27f), hairMat);
+        SetScenePart(visual, "Hair Back", PrimitiveType.Sphere, new Vector3(0f, 1.91f, -0.13f), Vector3.zero, new Vector3(0.27f, 0.18f, 0.16f), hairMat);
+        SetScenePart(visual, "Hair Side_L", PrimitiveType.Cube, new Vector3(-0.17f, 1.86f, 0.025f), new Vector3(0f, 0f, -8f), new Vector3(0.055f, 0.16f, 0.12f), hairMat);
+        SetScenePart(visual, "Hair Side_R", PrimitiveType.Cube, new Vector3(0.17f, 1.86f, 0.025f), new Vector3(0f, 0f, 8f), new Vector3(0.055f, 0.16f, 0.12f), hairMat);
         SetScenePart(visual, "Hair Fringe_L", PrimitiveType.Cube, new Vector3(-0.08f, 1.91f, 0.18f), new Vector3(0f, 0f, -18f), new Vector3(0.07f, 0.11f, 0.035f), hairMat);
         SetScenePart(visual, "Hair Fringe_R", PrimitiveType.Cube, new Vector3(0.08f, 1.91f, 0.18f), new Vector3(0f, 0f, 18f), new Vector3(0.07f, 0.11f, 0.035f), hairMat);
+        SetScenePart(visual, "Nose", PrimitiveType.Cube, new Vector3(0f, 1.85f, 0.205f), new Vector3(-8f, 0f, 0f), new Vector3(0.055f, 0.075f, 0.085f), skinMat);
+        SetScenePart(visual, "Ear_L", PrimitiveType.Sphere, new Vector3(-0.205f, 1.855f, 0.025f), Vector3.zero, new Vector3(0.052f, 0.082f, 0.040f), skinMat);
+        SetScenePart(visual, "Ear_R", PrimitiveType.Sphere, new Vector3(0.205f, 1.855f, 0.025f), Vector3.zero, new Vector3(0.052f, 0.082f, 0.040f), skinMat);
+        SetScenePart(visual, "Chin", PrimitiveType.Cube, new Vector3(0f, 1.755f, 0.122f), new Vector3(8f, 0f, 0f), new Vector3(0.145f, 0.055f, 0.065f), skinMat);
         SetScenePart(visual, "Long Coat Tail", PrimitiveType.Cube, new Vector3(0f, 0.61f, -0.04f), Vector3.zero, new Vector3(0.50f, 0.52f, 0.30f), jacketMat);
         SetScenePart(visual, "Crossbody Strap", PrimitiveType.Cube, new Vector3(-0.08f, 1.22f, -0.20f), new Vector3(0f, 0f, -22f), new Vector3(0.065f, 0.78f, 0.045f), bagMat);
         SetScenePart(visual, "Satchel", PrimitiveType.Cube, new Vector3(-0.23f, 0.92f, -0.30f), new Vector3(0f, 8f, -4f), new Vector3(0.30f, 0.22f, 0.16f), bagMat);
@@ -400,17 +412,8 @@ public static class MemoryRecycler3DSceneBuilder
         CreateReferenceFacadeBox(building, "Ref Neon Strip", new Vector3(leftSide ? scale.x * 0.35f : -scale.x * 0.35f, -scale.y * 0.02f, frontZ + 0.06f), new Vector3(0.07f, scale.y * 0.24f, 0.055f), cyanMat, 0f);
         CreateReferenceFacadeBox(building, "Ref Door Glow", new Vector3(leftSide ? scale.x * 0.25f : -scale.x * 0.25f, -scale.y * 0.36f, frontZ + 0.07f), new Vector3(0.42f, 0.055f, 0.055f), cyanMat, 0f);
 
-        if (index % 2 == 0)
-        {
-            CreateReferenceText(building, "Ref Wall Sign", "MEMORY\nRECYCLER", new Vector3(-scale.x * 0.27f, scale.y * 0.15f, frontZ + 0.08f), 0.20f, cyanMat);
-            CreateReferenceText(building, "Ref Recycle Mark", "♻", new Vector3(-scale.x * 0.28f, scale.y * 0.33f, frontZ + 0.08f), 0.28f, cyanMat);
-        }
-        else
-        {
-            string signText = index % 3 == 0 ? "기억은\n자원이다" : "기억 회수소";
-            CreateReferenceText(building, "Ref Wall Sign", signText, new Vector3(scale.x * 0.18f, scale.y * 0.16f, frontZ + 0.08f), 0.18f, cyanMat);
-            CreateReferenceText(building, "Ref Recycle Mark", "♻", new Vector3(scale.x * 0.24f, scale.y * 0.31f, frontZ + 0.08f), 0.23f, cyanMat);
-        }
+        CreateReferenceSignPanel(building, scale, frontZ, index, leftSide, darkPanelMat, cyanMat);
+        CreateReferenceRecycleGlyph(building, scale, frontZ, index, leftSide, cyanMat);
 
         for (int i = 0; i < 2; i++)
         {
@@ -435,25 +438,44 @@ public static class MemoryRecycler3DSceneBuilder
         Object.DestroyImmediate(box.GetComponent<Collider>());
     }
 
-    private static void CreateReferenceText(Transform building, string name, string value, Vector3 worldOffset, float characterSize, Material material)
+    private static void CreateReferenceSignPanel(Transform building, Vector3 scale, float frontZ, int index, bool leftSide, Material panelMat, Material glowMat)
     {
-        GameObject textObject = new GameObject(name);
-        textObject.transform.SetParent(building, false);
-        Vector3 parentScale = building.localScale;
-        textObject.transform.localPosition = new Vector3(worldOffset.x / parentScale.x, worldOffset.y / parentScale.y, worldOffset.z / parentScale.z);
-        textObject.transform.localRotation = Quaternion.identity;
+        bool vertical = index % 3 == 0;
+        float x = leftSide ? -scale.x * 0.28f : scale.x * 0.26f;
+        float y = scale.y * (vertical ? 0.12f : 0.20f);
+        Vector3 panelScale = vertical ? new Vector3(0.36f, 1.06f, 0.055f) : new Vector3(0.90f, 0.30f, 0.055f);
+        CreateReferenceFacadeBox(building, "Ref Sign Panel", new Vector3(x, y, frontZ + 0.08f), panelScale, panelMat, 0f);
 
-        TextMesh text = textObject.AddComponent<TextMesh>();
-        text.text = value;
-        text.fontSize = 64;
-        text.characterSize = characterSize;
-        text.anchor = TextAnchor.MiddleCenter;
-        text.alignment = TextAlignment.Center;
-        text.color = new Color(0.45f, 0.95f, 1f, 1f);
+        if (vertical)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                float barY = y + 0.32f - i * 0.20f;
+                CreateReferenceFacadeBox(building, "Ref Sign Glow", new Vector3(x, barY, frontZ + 0.115f), new Vector3(0.060f, 0.12f, 0.060f), glowMat, 0f);
+            }
+        }
+        else
+        {
+            CreateReferenceFacadeBox(building, "Ref Sign Glow", new Vector3(x - 0.24f, y, frontZ + 0.115f), new Vector3(0.060f, 0.20f, 0.060f), glowMat, 0f);
+            CreateReferenceFacadeBox(building, "Ref Sign Glow", new Vector3(x + 0.03f, y + 0.055f, frontZ + 0.115f), new Vector3(0.32f, 0.045f, 0.060f), glowMat, 0f);
+            CreateReferenceFacadeBox(building, "Ref Sign Glow", new Vector3(x + 0.12f, y - 0.060f, frontZ + 0.115f), new Vector3(0.22f, 0.045f, 0.060f), glowMat, 0f);
+        }
+    }
 
-        MeshRenderer renderer = textObject.GetComponent<MeshRenderer>();
-        if (renderer != null)
-            renderer.sharedMaterial = material;
+    private static void CreateReferenceRecycleGlyph(Transform building, Vector3 scale, float frontZ, int index, bool leftSide, Material material)
+    {
+        if (index % 2 != 0)
+            return;
+
+        float x = leftSide ? -scale.x * 0.27f : scale.x * 0.28f;
+        float y = scale.y * 0.34f;
+        for (int i = 0; i < 3; i++)
+        {
+            float angle = i * 120f + 18f;
+            float radians = angle * Mathf.Deg2Rad;
+            Vector3 offset = new Vector3(x + Mathf.Cos(radians) * 0.11f, y + Mathf.Sin(radians) * 0.09f, frontZ + 0.12f);
+            CreateReferenceFacadeBox(building, "Ref Recycle Glyph", offset, new Vector3(0.18f, 0.045f, 0.060f), material, angle);
+        }
     }
 
     private static void CreateReferenceCable(Transform building, Vector3 scale, Material material, int index)

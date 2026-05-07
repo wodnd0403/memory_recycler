@@ -351,30 +351,32 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     {
         Transform leftArmPivot = CreateOrUpdatePivot(root, "ArmPivot_L", new Vector3(-0.39f, 1.47f, 0.015f), new Vector3(0f, 0f, -6f));
         Transform leftForearmPivot = CreateOrUpdatePivot(leftArmPivot, "ForearmPivot_L", new Vector3(0f, -0.48f, 0f), Vector3.zero);
-        CreateOrUpdatePrimitive(leftArmPivot, "Arm_L", PrimitiveType.Cylinder, new Vector3(0f, -0.24f, 0f), Vector3.zero, new Vector3(0.12f, 0.25f, 0.12f), casualJacketMaterial);
-        CreateOrUpdatePrimitive(leftForearmPivot, "Elbow_L", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.105f, casualJacketMaterial);
-        CreateOrUpdatePrimitive(leftForearmPivot, "Forearm_L", PrimitiveType.Cylinder, new Vector3(0f, -0.23f, 0f), Vector3.zero, new Vector3(0.105f, 0.24f, 0.105f), casualSkinMaterial);
-        CreateOrUpdatePrimitive(leftForearmPivot, "Hand_L", PrimitiveType.Sphere, new Vector3(0f, -0.50f, 0.035f), Vector3.zero, Vector3.one * 0.085f, casualSkinMaterial);
+        CreateOrUpdatePrimitive(leftArmPivot, "Shoulder_L", PrimitiveType.Sphere, new Vector3(0f, 0.02f, 0f), Vector3.zero, new Vector3(0.15f, 0.12f, 0.13f), casualJacketMaterial);
+        CreateOrUpdatePrimitive(leftArmPivot, "Arm_L", PrimitiveType.Cylinder, new Vector3(0f, -0.24f, 0f), Vector3.zero, new Vector3(0.135f, 0.255f, 0.135f), casualJacketMaterial);
+        CreateOrUpdatePrimitive(leftForearmPivot, "Elbow_L", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.118f, casualJacketMaterial);
+        CreateOrUpdatePrimitive(leftForearmPivot, "Forearm_L", PrimitiveType.Cylinder, new Vector3(0f, -0.23f, 0f), Vector3.zero, new Vector3(0.112f, 0.25f, 0.112f), casualSkinMaterial);
+        CreateOrUpdatePrimitive(leftForearmPivot, "Hand_L", PrimitiveType.Sphere, new Vector3(0f, -0.51f, 0.035f), Vector3.zero, new Vector3(0.090f, 0.080f, 0.070f), casualSkinMaterial);
 
         Transform rightArmPivot = CreateOrUpdatePivot(root, "ArmPivot_R", new Vector3(0.39f, 1.47f, 0.015f), new Vector3(0f, 0f, 6f));
         Transform rightForearmPivot = CreateOrUpdatePivot(rightArmPivot, "ForearmPivot_R", new Vector3(0f, -0.48f, 0f), Vector3.zero);
-        CreateOrUpdatePrimitive(rightArmPivot, "Arm_R", PrimitiveType.Cylinder, new Vector3(0f, -0.24f, 0f), Vector3.zero, new Vector3(0.12f, 0.25f, 0.12f), casualJacketMaterial);
-        CreateOrUpdatePrimitive(rightForearmPivot, "Elbow_R", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.105f, casualJacketMaterial);
-        CreateOrUpdatePrimitive(rightForearmPivot, "Forearm_R", PrimitiveType.Cylinder, new Vector3(0f, -0.23f, 0f), Vector3.zero, new Vector3(0.105f, 0.24f, 0.105f), casualSkinMaterial);
-        CreateOrUpdatePrimitive(rightForearmPivot, "Hand_R", PrimitiveType.Sphere, new Vector3(0f, -0.50f, 0.035f), Vector3.zero, Vector3.one * 0.085f, casualSkinMaterial);
+        CreateOrUpdatePrimitive(rightArmPivot, "Shoulder_R", PrimitiveType.Sphere, new Vector3(0f, 0.02f, 0f), Vector3.zero, new Vector3(0.15f, 0.12f, 0.13f), casualJacketMaterial);
+        CreateOrUpdatePrimitive(rightArmPivot, "Arm_R", PrimitiveType.Cylinder, new Vector3(0f, -0.24f, 0f), Vector3.zero, new Vector3(0.135f, 0.255f, 0.135f), casualJacketMaterial);
+        CreateOrUpdatePrimitive(rightForearmPivot, "Elbow_R", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.118f, casualJacketMaterial);
+        CreateOrUpdatePrimitive(rightForearmPivot, "Forearm_R", PrimitiveType.Cylinder, new Vector3(0f, -0.23f, 0f), Vector3.zero, new Vector3(0.112f, 0.25f, 0.112f), casualSkinMaterial);
+        CreateOrUpdatePrimitive(rightForearmPivot, "Hand_R", PrimitiveType.Sphere, new Vector3(0f, -0.51f, 0.035f), Vector3.zero, new Vector3(0.090f, 0.080f, 0.070f), casualSkinMaterial);
 
         Transform leftLegPivot = CreateOrUpdatePivot(root, "LegPivot_L", new Vector3(-0.15f, 0.97f, 0f), Vector3.zero);
         Transform leftKneePivot = CreateOrUpdatePivot(leftLegPivot, "KneePivot_L", new Vector3(0f, -0.56f, 0f), Vector3.zero);
-        CreateOrUpdatePrimitive(leftLegPivot, "Leg_L", PrimitiveType.Cylinder, new Vector3(0f, -0.28f, 0f), Vector3.zero, new Vector3(0.12f, 0.29f, 0.12f), casualPantsMaterial);
-        CreateOrUpdatePrimitive(leftKneePivot, "Knee_L", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.115f, casualPantsMaterial);
-        CreateOrUpdatePrimitive(leftKneePivot, "Shin_L", PrimitiveType.Cylinder, new Vector3(0f, -0.27f, 0f), Vector3.zero, new Vector3(0.105f, 0.28f, 0.105f), casualPantsMaterial);
+        CreateOrUpdatePrimitive(leftLegPivot, "Leg_L", PrimitiveType.Cylinder, new Vector3(0f, -0.28f, 0f), Vector3.zero, new Vector3(0.135f, 0.29f, 0.135f), casualPantsMaterial);
+        CreateOrUpdatePrimitive(leftKneePivot, "Knee_L", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.125f, casualPantsMaterial);
+        CreateOrUpdatePrimitive(leftKneePivot, "Shin_L", PrimitiveType.Cylinder, new Vector3(0f, -0.27f, 0f), Vector3.zero, new Vector3(0.115f, 0.28f, 0.115f), casualPantsMaterial);
         CreateOrUpdatePrimitive(leftKneePivot, "Boot_L", PrimitiveType.Cube, new Vector3(0f, -0.58f, 0.10f), Vector3.zero, new Vector3(0.18f, 0.10f, 0.32f), casualShoeMaterial);
 
         Transform rightLegPivot = CreateOrUpdatePivot(root, "LegPivot_R", new Vector3(0.15f, 0.97f, 0f), Vector3.zero);
         Transform rightKneePivot = CreateOrUpdatePivot(rightLegPivot, "KneePivot_R", new Vector3(0f, -0.56f, 0f), Vector3.zero);
-        CreateOrUpdatePrimitive(rightLegPivot, "Leg_R", PrimitiveType.Cylinder, new Vector3(0f, -0.28f, 0f), Vector3.zero, new Vector3(0.12f, 0.29f, 0.12f), casualPantsMaterial);
-        CreateOrUpdatePrimitive(rightKneePivot, "Knee_R", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.115f, casualPantsMaterial);
-        CreateOrUpdatePrimitive(rightKneePivot, "Shin_R", PrimitiveType.Cylinder, new Vector3(0f, -0.27f, 0f), Vector3.zero, new Vector3(0.105f, 0.28f, 0.105f), casualPantsMaterial);
+        CreateOrUpdatePrimitive(rightLegPivot, "Leg_R", PrimitiveType.Cylinder, new Vector3(0f, -0.28f, 0f), Vector3.zero, new Vector3(0.135f, 0.29f, 0.135f), casualPantsMaterial);
+        CreateOrUpdatePrimitive(rightKneePivot, "Knee_R", PrimitiveType.Sphere, Vector3.zero, Vector3.zero, Vector3.one * 0.125f, casualPantsMaterial);
+        CreateOrUpdatePrimitive(rightKneePivot, "Shin_R", PrimitiveType.Cylinder, new Vector3(0f, -0.27f, 0f), Vector3.zero, new Vector3(0.115f, 0.28f, 0.115f), casualPantsMaterial);
         CreateOrUpdatePrimitive(rightKneePivot, "Boot_R", PrimitiveType.Cube, new Vector3(0f, -0.58f, 0.10f), Vector3.zero, new Vector3(0.18f, 0.10f, 0.32f), casualShoeMaterial);
     }
 
@@ -396,8 +398,15 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     private void BuildReferenceCharacterDetails(Transform root)
     {
         CreateOrUpdatePrimitive(root, "Hair Cap", PrimitiveType.Sphere, new Vector3(0f, 1.96f, -0.005f), Vector3.zero, new Vector3(0.31f, 0.17f, 0.27f), casualHairMaterial);
+        CreateOrUpdatePrimitive(root, "Hair Back", PrimitiveType.Sphere, new Vector3(0f, 1.91f, -0.13f), Vector3.zero, new Vector3(0.27f, 0.18f, 0.16f), casualHairMaterial);
+        CreateOrUpdatePrimitive(root, "Hair Side_L", PrimitiveType.Cube, new Vector3(-0.17f, 1.86f, 0.025f), new Vector3(0f, 0f, -8f), new Vector3(0.055f, 0.16f, 0.12f), casualHairMaterial);
+        CreateOrUpdatePrimitive(root, "Hair Side_R", PrimitiveType.Cube, new Vector3(0.17f, 1.86f, 0.025f), new Vector3(0f, 0f, 8f), new Vector3(0.055f, 0.16f, 0.12f), casualHairMaterial);
         CreateOrUpdatePrimitive(root, "Hair Fringe_L", PrimitiveType.Cube, new Vector3(-0.08f, 1.91f, 0.18f), new Vector3(0f, 0f, -18f), new Vector3(0.07f, 0.11f, 0.035f), casualHairMaterial);
         CreateOrUpdatePrimitive(root, "Hair Fringe_R", PrimitiveType.Cube, new Vector3(0.08f, 1.91f, 0.18f), new Vector3(0f, 0f, 18f), new Vector3(0.07f, 0.11f, 0.035f), casualHairMaterial);
+        CreateOrUpdatePrimitive(root, "Nose", PrimitiveType.Cube, new Vector3(0f, 1.85f, 0.205f), new Vector3(-8f, 0f, 0f), new Vector3(0.055f, 0.075f, 0.085f), casualSkinMaterial);
+        CreateOrUpdatePrimitive(root, "Ear_L", PrimitiveType.Sphere, new Vector3(-0.205f, 1.855f, 0.025f), Vector3.zero, new Vector3(0.052f, 0.082f, 0.040f), casualSkinMaterial);
+        CreateOrUpdatePrimitive(root, "Ear_R", PrimitiveType.Sphere, new Vector3(0.205f, 1.855f, 0.025f), Vector3.zero, new Vector3(0.052f, 0.082f, 0.040f), casualSkinMaterial);
+        CreateOrUpdatePrimitive(root, "Chin", PrimitiveType.Cube, new Vector3(0f, 1.755f, 0.122f), new Vector3(8f, 0f, 0f), new Vector3(0.145f, 0.055f, 0.065f), casualSkinMaterial);
         CreateOrUpdatePrimitive(root, "Long Coat Tail", PrimitiveType.Cube, new Vector3(0f, 0.61f, -0.04f), Vector3.zero, new Vector3(0.50f, 0.52f, 0.30f), casualJacketMaterial);
         CreateOrUpdatePrimitive(root, "Crossbody Strap", PrimitiveType.Cube, new Vector3(-0.08f, 1.22f, -0.20f), new Vector3(0f, 0f, -22f), new Vector3(0.065f, 0.78f, 0.045f), casualBagMaterial);
         CreateOrUpdatePrimitive(root, "Satchel", PrimitiveType.Cube, new Vector3(-0.23f, 0.92f, -0.30f), new Vector3(0f, 8f, -4f), new Vector3(0.30f, 0.22f, 0.16f), casualBagMaterial);
