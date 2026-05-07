@@ -755,8 +755,6 @@ public static class MemoryRecycler3DSceneBuilder
         Material grimeMat = CreateMaterial("MR3D_CinematicGrime", new Color(0.028f, 0.034f, 0.038f), false);
         Material roadPatchMat = CreateMaterial("MR3D_CinematicRoadPatch", new Color(0.030f, 0.035f, 0.040f), false);
         Material puddleMat = CreateCinematicPuddleMaterial();
-        Material mistMat = CreateCinematicTransparentMaterial("MR3D_CinematicMist", new Color(0.16f, 0.28f, 0.42f, 0.16f), 0.12f);
-        Material shadowMat = CreateCinematicTransparentMaterial("MR3D_CinematicShadowLayer", new Color(0.005f, 0.008f, 0.012f, 0.44f), 0.02f);
         Material cyanMat = CreateMaterial("MR3D_RecyclerAccent", new Color(0.055f, 0.72f, 0.88f), true);
         ApplyCinematicMaterialTextures();
 
@@ -775,16 +773,15 @@ public static class MemoryRecycler3DSceneBuilder
                 renderer.sharedMaterial = buildingMat;
 
             AddCinematicBuildingDetails(child, index, grimeMat, panelMat, trimMat, boardMat, cyanMat);
-            AddCinematicFacadeBaseWear(child, index, grimeMat, shadowMat, trimMat);
+            AddCinematicFacadeBaseWear(child, index, grimeMat, trimMat);
             index++;
         }
 
         AddCinematicRoadDetails(root, roadPatchMat, grimeMat, boardMat);
-        AddCinematicAvenueDepthCues(root, panelMat, trimMat, cyanMat, shadowMat, mistMat);
+        AddCinematicAvenueDepthCues(root, panelMat, trimMat, cyanMat, roadPatchMat);
         AddCinematicBackgroundDepth(root, buildingMat, trimMat);
         AddCinematicOverheadCables(root, trimMat);
         AddCinematicWetHighlights(root, puddleMat, cyanMat);
-        AddCinematicDepthHaze(root, mistMat);
         AddCinematicForegroundFraming(root, buildingMat, trimMat, cyanMat);
         AddCinematicPlayerSilhouette(scene, cyanMat, trimMat);
         AddCinematicWindowDepth(city.transform, panelMat, trimMat);
@@ -881,12 +878,12 @@ public static class MemoryRecycler3DSceneBuilder
         }
     }
 
-    private static void AddCinematicFacadeBaseWear(Transform building, int index, Material grimeMat, Material shadowMat, Material trimMat)
+    private static void AddCinematicFacadeBaseWear(Transform building, int index, Material grimeMat, Material trimMat)
     {
         Vector3 scale = building.localScale;
         float frontZ = scale.z * 0.5f + 0.132f;
 
-        CreateReferenceFacadeBox(building, "Cinematic Base Soot Band", new Vector3(0f, -scale.y * 0.42f, frontZ), new Vector3(scale.x * 0.86f, 0.26f, 0.040f), shadowMat, 0f);
+        CreateReferenceFacadeBox(building, "Cinematic Base Soot Band", new Vector3(0f, -scale.y * 0.42f, frontZ), new Vector3(scale.x * 0.86f, 0.20f, 0.040f), grimeMat, 0f);
 
         for (int i = 0; i < 3; i++)
         {
@@ -903,19 +900,18 @@ public static class MemoryRecycler3DSceneBuilder
         }
     }
 
-    private static void AddCinematicAvenueDepthCues(Transform root, Material panelMat, Material trimMat, Material cyanMat, Material shadowMat, Material mistMat)
+    private static void AddCinematicAvenueDepthCues(Transform root, Material panelMat, Material trimMat, Material cyanMat, Material roadPatchMat)
     {
-        for (int i = 0; i < 9; i++)
+        for (int i = 0; i < 6; i++)
         {
-            float z = -17f + i * 4.2f;
-            float width = Mathf.Lerp(5.4f, 2.2f, i / 8f);
-            CreateCinematicWorldBox(root, "Cinematic Street Cross Shadow", new Vector3(0f, 0.102f, z + 0.55f), new Vector3(width, 0.012f, 0.42f), shadowMat, new Vector3(0f, ReferenceRange(i, 131.2f, -5f, 5f), 0f));
+            float z = -14f + i * 5.4f;
+            float width = Mathf.Lerp(4.8f, 2.0f, i / 5f);
+            CreateCinematicWorldBox(root, "Cinematic Street Cross Shadow", new Vector3(0f, 0.064f, z + 0.55f), new Vector3(width, 0.010f, 0.34f), roadPatchMat, new Vector3(0f, ReferenceRange(i, 131.2f, -5f, 5f), 0f));
         }
 
         CreateCinematicWorldBox(root, "Cinematic Distant Memory Gate", new Vector3(0f, 1.55f, 24.5f), new Vector3(0.86f, 2.35f, 0.12f), cyanMat, Vector3.zero);
         CreateCinematicWorldBox(root, "Cinematic Distant Gate Core", new Vector3(0f, 1.55f, 24.42f), new Vector3(0.48f, 1.70f, 0.08f), panelMat, Vector3.zero);
         CreateCinematicWorldBox(root, "Cinematic Distant Gate Cap", new Vector3(0f, 2.80f, 24.38f), new Vector3(1.05f, 0.08f, 0.16f), trimMat, Vector3.zero);
-        CreateCinematicWorldBox(root, "Cinematic Gate Haze", new Vector3(0f, 1.65f, 24.1f), new Vector3(3.0f, 2.8f, 0.025f), mistMat, Vector3.zero);
 
         for (int i = 0; i < 4; i++)
         {
@@ -963,23 +959,11 @@ public static class MemoryRecycler3DSceneBuilder
         }
     }
 
-    private static void AddCinematicDepthHaze(Transform root, Material mistMat)
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            float z = 5f + i * 8f;
-            float y = 1.55f + i * 0.45f;
-            CreateCinematicWorldBox(root, "Cinematic Distant Haze", new Vector3(0f, y, z), new Vector3(17.5f + i * 2.5f, 3.1f + i * 0.65f, 0.025f), mistMat, Vector3.zero);
-        }
-    }
-
     private static void AddCinematicForegroundFraming(Transform root, Material buildingMat, Material trimMat, Material cyanMat)
     {
-        CreateCinematicWorldBox(root, "Cinematic Foreground Wall_L", new Vector3(-13.4f, 3.4f, -13.5f), new Vector3(3.0f, 6.8f, 5.8f), buildingMat, new Vector3(0f, 4f, 0f));
-        CreateCinematicWorldBox(root, "Cinematic Foreground Wall_R", new Vector3(13.6f, 4.1f, -12.2f), new Vector3(3.3f, 8.2f, 5.2f), buildingMat, new Vector3(0f, -5f, 0f));
-        CreateCinematicWorldBox(root, "Cinematic Foreground Pipe_L", new Vector3(-11.75f, 2.3f, -10.7f), new Vector3(0.10f, 3.7f, 0.10f), trimMat, Vector3.zero);
-        CreateCinematicWorldBox(root, "Cinematic Foreground Pipe_R", new Vector3(11.85f, 2.6f, -9.9f), new Vector3(0.10f, 4.1f, 0.10f), trimMat, Vector3.zero);
-        CreateCinematicWorldBox(root, "Cinematic Foreground Neon", new Vector3(-11.68f, 2.1f, -7.85f), new Vector3(0.065f, 1.15f, 0.065f), cyanMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Foreground Pipe_L", new Vector3(-6.25f, 2.1f, -7.4f), new Vector3(0.075f, 3.1f, 0.075f), trimMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Foreground Pipe_R", new Vector3(6.25f, 2.4f, -6.3f), new Vector3(0.075f, 3.4f, 0.075f), trimMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Foreground Neon", new Vector3(-6.18f, 1.9f, -6.2f), new Vector3(0.052f, 0.92f, 0.052f), cyanMat, Vector3.zero);
     }
 
     private static void AddCinematicPlayerSilhouette(Scene scene, Material cyanMat, Material trimMat)
