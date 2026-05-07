@@ -688,8 +688,11 @@ public static class MemoryRecycler3DSceneBuilder
         if (orbit != null)
         {
             orbit.offset = new Vector3(0f, 2.95f, -6.45f);
-            orbit.minPitch = 8f;
-            orbit.maxPitch = 52f;
+            orbit.minPitch = -35f;
+            orbit.maxPitch = 70f;
+            orbit.baseLookHeight = 1.45f;
+            orbit.lookUpHeight = 5.2f;
+            orbit.lookDownHeight = 1.05f;
             orbit.followSmooth = 14f;
             orbit.target = player.transform;
         }
@@ -1698,6 +1701,11 @@ public static class MemoryRecycler3DSceneBuilder
 
         OrbitCamera3D orbit = cameraObject.AddComponent<OrbitCamera3D>();
         orbit.target = player;
+        orbit.minPitch = -35f;
+        orbit.maxPitch = 70f;
+        orbit.baseLookHeight = 1.45f;
+        orbit.lookUpHeight = 5.2f;
+        orbit.lookDownHeight = 1.05f;
         cameraObject.transform.position = player.position + new Vector3(0f, 3.4f, -6.2f);
 
         ThirdPersonPlayer3D movement = player.GetComponent<ThirdPersonPlayer3D>();
