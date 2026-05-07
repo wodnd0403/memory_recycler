@@ -99,27 +99,27 @@ public class WorldToneController3D : MonoBehaviour
 
         RenderSettings.fog = true;
         Color memoryFog = Color.Lerp(deletedFog, preservedFog, memoryT);
-        Color timeFog = Color.Lerp(new Color(0.04f, 0.055f, 0.08f), new Color(0.46f, 0.52f, 0.60f), daylight);
-        RenderSettings.fogColor = Color.Lerp(memoryFog, timeFog, 0.55f);
-        RenderSettings.fogDensity = Mathf.Lerp(0.038f, 0.02f, daylight) * Mathf.Lerp(1.22f, 0.92f, memoryT);
+        Color timeFog = Color.Lerp(new Color(0.025f, 0.042f, 0.068f), new Color(0.32f, 0.39f, 0.49f), daylight);
+        RenderSettings.fogColor = Color.Lerp(memoryFog, timeFog, 0.68f);
+        RenderSettings.fogDensity = Mathf.Lerp(0.052f, 0.032f, daylight) * Mathf.Lerp(1.22f, 0.92f, memoryT);
 
-        Color nightAmbient = new Color(0.035f, 0.05f, 0.075f);
-        Color dayAmbient = new Color(0.24f, 0.25f, 0.24f);
-        Color memoryAmbient = Color.Lerp(new Color(0.08f, 0.08f, 0.09f), new Color(0.25f, 0.28f, 0.34f), memoryT);
-        RenderSettings.ambientLight = Color.Lerp(memoryAmbient, Color.Lerp(nightAmbient, dayAmbient, daylight), 0.6f);
+        Color nightAmbient = new Color(0.020f, 0.033f, 0.055f);
+        Color dayAmbient = new Color(0.16f, 0.18f, 0.20f);
+        Color memoryAmbient = Color.Lerp(new Color(0.050f, 0.055f, 0.065f), new Color(0.15f, 0.19f, 0.24f), memoryT);
+        RenderSettings.ambientLight = Color.Lerp(memoryAmbient, Color.Lerp(nightAmbient, dayAmbient, daylight), 0.66f);
 
         if (sunLight != null)
         {
             sunLight.transform.rotation = Quaternion.Euler(timeOfDayNormalized * 360f - 90f, -28f, 0f);
-            sunLight.intensity = Mathf.Lerp(0.02f, 1.05f, daylight) * Mathf.Lerp(0.85f, 1.15f, memoryT);
-            Color sunrise = new Color(1.0f, 0.68f, 0.48f);
-            Color midday = new Color(0.93f, 0.96f, 1.0f);
-            Color moonlight = new Color(0.30f, 0.38f, 0.58f);
+            sunLight.intensity = Mathf.Lerp(0.015f, 0.72f, daylight) * Mathf.Lerp(0.82f, 1.08f, memoryT);
+            Color sunrise = new Color(0.80f, 0.62f, 0.50f);
+            Color midday = new Color(0.70f, 0.80f, 0.94f);
+            Color moonlight = new Color(0.24f, 0.34f, 0.56f);
             Color dayColor = Color.Lerp(sunrise, midday, daylight);
             sunLight.color = Color.Lerp(moonlight, dayColor, daylight);
         }
 
-        float streetLightIntensity = Mathf.Lerp(1.15f, 0.05f, daylight);
+        float streetLightIntensity = Mathf.Lerp(1.45f, 0.08f, daylight);
         for (int i = 0; i < streetLights.Count; i++)
         {
             if (streetLights[i] == null)

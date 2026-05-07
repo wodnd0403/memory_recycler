@@ -407,10 +407,14 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         CreateOrUpdatePrimitive(root, "Ear_L", PrimitiveType.Sphere, new Vector3(-0.205f, 1.855f, 0.025f), Vector3.zero, new Vector3(0.052f, 0.082f, 0.040f), casualSkinMaterial);
         CreateOrUpdatePrimitive(root, "Ear_R", PrimitiveType.Sphere, new Vector3(0.205f, 1.855f, 0.025f), Vector3.zero, new Vector3(0.052f, 0.082f, 0.040f), casualSkinMaterial);
         CreateOrUpdatePrimitive(root, "Chin", PrimitiveType.Cube, new Vector3(0f, 1.755f, 0.122f), new Vector3(8f, 0f, 0f), new Vector3(0.145f, 0.055f, 0.065f), casualSkinMaterial);
+        CreateOrUpdatePrimitive(root, "High Collar", PrimitiveType.Cube, new Vector3(0f, 1.58f, -0.13f), new Vector3(-8f, 0f, 0f), new Vector3(0.43f, 0.19f, 0.12f), casualJacketMaterial);
         CreateOrUpdatePrimitive(root, "Long Coat Tail", PrimitiveType.Cube, new Vector3(0f, 0.61f, -0.04f), Vector3.zero, new Vector3(0.50f, 0.52f, 0.30f), casualJacketMaterial);
+        CreateOrUpdatePrimitive(root, "Coat Back Seam", PrimitiveType.Cube, new Vector3(0f, 1.05f, -0.245f), Vector3.zero, new Vector3(0.035f, 0.72f, 0.040f), casualBagMaterial);
+        CreateOrUpdatePrimitive(root, "Coat Hem_L", PrimitiveType.Cube, new Vector3(-0.18f, 0.50f, -0.06f), new Vector3(0f, 0f, 5f), new Vector3(0.17f, 0.28f, 0.25f), casualJacketMaterial);
+        CreateOrUpdatePrimitive(root, "Coat Hem_R", PrimitiveType.Cube, new Vector3(0.18f, 0.50f, -0.06f), new Vector3(0f, 0f, -5f), new Vector3(0.17f, 0.28f, 0.25f), casualJacketMaterial);
         CreateOrUpdatePrimitive(root, "Crossbody Strap", PrimitiveType.Cube, new Vector3(-0.08f, 1.22f, -0.20f), new Vector3(0f, 0f, -22f), new Vector3(0.065f, 0.78f, 0.045f), casualBagMaterial);
-        CreateOrUpdatePrimitive(root, "Satchel", PrimitiveType.Cube, new Vector3(-0.23f, 0.92f, -0.30f), new Vector3(0f, 8f, -4f), new Vector3(0.30f, 0.22f, 0.16f), casualBagMaterial);
-        CreateOrUpdatePrimitive(root, "Memory Vial", PrimitiveType.Cube, new Vector3(-0.08f, 0.86f, -0.41f), Vector3.zero, new Vector3(0.075f, 0.17f, 0.045f), casualGlowMaterial);
+        CreateOrUpdatePrimitive(root, "Satchel", PrimitiveType.Cube, new Vector3(-0.25f, 0.88f, -0.33f), new Vector3(0f, 8f, -4f), new Vector3(0.34f, 0.25f, 0.18f), casualBagMaterial);
+        CreateOrUpdatePrimitive(root, "Memory Vial", PrimitiveType.Cube, new Vector3(-0.08f, 0.82f, -0.45f), Vector3.zero, new Vector3(0.085f, 0.20f, 0.050f), casualGlowMaterial);
     }
 
     private void RemoveSpaceSuitAccessories(Transform root)
