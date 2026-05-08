@@ -978,6 +978,13 @@ public static class MemoryRecycler3DSceneBuilder
             collider.enabled = true;
         }
 
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(TripoAssetPath + "/Buildings/PostApocalypticTower/PostApocalypticTower.fbx") != null)
+        {
+            ConfigureArchiveTriggerOnly(terminal);
+            EditorUtility.SetDirty(terminal);
+            return;
+        }
+
         SetTerminalPart(terminal.transform, "Archive Tower Core", PrimitiveType.Cube, new Vector3(0f, 0.04f, -0.08f), Vector3.zero, new Vector3(0.62f, 1.03f, 0.42f), panelMat);
         SetTerminalPart(terminal.transform, "Archive Tower Crown", PrimitiveType.Cube, new Vector3(0f, 0.58f, 0f), Vector3.zero, new Vector3(1.18f, 0.16f, 1.10f), trimMat);
         SetTerminalPart(terminal.transform, "Archive Tower Base", PrimitiveType.Cube, new Vector3(0f, -0.54f, 0.04f), Vector3.zero, new Vector3(1.28f, 0.16f, 1.16f), trimMat);
@@ -1009,6 +1016,46 @@ public static class MemoryRecycler3DSceneBuilder
 
         EditorUtility.SetDirty(terminal);
         EditorUtility.SetDirty(beacon);
+    }
+
+    private static void ConfigureArchiveTriggerOnly(GameObject terminal)
+    {
+        terminal.name = "Central Archive Terminal";
+        terminal.transform.position = new Vector3(0f, 1.8f, 32.0f);
+        terminal.transform.localScale = new Vector3(4.2f, 3.6f, 4.2f);
+
+        Renderer renderer = terminal.GetComponent<Renderer>();
+        if (renderer != null)
+            renderer.enabled = false;
+
+        string[] visualChildren =
+        {
+            "Archive Tower Core",
+            "Archive Tower Crown",
+            "Archive Tower Base",
+            "Archive Vertical Light",
+            "Archive Memory Eye"
+        };
+
+        for (int i = 0; i < visualChildren.Length; i++)
+        {
+            Transform child = FindDeepChild(terminal.transform, visualChildren[i]);
+            if (child != null)
+                Object.DestroyImmediate(child.gameObject);
+        }
+
+        for (int i = terminal.transform.childCount - 1; i >= 0; i--)
+        {
+            Transform child = terminal.transform.GetChild(i);
+            if (child != null && child.name.StartsWith("Archive Side Light_"))
+                Object.DestroyImmediate(child.gameObject);
+        }
+
+        Collider collider = terminal.GetComponent<Collider>();
+        if (collider == null)
+            collider = terminal.AddComponent<BoxCollider>();
+        collider.isTrigger = true;
+        collider.enabled = true;
     }
 
     private static void SetTerminalPart(Transform parent, string name, PrimitiveType primitive, Vector3 localPosition, Vector3 localEuler, Vector3 localScale, Material material)
