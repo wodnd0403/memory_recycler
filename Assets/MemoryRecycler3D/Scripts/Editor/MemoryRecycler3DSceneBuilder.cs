@@ -1100,7 +1100,7 @@ public static class MemoryRecycler3DSceneBuilder
 
         instance.name = name;
         instance.transform.position = position;
-        instance.transform.eulerAngles = euler;
+        instance.transform.rotation = GetTripoWorldRotation(euler);
         instance.transform.localScale = Vector3.one;
         instance.transform.SetParent(parent, true);
 
@@ -1132,10 +1132,15 @@ public static class MemoryRecycler3DSceneBuilder
 
         visual.transform.SetParent(player.transform, true);
         visual.transform.localPosition = Vector3.zero;
-        visual.transform.localEulerAngles = new Vector3(0f, 180f, 0f);
+        visual.transform.localRotation = Quaternion.Euler(0f, 180f, 0f) * Quaternion.Euler(-90f, 0f, 0f);
         NormalizeImportedModel(visual.transform, player.transform.position.y, 2.05f);
 
         EditorUtility.SetDirty(player);
+    }
+
+    private static Quaternion GetTripoWorldRotation(Vector3 euler)
+    {
+        return Quaternion.Euler(0f, euler.y, 0f) * Quaternion.Euler(-90f, 0f, 0f);
     }
 
     private static Material CreateTripoMaterial(string name, string assetPath)
