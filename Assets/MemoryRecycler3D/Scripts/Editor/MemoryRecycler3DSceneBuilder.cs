@@ -1104,7 +1104,7 @@ public static class MemoryRecycler3DSceneBuilder
         PlaceTripoPrefab(scene, root.transform, "Tripo Building City Block_R", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(13.6f, 0f, 14.8f), new Vector3(0f, -88f, 0f), 5.8f, true);
         PlaceTripoPrefab(scene, root.transform, "Tripo Background Block_L", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(-22.0f, 0f, 30.0f), new Vector3(0f, 38f, 0f), 8.8f, true);
         PlaceTripoPrefab(scene, root.transform, "Tripo Background Block_R", "Buildings/RuinedConcreteBuilding/RuinedConcreteBuilding.fbx", new Vector3(22.0f, 0f, 31.5f), new Vector3(0f, -34f, 0f), 9.2f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Archive Tower", "Buildings/PostApocalypticTower/PostApocalypticTower.fbx", new Vector3(0f, 0f, 34.2f), new Vector3(0f, 180f, 0f), 12.0f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Archive Tower", "Buildings/PostApocalypticTower/PostApocalypticTower.fbx", new Vector3(0f, 0f, 28.0f), new Vector3(0f, 180f, 0f), 8.8f, true);
 
         PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_L0", "Props/StreetLamps/StreetLamps.fbx", new Vector3(-6.7f, 0f, -17.0f), new Vector3(0f, 15f, 0f), 2.9f, true);
         PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_R0", "Props/StreetLamps/StreetLamps.fbx", new Vector3(6.7f, 0f, -11.0f), new Vector3(0f, -165f, 0f), 2.9f, true);
@@ -1179,7 +1179,7 @@ public static class MemoryRecycler3DSceneBuilder
 
         visual.transform.SetParent(player.transform, true);
         visual.transform.localPosition = Vector3.zero;
-        visual.transform.localRotation = Quaternion.Euler(0f, 180f, 0f) * Quaternion.Euler(-90f, 0f, 0f);
+        visual.transform.localRotation = Quaternion.Euler(0f, 90f, 0f) * Quaternion.Euler(-90f, 0f, 0f);
         NormalizeImportedModel(visual.transform, player.transform.position.y, 2.05f);
 
         EditorUtility.SetDirty(player);
