@@ -9,6 +9,8 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     public float runSpeed = 7f;
     public float rotationSpeed = 12f;
     public float gravity = -20f;
+    public float backwardSpeedMultiplier = 0.62f;
+    public float strafeSpeedMultiplier = 0.82f;
 
     [Header("Camera")]
     public Transform cameraTransform;
@@ -21,6 +23,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     public float bodyBobAmount = 0.055f;
     public float runBodyBobAmount = 0.11f;
     public float animationSmooth = 10f;
+    public float backwardLimbAngleMultiplier = 0.74f;
 
     [Header("Visual Refinement")]
     public bool refineHumanSilhouette = true;
@@ -56,6 +59,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     private Transform coat;
     private Transform coatSkirt;
     private Transform backpack;
+    private Transform tripoVisual;
 
     private Material casualJacketMaterial;
     private Material casualShirtMaterial;
@@ -70,9 +74,13 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     private readonly Dictionary<Transform, Quaternion> defaultRotations = new Dictionary<Transform, Quaternion>();
     private readonly Dictionary<Transform, Vector3> defaultLocalPositions = new Dictionary<Transform, Vector3>();
     private Vector3 visualRootDefaultLocalPos;
+    private Vector3 tripoVisualDefaultLocalPos;
+    private Quaternion tripoVisualDefaultLocalRotation;
     private float animationTime;
     private bool isRunning;
     private float moveBlend;
+    private float localMoveForward;
+    private float localMoveSide;
     private Vector3 lastPlanarMove;
 
     public bool IsMoving { get; private set; }
@@ -114,6 +122,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
         Vector3 input = new Vector3(horizontal, 0f, vertical).normalized;
         Vector3 moveDirection = Vector3.zero;
+        float inputMagnitude = Mathf.Clamp01(new Vector2(horizontal, vertical).magnitude);
 
         if (input.magnitude >= 0.1f)
         {
@@ -127,9 +136,24 @@ public class ThirdPersonPlayer3D : MonoBehaviour
             moveDirection = cameraForward * input.z + cameraRight * input.x;
             moveDirection.Normalize();
 
-            Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            Vector3 facingDirection = moveDirection;
+            if (input.z < -0.12f)
+            {
+                facingDirection = cameraForward + cameraRight * input.x * 0.45f;
+                facingDirection.y = 0f;
+                facingDirection.Normalize();
+            }
+
+            if (facingDirection.sqrMagnitude > 0.001f)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(facingDirection);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            }
         }
+
+        Vector3 localMove = moveDirection.sqrMagnitude > 0.001f ? transform.InverseTransformDirection(moveDirection) : Vector3.zero;
+        localMoveForward = Mathf.Lerp(localMoveForward, Mathf.Clamp(localMove.z, -1f, 1f), Time.deltaTime * animationSmooth);
+        localMoveSide = Mathf.Lerp(localMoveSide, Mathf.Clamp(localMove.x, -1f, 1f), Time.deltaTime * animationSmooth);
 
         if (controller.isGrounded && verticalVelocity < 0f)
             verticalVelocity = -2f;
@@ -138,13 +162,18 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
         isRunning = Input.GetKey(KeyCode.LeftShift) && input.magnitude >= 0.1f;
         float speed = isRunning ? runSpeed : walkSpeed;
+        if (vertical < -0.1f)
+            speed *= backwardSpeedMultiplier;
+        else if (Mathf.Abs(horizontal) > 0.1f && Mathf.Abs(vertical) < 0.35f)
+            speed *= strafeSpeedMultiplier;
+
         Vector3 finalMove = moveDirection * speed;
         finalMove.y = verticalVelocity;
 
         controller.Move(finalMove * Time.deltaTime);
 
         lastPlanarMove = new Vector3(moveDirection.x, 0f, moveDirection.z) * speed;
-        IsMoving = input.magnitude >= 0.1f && controller.isGrounded;
+        IsMoving = inputMagnitude >= 0.1f && controller.isGrounded;
     }
 
     private void CacheAnimationRig()
@@ -153,6 +182,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         if (visualRoot == null)
             return;
 
+        tripoVisual = FindDeepChild(transform, "Tripo Player Visual");
         torso = FindDeepChild(visualRoot, "Torso");
         head = FindDeepChild(visualRoot, "Head");
         armPivotL = FindDeepChild(visualRoot, "ArmPivot_L");
@@ -209,6 +239,12 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         CacheDefaultPose(coat);
         CacheDefaultPose(coatSkirt);
         CacheDefaultPose(backpack);
+
+        if (tripoVisual != null)
+        {
+            tripoVisualDefaultLocalPos = tripoVisual.localPosition;
+            tripoVisualDefaultLocalRotation = tripoVisual.localRotation;
+        }
     }
 
     private void CacheDefaultPose(Transform t)
@@ -239,38 +275,55 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
         float stride = Mathf.Sin(animationTime);
         float counterStride = Mathf.Sin(animationTime + Mathf.PI);
-        float armAngle = Mathf.Lerp(walkLimbAngle, runLimbAngle, isRunning ? 1f : 0f) * moveBlend;
-        float legAngle = Mathf.Lerp(walkLimbAngle, runLimbAngle, isRunning ? 1f : 0f) * moveBlend;
+        float forwardAmount = Mathf.Clamp(localMoveForward, -1f, 1f);
+        float sideAmount = Mathf.Clamp(localMoveSide, -1f, 1f);
+        float backwardAmount = Mathf.Clamp01(-forwardAmount);
+        float forwardSign = backwardAmount > 0.35f ? -1f : 1f;
+        float directionMultiplier = Mathf.Lerp(1f, backwardLimbAngleMultiplier, backwardAmount);
+        float armAngle = Mathf.Lerp(walkLimbAngle, runLimbAngle, isRunning ? 1f : 0f) * moveBlend * directionMultiplier;
+        float legAngle = Mathf.Lerp(walkLimbAngle, runLimbAngle, isRunning ? 1f : 0f) * moveBlend * directionMultiplier;
         float bob = Mathf.Lerp(bodyBobAmount, runBodyBobAmount, isRunning ? 1f : 0f) * moveBlend;
-        float sway = Mathf.Sin(animationTime * 0.5f) * 5.5f * moveBlend;
+        float sway = (Mathf.Sin(animationTime * 0.5f) * 5.5f + sideAmount * 7f) * moveBlend;
         float elbowBase = Mathf.Lerp(8f, 16f, isRunning ? 1f : 0f) * moveBlend;
         float elbowFlex = Mathf.Lerp(16f, 28f, isRunning ? 1f : 0f) * moveBlend;
         float kneeBase = Mathf.Lerp(4f, 10f, isRunning ? 1f : 0f) * moveBlend;
         float kneeFlex = Mathf.Lerp(20f, 38f, isRunning ? 1f : 0f) * moveBlend;
         float footAngle = Mathf.Lerp(8f, 18f, isRunning ? 1f : 0f) * moveBlend;
 
-        SetLocalRotation(armPivotL, GetDefaultRotation(armPivotL) * Quaternion.Euler(stride * armAngle, 0f, -5f * moveBlend));
-        SetLocalRotation(forearmPivotL, GetDefaultRotation(forearmPivotL) * Quaternion.Euler(-elbowBase - Mathf.Abs(stride) * elbowFlex, 0f, 0f));
-        SetLocalRotation(armPivotR, GetDefaultRotation(armPivotR) * Quaternion.Euler(counterStride * armAngle, 0f, 5f * moveBlend));
-        SetLocalRotation(forearmPivotR, GetDefaultRotation(forearmPivotR) * Quaternion.Euler(-elbowBase - Mathf.Abs(counterStride) * elbowFlex, 0f, 0f));
-        SetLocalRotation(handL, GetDefaultRotation(handL) * Quaternion.Euler(stride * armAngle * 0.18f, 0f, -4f * moveBlend));
-        SetLocalRotation(handR, GetDefaultRotation(handR) * Quaternion.Euler(counterStride * armAngle * 0.18f, 0f, 4f * moveBlend));
+        SetLocalRotation(armPivotL, GetDefaultRotation(armPivotL) * Quaternion.Euler(stride * armAngle * forwardSign, sideAmount * 10f * moveBlend, -5f * moveBlend - sideAmount * 7f * moveBlend));
+        SetLocalRotation(forearmPivotL, GetDefaultRotation(forearmPivotL) * Quaternion.Euler(-elbowBase - Mathf.Abs(stride) * elbowFlex, sideAmount * 3f * moveBlend, 0f));
+        SetLocalRotation(armPivotR, GetDefaultRotation(armPivotR) * Quaternion.Euler(counterStride * armAngle * forwardSign, sideAmount * 10f * moveBlend, 5f * moveBlend - sideAmount * 7f * moveBlend));
+        SetLocalRotation(forearmPivotR, GetDefaultRotation(forearmPivotR) * Quaternion.Euler(-elbowBase - Mathf.Abs(counterStride) * elbowFlex, sideAmount * 3f * moveBlend, 0f));
+        SetLocalRotation(handL, GetDefaultRotation(handL) * Quaternion.Euler(stride * armAngle * 0.18f * forwardSign, 0f, -4f * moveBlend));
+        SetLocalRotation(handR, GetDefaultRotation(handR) * Quaternion.Euler(counterStride * armAngle * 0.18f * forwardSign, 0f, 4f * moveBlend));
 
-        SetLocalRotation(legPivotL, GetDefaultRotation(legPivotL) * Quaternion.Euler(counterStride * legAngle, 0f, -1.5f * moveBlend));
-        SetLocalRotation(kneePivotL, GetDefaultRotation(kneePivotL) * Quaternion.Euler(kneeBase + Mathf.Max(0f, counterStride) * kneeFlex, 0f, 0f));
-        SetLocalRotation(legPivotR, GetDefaultRotation(legPivotR) * Quaternion.Euler(stride * legAngle, 0f, 1.5f * moveBlend));
-        SetLocalRotation(kneePivotR, GetDefaultRotation(kneePivotR) * Quaternion.Euler(kneeBase + Mathf.Max(0f, stride) * kneeFlex, 0f, 0f));
-        SetLocalRotation(bootL, GetDefaultRotation(bootL) * Quaternion.Euler(-counterStride * footAngle + Mathf.Max(0f, counterStride) * footAngle, 0f, 0f));
-        SetLocalRotation(bootR, GetDefaultRotation(bootR) * Quaternion.Euler(-stride * footAngle + Mathf.Max(0f, stride) * footAngle, 0f, 0f));
+        SetLocalRotation(legPivotL, GetDefaultRotation(legPivotL) * Quaternion.Euler(counterStride * legAngle * forwardSign, sideAmount * 6f * moveBlend, -1.5f * moveBlend - sideAmount * 5f * moveBlend));
+        SetLocalRotation(kneePivotL, GetDefaultRotation(kneePivotL) * Quaternion.Euler(kneeBase + Mathf.Abs(counterStride) * kneeFlex * (0.45f + Mathf.Max(0f, counterStride * forwardSign) * 0.55f), 0f, 0f));
+        SetLocalRotation(legPivotR, GetDefaultRotation(legPivotR) * Quaternion.Euler(stride * legAngle * forwardSign, sideAmount * 6f * moveBlend, 1.5f * moveBlend - sideAmount * 5f * moveBlend));
+        SetLocalRotation(kneePivotR, GetDefaultRotation(kneePivotR) * Quaternion.Euler(kneeBase + Mathf.Abs(stride) * kneeFlex * (0.45f + Mathf.Max(0f, stride * forwardSign) * 0.55f), 0f, 0f));
+        SetLocalRotation(bootL, GetDefaultRotation(bootL) * Quaternion.Euler((-counterStride * footAngle + Mathf.Max(0f, counterStride * forwardSign) * footAngle) * forwardSign, 0f, sideAmount * 3f * moveBlend));
+        SetLocalRotation(bootR, GetDefaultRotation(bootR) * Quaternion.Euler((-stride * footAngle + Mathf.Max(0f, stride * forwardSign) * footAngle) * forwardSign, 0f, sideAmount * 3f * moveBlend));
         SetLocalRotation(kneePadL, GetDefaultRotation(kneePadL) * Quaternion.Euler(counterStride * legAngle, 0f, 0f));
         SetLocalRotation(kneePadR, GetDefaultRotation(kneePadR) * Quaternion.Euler(stride * legAngle, 0f, 0f));
-        SetLocalRotation(torso, GetDefaultRotation(torso) * Quaternion.Euler(3f * moveBlend + Mathf.Abs(stride) * 2.5f * moveBlend, sway, -stride * 2f * moveBlend));
+        SetLocalRotation(torso, GetDefaultRotation(torso) * Quaternion.Euler((3f * forwardAmount + Mathf.Abs(stride) * 2.5f) * moveBlend, sway, -stride * 2f * moveBlend - sideAmount * 4f * moveBlend));
         SetLocalRotation(head, GetDefaultRotation(head) * Quaternion.Euler(-1.5f * moveBlend, -sway * 0.5f, 0f));
         SetLocalRotation(coat, GetDefaultRotation(coat) * Quaternion.Euler(-2f * moveBlend, 0f, 0f));
         SetLocalRotation(coatSkirt, GetDefaultRotation(coatSkirt) * Quaternion.Euler(1f * moveBlend + Mathf.Abs(counterStride) * 2f * moveBlend, 0f, 0f));
         SetLocalRotation(backpack, GetDefaultRotation(backpack) * Quaternion.Euler(Mathf.Abs(counterStride) * 4f * moveBlend, 0f, 0f));
 
         visualRoot.localPosition = visualRootDefaultLocalPos + Vector3.up * Mathf.Abs(stride) * bob;
+        UpdateTripoVisualMotion(stride, bob, sideAmount, forwardAmount);
+    }
+
+    private void UpdateTripoVisualMotion(float stride, float bob, float sideAmount, float forwardAmount)
+    {
+        if (tripoVisual == null)
+            return;
+
+        Vector3 targetPos = tripoVisualDefaultLocalPos + Vector3.up * Mathf.Abs(stride) * bob * 0.55f;
+        Quaternion targetRot = tripoVisualDefaultLocalRotation * Quaternion.Euler(forwardAmount * 2.0f * moveBlend, sideAmount * 3.0f * moveBlend, -sideAmount * 4.0f * moveBlend);
+        tripoVisual.localPosition = Vector3.Lerp(tripoVisual.localPosition, targetPos, Time.deltaTime * animationSmooth);
+        tripoVisual.localRotation = Quaternion.Slerp(tripoVisual.localRotation, targetRot, Time.deltaTime * animationSmooth);
     }
 
     private Quaternion GetDefaultRotation(Transform t)
