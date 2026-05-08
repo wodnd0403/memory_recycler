@@ -692,12 +692,14 @@ public static class MemoryRecycler3DSceneBuilder
         if (orbit != null)
         {
             orbit.offset = new Vector3(0f, 2.95f, -6.45f);
-            orbit.minPitch = -35f;
-            orbit.maxPitch = 70f;
+            orbit.minPitch = -24f;
+            orbit.maxPitch = 74f;
             orbit.baseLookHeight = 1.45f;
             orbit.lookUpHeight = 5.2f;
             orbit.lookDownHeight = 1.05f;
             orbit.followSmooth = 14f;
+            orbit.minCameraHeightAboveTarget = 0.85f;
+            orbit.absoluteMinCameraY = 0.62f;
             orbit.target = player.transform;
         }
 
@@ -1097,15 +1099,15 @@ public static class MemoryRecycler3DSceneBuilder
         SceneManager.MoveGameObjectToScene(root, scene);
         root.transform.position = Vector3.zero;
 
-        PlaceTripoPrefab(scene, root.transform, "Tripo Building Ruined Concrete_L", "Buildings/RuinedConcreteBuilding/RuinedConcreteBuilding.fbx", new Vector3(-15.4f, 0f, -20.0f), new Vector3(0f, 92f, 0f), 16.0f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Building Post Apocalyptic_R", "Buildings/PostApocalypticBuilding/PostApocalypticBuilding.fbx", new Vector3(15.4f, 0f, -18.2f), new Vector3(0f, -90f, 0f), 18.0f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Building Apartment_L", "Buildings/RuinedApartmentBuilding/RuinedApartmentBuilding.fbx", new Vector3(-15.8f, 0f, -6.2f), new Vector3(0f, 88f, 0f), 20.0f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Building Ruined_R", "Buildings/RuinedBuilding/RuinedBuilding.fbx", new Vector3(15.6f, 0f, -1.2f), new Vector3(0f, -92f, 0f), 17.0f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Building Korean_L", "Buildings/KoreanRuinedBuilding/KoreanRuinedBuilding.fbx", new Vector3(-15.7f, 0f, 11.4f), new Vector3(0f, 94f, 0f), 16.5f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Building City Block_R", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(15.6f, 0f, 14.8f), new Vector3(0f, -88f, 0f), 15.5f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Background Block_L", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(-25.0f, 0f, 32.0f), new Vector3(0f, 38f, 0f), 22.0f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Background Block_R", "Buildings/RuinedConcreteBuilding/RuinedConcreteBuilding.fbx", new Vector3(25.0f, 0f, 33.5f), new Vector3(0f, -34f, 0f), 24.0f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Archive Tower", "Buildings/PostApocalypticTower/PostApocalypticTower.fbx", new Vector3(0f, 0f, 31.0f), new Vector3(0f, 270f, 0f), 28.0f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building Ruined Concrete_L", "Buildings/RuinedConcreteBuilding/RuinedConcreteBuilding.fbx", new Vector3(-19.2f, 0f, -20.0f), new Vector3(0f, 92f, 0f), 13.6f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building Post Apocalyptic_R", "Buildings/PostApocalypticBuilding/PostApocalypticBuilding.fbx", new Vector3(19.3f, 0f, -18.2f), new Vector3(0f, -90f, 0f), 14.8f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building Apartment_L", "Buildings/RuinedApartmentBuilding/RuinedApartmentBuilding.fbx", new Vector3(-19.8f, 0f, -6.2f), new Vector3(0f, 88f, 0f), 16.4f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building Ruined_R", "Buildings/RuinedBuilding/RuinedBuilding.fbx", new Vector3(19.6f, 0f, -1.2f), new Vector3(0f, -92f, 0f), 14.2f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building Korean_L", "Buildings/KoreanRuinedBuilding/KoreanRuinedBuilding.fbx", new Vector3(-19.5f, 0f, 11.4f), new Vector3(0f, 94f, 0f), 13.8f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building City Block_R", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(19.4f, 0f, 14.8f), new Vector3(0f, -88f, 0f), 11.4f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Background Block_L", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(-29.0f, 0f, 32.0f), new Vector3(0f, 38f, 0f), 15.6f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Background Block_R", "Buildings/RuinedConcreteBuilding/RuinedConcreteBuilding.fbx", new Vector3(29.0f, 0f, 33.5f), new Vector3(0f, -34f, 0f), 17.2f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Archive Tower", "Buildings/PostApocalypticTower/PostApocalypticTower.fbx", new Vector3(0f, 0f, 33.5f), new Vector3(0f, 270f, 0f), 24.0f, true);
 
         PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_L0", "Props/StreetLamps/StreetLamps.fbx", new Vector3(-7.5f, 0f, -17.0f), new Vector3(0f, 15f, 0f), 6.2f, true);
         PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_R0", "Props/StreetLamps/StreetLamps.fbx", new Vector3(7.5f, 0f, -11.0f), new Vector3(0f, -165f, 0f), 6.2f, true);

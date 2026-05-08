@@ -11,6 +11,8 @@ public class OrbitCamera3D : MonoBehaviour
     public float lookUpHeight = 5.2f;
     public float lookDownHeight = 1.05f;
     public float followSmooth = 12f;
+    public float minCameraHeightAboveTarget = 0.8f;
+    public float absoluteMinCameraY = 0.55f;
 
     private float yaw;
     private float pitch = 20f;
@@ -35,11 +37,17 @@ public class OrbitCamera3D : MonoBehaviour
 
         Quaternion rotation = Quaternion.Euler(pitch, yaw, 0f);
         Vector3 desiredPosition = target.position + rotation * offset;
+        float minCameraY = Mathf.Max(absoluteMinCameraY, target.position.y + minCameraHeightAboveTarget);
+        desiredPosition.y = Mathf.Max(desiredPosition.y, minCameraY);
+
         float lookUpAmount = Mathf.InverseLerp(maxPitch, minPitch, pitch);
         float lookHeight = Mathf.Lerp(lookDownHeight, lookUpHeight, lookUpAmount);
         lookHeight = Mathf.Max(lookHeight, baseLookHeight);
 
         transform.position = Vector3.Lerp(transform.position, desiredPosition, followSmooth * Time.deltaTime);
+        Vector3 clampedPosition = transform.position;
+        clampedPosition.y = Mathf.Max(clampedPosition.y, minCameraY);
+        transform.position = clampedPosition;
         transform.LookAt(target.position + Vector3.up * lookHeight);
     }
 }
