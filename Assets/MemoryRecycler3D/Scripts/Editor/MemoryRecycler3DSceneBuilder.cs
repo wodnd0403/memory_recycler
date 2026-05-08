@@ -1091,25 +1091,26 @@ public static class MemoryRecycler3DSceneBuilder
         GameObject existing = FindRoot(scene, "Tripo Quality Pass");
         if (existing != null)
             Object.DestroyImmediate(existing);
+        RemoveAllSceneObjectsWithPrefix(scene, "Broken Streetlight_");
 
         GameObject root = new GameObject("Tripo Quality Pass");
         SceneManager.MoveGameObjectToScene(root, scene);
         root.transform.position = Vector3.zero;
 
-        PlaceTripoPrefab(scene, root.transform, "Tripo Building Ruined Concrete_L", "Buildings/RuinedConcreteBuilding/RuinedConcreteBuilding.fbx", new Vector3(-13.2f, 0f, -20.0f), new Vector3(0f, 92f, 0f), 6.6f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Building Post Apocalyptic_R", "Buildings/PostApocalypticBuilding/PostApocalypticBuilding.fbx", new Vector3(13.2f, 0f, -18.2f), new Vector3(0f, -90f, 0f), 6.2f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Building Apartment_L", "Buildings/RuinedApartmentBuilding/RuinedApartmentBuilding.fbx", new Vector3(-13.6f, 0f, -6.2f), new Vector3(0f, 88f, 0f), 7.5f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Building Ruined_R", "Buildings/RuinedBuilding/RuinedBuilding.fbx", new Vector3(13.4f, 0f, -1.2f), new Vector3(0f, -92f, 0f), 6.4f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Building Korean_L", "Buildings/KoreanRuinedBuilding/KoreanRuinedBuilding.fbx", new Vector3(-13.7f, 0f, 11.4f), new Vector3(0f, 94f, 0f), 6.0f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Building City Block_R", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(13.6f, 0f, 14.8f), new Vector3(0f, -88f, 0f), 5.8f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Background Block_L", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(-22.0f, 0f, 30.0f), new Vector3(0f, 38f, 0f), 8.8f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Background Block_R", "Buildings/RuinedConcreteBuilding/RuinedConcreteBuilding.fbx", new Vector3(22.0f, 0f, 31.5f), new Vector3(0f, -34f, 0f), 9.2f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Archive Tower", "Buildings/PostApocalypticTower/PostApocalypticTower.fbx", new Vector3(0f, 0f, 28.0f), new Vector3(0f, 270f, 0f), 8.8f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building Ruined Concrete_L", "Buildings/RuinedConcreteBuilding/RuinedConcreteBuilding.fbx", new Vector3(-15.4f, 0f, -20.0f), new Vector3(0f, 92f, 0f), 16.0f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building Post Apocalyptic_R", "Buildings/PostApocalypticBuilding/PostApocalypticBuilding.fbx", new Vector3(15.4f, 0f, -18.2f), new Vector3(0f, -90f, 0f), 18.0f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building Apartment_L", "Buildings/RuinedApartmentBuilding/RuinedApartmentBuilding.fbx", new Vector3(-15.8f, 0f, -6.2f), new Vector3(0f, 88f, 0f), 20.0f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building Ruined_R", "Buildings/RuinedBuilding/RuinedBuilding.fbx", new Vector3(15.6f, 0f, -1.2f), new Vector3(0f, -92f, 0f), 17.0f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building Korean_L", "Buildings/KoreanRuinedBuilding/KoreanRuinedBuilding.fbx", new Vector3(-15.7f, 0f, 11.4f), new Vector3(0f, 94f, 0f), 16.5f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building City Block_R", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(15.6f, 0f, 14.8f), new Vector3(0f, -88f, 0f), 15.5f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Background Block_L", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(-25.0f, 0f, 32.0f), new Vector3(0f, 38f, 0f), 22.0f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Background Block_R", "Buildings/RuinedConcreteBuilding/RuinedConcreteBuilding.fbx", new Vector3(25.0f, 0f, 33.5f), new Vector3(0f, -34f, 0f), 24.0f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Archive Tower", "Buildings/PostApocalypticTower/PostApocalypticTower.fbx", new Vector3(0f, 0f, 31.0f), new Vector3(0f, 270f, 0f), 28.0f, true);
 
-        PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_L0", "Props/StreetLamps/StreetLamps.fbx", new Vector3(-6.7f, 0f, -17.0f), new Vector3(0f, 15f, 0f), 2.9f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_R0", "Props/StreetLamps/StreetLamps.fbx", new Vector3(6.7f, 0f, -11.0f), new Vector3(0f, -165f, 0f), 2.9f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_L1", "Props/StreetLamps/StreetLamps.fbx", new Vector3(-6.8f, 0f, 3.5f), new Vector3(0f, -4f, 0f), 2.75f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_R1", "Props/StreetLamps/StreetLamps.fbx", new Vector3(6.8f, 0f, 10.5f), new Vector3(0f, 176f, 0f), 2.75f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_L0", "Props/StreetLamps/StreetLamps.fbx", new Vector3(-7.5f, 0f, -17.0f), new Vector3(0f, 15f, 0f), 6.2f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_R0", "Props/StreetLamps/StreetLamps.fbx", new Vector3(7.5f, 0f, -11.0f), new Vector3(0f, -165f, 0f), 6.2f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_L1", "Props/StreetLamps/StreetLamps.fbx", new Vector3(-7.6f, 0f, 3.5f), new Vector3(0f, -4f, 0f), 6.0f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_R1", "Props/StreetLamps/StreetLamps.fbx", new Vector3(7.6f, 0f, 10.5f), new Vector3(0f, 176f, 0f), 6.0f, true);
 
         PlaceTripoPrefab(scene, root.transform, "Tripo Rubble Near_L", "Environment/ConcreteRubble/ConcreteRubble.fbx", new Vector3(-4.2f, 0f, -10.0f), new Vector3(0f, 28f, 0f), 0.72f, true);
         PlaceTripoPrefab(scene, root.transform, "Tripo Rubble Near_R", "Environment/ConcreteRubble/ConcreteRubble.fbx", new Vector3(4.7f, 0f, -3.2f), new Vector3(0f, -52f, 0f), 0.68f, true);
@@ -1181,7 +1182,10 @@ public static class MemoryRecycler3DSceneBuilder
         visual.transform.localPosition = Vector3.zero;
         visual.transform.localRotation = Quaternion.Euler(0f, 90f, 0f) * Quaternion.Euler(-90f, 0f, 0f);
         NormalizeImportedModel(visual.transform, player.transform.position.y, 2.05f);
-        visual.SetActive(false);
+
+        Transform proceduralVisual = FindDeepChild(player.transform, "RecyclerVisual");
+        if (proceduralVisual != null)
+            proceduralVisual.gameObject.SetActive(false);
 
         EditorUtility.SetDirty(player);
     }
