@@ -16,6 +16,8 @@ public static class MemoryRecycler3DSceneBuilder
     private const string MaterialPath = Root + "/Materials";
     private const string TexturePath = Root + "/Textures";
     private const string GeneratedTexturePath = TexturePath + "/Generated";
+    private const string TripoAssetPath = Root + "/ExternalAssets/Tripo";
+    private const string TripoMaterialPath = MaterialPath + "/Tripo";
     private const string CinematicVolumeProfilePath = DataPath + "/MR3D_CinematicVolumeProfile.asset";
 
     [MenuItem("Tools/Memory Recycler 3D/Build Prototype Scene")]
@@ -114,6 +116,7 @@ public static class MemoryRecycler3DSceneBuilder
         removed += RemoveDuplicateRootObjects(scene, "Abandoned City Ground");
         removed += RemoveDuplicateRootObjects(scene, "Main Avenue");
         removed += RemoveDuplicateRootObjects(scene, "Central Archive Terminal");
+        removed += RemoveDuplicateRootObjects(scene, "Tripo Quality Pass");
         removed += RemoveDuplicateRootObjects(scene, "Prototype Instructions");
 
         removed += RemoveAllSceneObjectsByName(scene, "Night Sky Celestials");
@@ -620,6 +623,7 @@ public static class MemoryRecycler3DSceneBuilder
         ApplyCinematicCamera(scene);
         ApplyCinematicPostProcessing(scene);
         ApplyCinematicCityDetails(scene);
+        ApplyTripoAssetUpgrade(scene);
     }
 
     private static void ConfigureCinematicRenderSettings()
@@ -1031,6 +1035,214 @@ public static class MemoryRecycler3DSceneBuilder
             Object.DestroyImmediate(collider);
 
         EditorUtility.SetDirty(part.gameObject);
+    }
+
+    private static void ApplyTripoAssetUpgrade(Scene scene)
+    {
+        AssetDatabase.ImportAsset(TripoAssetPath, ImportAssetOptions.ImportRecursive);
+
+        GameObject existing = FindRoot(scene, "Tripo Quality Pass");
+        if (existing != null)
+            Object.DestroyImmediate(existing);
+
+        GameObject root = new GameObject("Tripo Quality Pass");
+        SceneManager.MoveGameObjectToScene(root, scene);
+        root.transform.position = Vector3.zero;
+
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building Ruined Concrete_L", "Buildings/RuinedConcreteBuilding/RuinedConcreteBuilding.fbx", new Vector3(-13.2f, 0f, -20.0f), new Vector3(0f, 92f, 0f), 6.6f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building Post Apocalyptic_R", "Buildings/PostApocalypticBuilding/PostApocalypticBuilding.fbx", new Vector3(13.2f, 0f, -18.2f), new Vector3(0f, -90f, 0f), 6.2f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building Apartment_L", "Buildings/RuinedApartmentBuilding/RuinedApartmentBuilding.fbx", new Vector3(-13.6f, 0f, -6.2f), new Vector3(0f, 88f, 0f), 7.5f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building Ruined_R", "Buildings/RuinedBuilding/RuinedBuilding.fbx", new Vector3(13.4f, 0f, -1.2f), new Vector3(0f, -92f, 0f), 6.4f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building Korean_L", "Buildings/KoreanRuinedBuilding/KoreanRuinedBuilding.fbx", new Vector3(-13.7f, 0f, 11.4f), new Vector3(0f, 94f, 0f), 6.0f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building City Block_R", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(13.6f, 0f, 14.8f), new Vector3(0f, -88f, 0f), 5.8f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Background Block_L", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(-22.0f, 0f, 30.0f), new Vector3(0f, 38f, 0f), 8.8f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Background Block_R", "Buildings/RuinedConcreteBuilding/RuinedConcreteBuilding.fbx", new Vector3(22.0f, 0f, 31.5f), new Vector3(0f, -34f, 0f), 9.2f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Archive Tower", "Buildings/PostApocalypticTower/PostApocalypticTower.fbx", new Vector3(0f, 0f, 34.2f), new Vector3(0f, 180f, 0f), 12.0f, true);
+
+        PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_L0", "Props/StreetLamps/StreetLamps.fbx", new Vector3(-6.7f, 0f, -17.0f), new Vector3(0f, 15f, 0f), 2.9f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_R0", "Props/StreetLamps/StreetLamps.fbx", new Vector3(6.7f, 0f, -11.0f), new Vector3(0f, -165f, 0f), 2.9f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_L1", "Props/StreetLamps/StreetLamps.fbx", new Vector3(-6.8f, 0f, 3.5f), new Vector3(0f, -4f, 0f), 2.75f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_R1", "Props/StreetLamps/StreetLamps.fbx", new Vector3(6.8f, 0f, 10.5f), new Vector3(0f, 176f, 0f), 2.75f, true);
+
+        PlaceTripoPrefab(scene, root.transform, "Tripo Rubble Near_L", "Environment/ConcreteRubble/ConcreteRubble.fbx", new Vector3(-4.2f, 0f, -10.0f), new Vector3(0f, 28f, 0f), 0.72f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Rubble Near_R", "Environment/ConcreteRubble/ConcreteRubble.fbx", new Vector3(4.7f, 0f, -3.2f), new Vector3(0f, -52f, 0f), 0.68f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Rubble Far_L", "Environment/ConcreteRubble/ConcreteRubble.fbx", new Vector3(-5.6f, 0f, 15.5f), new Vector3(0f, 103f, 0f), 0.82f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Rubble Far_R", "Environment/ConcreteRubble/ConcreteRubble.fbx", new Vector3(5.3f, 0f, 21.0f), new Vector3(0f, -16f, 0f), 0.76f, true);
+
+        PlaceTripoPrefab(scene, root.transform, "Tripo Wall Pipes_L", "Props/Pipes/Pipes.fbx", new Vector3(-9.2f, 0f, -6.8f), new Vector3(0f, 88f, 0f), 2.3f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Wall Pipes_R", "Props/Pipes/Pipes.fbx", new Vector3(9.2f, 0f, 5.4f), new Vector3(0f, -92f, 0f), 2.1f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Air Conditioner_L", "Props/AirConditioners/AirConditioners.fbx", new Vector3(-9.0f, 0f, 1.8f), new Vector3(0f, 90f, 0f), 1.25f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Window Barricade_R", "Props/WindowBarricades/WindowBarricades.fbx", new Vector3(9.0f, 0f, -13.8f), new Vector3(0f, -90f, 0f), 1.5f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Metal Door_L", "Props/MetalDoors/MetalDoors.fbx", new Vector3(-8.9f, 0f, 8.6f), new Vector3(0f, 90f, 0f), 1.8f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Recycling Sign_R", "Props/RecyclingSigns/RecyclingSigns.fbx", new Vector3(8.9f, 0f, 18.2f), new Vector3(0f, -90f, 0f), 1.45f, true);
+
+        PlaceTripoPlayerVisual(scene);
+
+        EditorUtility.SetDirty(root);
+    }
+
+    private static GameObject PlaceTripoPrefab(Scene scene, Transform parent, string name, string relativePath, Vector3 position, Vector3 euler, float targetHeight, bool removeColliders)
+    {
+        string assetPath = TripoAssetPath + "/" + relativePath;
+        GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(assetPath);
+        if (prefab == null)
+        {
+            Debug.LogWarning("Missing Tripo asset: " + assetPath);
+            return null;
+        }
+
+        GameObject instance = PrefabUtility.InstantiatePrefab(prefab, scene) as GameObject;
+        if (instance == null)
+        {
+            instance = Object.Instantiate(prefab);
+            SceneManager.MoveGameObjectToScene(instance, scene);
+        }
+
+        instance.name = name;
+        instance.transform.position = position;
+        instance.transform.eulerAngles = euler;
+        instance.transform.localScale = Vector3.one;
+        instance.transform.SetParent(parent, true);
+
+        Material material = CreateTripoMaterial(Path.GetFileNameWithoutExtension(assetPath), assetPath);
+        ApplyMaterialRecursive(instance.transform, material);
+        NormalizeImportedModel(instance.transform, position.y, targetHeight);
+
+        if (removeColliders)
+            RemoveCollidersRecursive(instance.transform);
+
+        SetStaticRecursive(instance.transform, parent.name == "Tripo Quality Pass");
+        EditorUtility.SetDirty(instance);
+        return instance;
+    }
+
+    private static void PlaceTripoPlayerVisual(Scene scene)
+    {
+        GameObject player = FindRoot(scene, "Player_Recycler");
+        if (player == null)
+            return;
+
+        Transform existing = FindDeepChild(player.transform, "Tripo Player Visual");
+        if (existing != null)
+            Object.DestroyImmediate(existing.gameObject);
+
+        GameObject visual = PlaceTripoPrefab(scene, player.transform, "Tripo Player Visual", "Characters/PostApocalypticExplorer/PostApocalypticExplorer.fbx", player.transform.position, player.transform.eulerAngles, 2.05f, true);
+        if (visual == null)
+            return;
+
+        visual.transform.SetParent(player.transform, true);
+        visual.transform.localPosition = Vector3.zero;
+        visual.transform.localEulerAngles = new Vector3(0f, 180f, 0f);
+        NormalizeImportedModel(visual.transform, player.transform.position.y, 2.05f);
+
+        EditorUtility.SetDirty(player);
+    }
+
+    private static Material CreateTripoMaterial(string name, string assetPath)
+    {
+        EnsureFolder(TripoMaterialPath);
+        string materialPath = TripoMaterialPath + "/" + name + ".mat";
+        Material material = AssetDatabase.LoadAssetAtPath<Material>(materialPath);
+
+        Shader shader = Shader.Find("Universal Render Pipeline/Lit");
+        if (shader == null)
+            shader = Shader.Find("Standard");
+
+        if (material == null)
+        {
+            material = new Material(shader);
+            AssetDatabase.CreateAsset(material, materialPath);
+        }
+        else if (shader != null && material.shader != shader)
+        {
+            material.shader = shader;
+        }
+
+        string folder = Path.GetDirectoryName(assetPath).Replace("\\", "/");
+        string baseName = Path.GetFileNameWithoutExtension(assetPath);
+        Texture2D baseColor = AssetDatabase.LoadAssetAtPath<Texture2D>(folder + "/" + baseName + ".fbm/BaseColor.jpeg");
+
+        if (material.HasProperty("_BaseColor"))
+            material.SetColor("_BaseColor", Color.white);
+        if (material.HasProperty("_Color"))
+            material.SetColor("_Color", Color.white);
+        if (material.HasProperty("_BaseMap"))
+            material.SetTexture("_BaseMap", baseColor);
+        if (material.HasProperty("_MainTex"))
+            material.SetTexture("_MainTex", baseColor);
+        if (material.HasProperty("_Smoothness"))
+            material.SetFloat("_Smoothness", 0.18f);
+
+        EditorUtility.SetDirty(material);
+        return material;
+    }
+
+    private static void ApplyMaterialRecursive(Transform root, Material material)
+    {
+        if (material == null)
+            return;
+
+        Renderer[] renderers = root.GetComponentsInChildren<Renderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+            renderers[i].sharedMaterial = material;
+    }
+
+    private static void NormalizeImportedModel(Transform root, float targetBottomY, float targetHeight)
+    {
+        if (root == null || targetHeight <= 0.01f)
+            return;
+
+        if (!TryGetRendererBounds(root, out Bounds bounds) || bounds.size.y <= 0.001f)
+            return;
+
+        float scale = targetHeight / bounds.size.y;
+        root.localScale *= scale;
+
+        if (!TryGetRendererBounds(root, out bounds))
+            return;
+
+        Vector3 position = root.position;
+        position.y += targetBottomY - bounds.min.y;
+        root.position = position;
+    }
+
+    private static bool TryGetRendererBounds(Transform root, out Bounds bounds)
+    {
+        Renderer[] renderers = root.GetComponentsInChildren<Renderer>(true);
+        bounds = new Bounds(root.position, Vector3.zero);
+        bool hasBounds = false;
+
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            if (renderers[i] == null)
+                continue;
+
+            if (!hasBounds)
+            {
+                bounds = renderers[i].bounds;
+                hasBounds = true;
+            }
+            else
+            {
+                bounds.Encapsulate(renderers[i].bounds);
+            }
+        }
+
+        return hasBounds;
+    }
+
+    private static void RemoveCollidersRecursive(Transform root)
+    {
+        Collider[] colliders = root.GetComponentsInChildren<Collider>(true);
+        for (int i = 0; i < colliders.Length; i++)
+            Object.DestroyImmediate(colliders[i]);
+    }
+
+    private static void SetStaticRecursive(Transform root, bool isStatic)
+    {
+        root.gameObject.isStatic = isStatic;
+        foreach (Transform child in root)
+            SetStaticRecursive(child, isStatic);
     }
 
     private static void AddCinematicFacadeStructure(Transform building, int index, Material panelMat, Material trimMat, Material debrisMat, Material grimeMat)
