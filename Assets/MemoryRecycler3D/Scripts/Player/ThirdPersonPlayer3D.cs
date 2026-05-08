@@ -24,6 +24,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     public float runBodyBobAmount = 0.11f;
     public float animationSmooth = 10f;
     public float backwardLimbAngleMultiplier = 0.74f;
+    public float lookBackTurnAngle = 145f;
 
     [Header("Visual Refinement")]
     public bool refineHumanSilhouette = true;
@@ -81,6 +82,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     private float moveBlend;
     private float localMoveForward;
     private float localMoveSide;
+    private float lookBackBlend;
     private Vector3 lastPlanarMove;
 
     public bool IsMoving { get; private set; }
@@ -278,6 +280,8 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         float forwardAmount = Mathf.Clamp(localMoveForward, -1f, 1f);
         float sideAmount = Mathf.Clamp(localMoveSide, -1f, 1f);
         float backwardAmount = Mathf.Clamp01(-forwardAmount);
+        float lookBackTarget = (Input.GetKey(KeyCode.Q) || Input.GetKey(KeyCode.LeftAlt) || backwardAmount > 0.45f) ? 1f : 0f;
+        lookBackBlend = Mathf.Lerp(lookBackBlend, lookBackTarget, Time.deltaTime * animationSmooth);
         float forwardSign = backwardAmount > 0.35f ? -1f : 1f;
         float directionMultiplier = Mathf.Lerp(1f, backwardLimbAngleMultiplier, backwardAmount);
         float armAngle = Mathf.Lerp(walkLimbAngle, runLimbAngle, isRunning ? 1f : 0f) * moveBlend * directionMultiplier;
@@ -305,8 +309,10 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         SetLocalRotation(bootR, GetDefaultRotation(bootR) * Quaternion.Euler((-stride * footAngle + Mathf.Max(0f, stride * forwardSign) * footAngle) * forwardSign, 0f, sideAmount * 3f * moveBlend));
         SetLocalRotation(kneePadL, GetDefaultRotation(kneePadL) * Quaternion.Euler(counterStride * legAngle, 0f, 0f));
         SetLocalRotation(kneePadR, GetDefaultRotation(kneePadR) * Quaternion.Euler(stride * legAngle, 0f, 0f));
-        SetLocalRotation(torso, GetDefaultRotation(torso) * Quaternion.Euler((3f * forwardAmount + Mathf.Abs(stride) * 2.5f) * moveBlend, sway, -stride * 2f * moveBlend - sideAmount * 4f * moveBlend));
-        SetLocalRotation(head, GetDefaultRotation(head) * Quaternion.Euler(-1.5f * moveBlend, -sway * 0.5f, 0f));
+        float lookBackYaw = lookBackTurnAngle * lookBackBlend;
+        float lookBackLean = 7f * lookBackBlend;
+        SetLocalRotation(torso, GetDefaultRotation(torso) * Quaternion.Euler((3f * forwardAmount + Mathf.Abs(stride) * 2.5f) * moveBlend - lookBackLean, sway + lookBackYaw * 0.32f, -stride * 2f * moveBlend - sideAmount * 4f * moveBlend));
+        SetLocalRotation(head, GetDefaultRotation(head) * Quaternion.Euler(-1.5f * moveBlend, -sway * 0.5f + lookBackYaw, 0f));
         SetLocalRotation(coat, GetDefaultRotation(coat) * Quaternion.Euler(-2f * moveBlend, 0f, 0f));
         SetLocalRotation(coatSkirt, GetDefaultRotation(coatSkirt) * Quaternion.Euler(1f * moveBlend + Mathf.Abs(counterStride) * 2f * moveBlend, 0f, 0f));
         SetLocalRotation(backpack, GetDefaultRotation(backpack) * Quaternion.Euler(Mathf.Abs(counterStride) * 4f * moveBlend, 0f, 0f));
