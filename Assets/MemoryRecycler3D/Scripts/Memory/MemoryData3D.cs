@@ -10,6 +10,10 @@ public class MemoryData3D : ScriptableObject
     public EmotionType3D emotion = EmotionType3D.Loss;
     [Range(0, 100)] public int corruptionLevel = 30;
 
+    [Header("World Context")]
+    public string locationName;
+    [TextArea(2, 5)] public string archiveClue;
+
     [Header("Puzzle")]
     [TextArea(1, 3)] public string[] sentencePieces;
     [TextArea(1, 3)] public string[] correctOrder;

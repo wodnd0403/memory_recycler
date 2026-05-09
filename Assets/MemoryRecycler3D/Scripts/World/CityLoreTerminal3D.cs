@@ -1,9 +1,11 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Collider))]
-public class ArchiveTerminal3D : MonoBehaviour
+public class CityLoreTerminal3D : MonoBehaviour
 {
-    public int requiredDecisions = 5;
+    public string terminalTitle = "도시 기록";
+    [TextArea(3, 8)] public string terminalBody;
+    [TextArea(1, 3)] public string objectiveHint;
 
     private bool playerInside;
 
@@ -15,7 +17,7 @@ public class ArchiveTerminal3D : MonoBehaviour
     private void Update()
     {
         if (playerInside && Input.GetKeyDown(KeyCode.E))
-            Interact();
+            UIManager3D.Instance.ShowLore(terminalTitle, terminalBody, objectiveHint);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -24,7 +26,7 @@ public class ArchiveTerminal3D : MonoBehaviour
             return;
 
         playerInside = true;
-        UIManager3D.Instance.ShowPrompt("E : 중앙 아카이브 접속 / Tab : 수집 기록");
+        UIManager3D.Instance.ShowPrompt("E : 도시 기록 조사 - " + terminalTitle);
     }
 
     private void OnTriggerExit(Collider other)
@@ -34,17 +36,5 @@ public class ArchiveTerminal3D : MonoBehaviour
 
         playerInside = false;
         UIManager3D.Instance.HidePrompt();
-    }
-
-    private void Interact()
-    {
-        int decided = MemoryManager3D.Instance != null ? MemoryManager3D.Instance.CountDecidedMemories() : 0;
-        if (decided < requiredDecisions)
-        {
-            UIManager3D.Instance.ShowArchiveLocked(decided, requiredDecisions);
-            return;
-        }
-
-        UIManager3D.Instance.ShowEnding();
     }
 }

@@ -30,6 +30,14 @@ public class GameState3D : MonoBehaviour
         worldToneValue = 0f;
     }
 
+    public void SetDecisionCounts(int preserved, int deleted, int edited)
+    {
+        preservedCount = Mathf.Max(0, preserved);
+        deletedCount = Mathf.Max(0, deleted);
+        editedCount = Mathf.Max(0, edited);
+        worldToneValue = preservedCount - deletedCount + editedCount * 0.25f;
+    }
+
     public void RecordDecision(MemoryDecision3D decision)
     {
         switch (decision)

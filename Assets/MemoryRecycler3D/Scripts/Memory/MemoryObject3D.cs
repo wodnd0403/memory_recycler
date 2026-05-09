@@ -16,6 +16,9 @@ public class MemoryObject3D : MonoBehaviour
         startPosition = transform.position;
         Collider col = GetComponent<Collider>();
         col.isTrigger = true;
+
+        if (MemoryManager3D.Instance != null)
+            MemoryManager3D.Instance.RegisterMemoryObject(this);
     }
 
     private void Update()
@@ -33,7 +36,8 @@ public class MemoryObject3D : MonoBehaviour
             return;
 
         playerInside = true;
-        UIManager3D.Instance.ShowPrompt("E : 기억 회수");
+        string title = memoryData != null ? memoryData.memoryTitle : "기억";
+        UIManager3D.Instance.ShowPrompt("E : 기억 회수 - " + title);
     }
 
     private void OnTriggerExit(Collider other)
@@ -51,5 +55,10 @@ public class MemoryObject3D : MonoBehaviour
         UIManager3D.Instance.HidePrompt();
         MemoryManager3D.Instance.CollectMemory(memoryData);
         gameObject.SetActive(false);
+    }
+
+    public void SetCollectedFromSave(bool collected)
+    {
+        gameObject.SetActive(!collected);
     }
 }

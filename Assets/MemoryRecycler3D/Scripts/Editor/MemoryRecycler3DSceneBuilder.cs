@@ -624,6 +624,7 @@ public static class MemoryRecycler3DSceneBuilder
         ApplyCinematicPostProcessing(scene);
         ApplyCinematicCityDetails(scene);
         ApplyTripoAssetUpgrade(scene);
+        ApplyStoryProgressionPass(scene);
     }
 
     private static void ConfigureCinematicRenderSettings()
@@ -1288,6 +1289,93 @@ public static class MemoryRecycler3DSceneBuilder
         }
 
         return hasBounds;
+    }
+
+    private static void ApplyStoryProgressionPass(Scene scene)
+    {
+        GameObject existing = FindRoot(scene, "Story Progression Pass");
+        if (existing != null)
+            Object.DestroyImmediate(existing);
+
+        GameObject root = new GameObject("Story Progression Pass");
+        SceneManager.MoveGameObjectToScene(root, scene);
+
+        Material panelMat = CreateMaterial("MR3D_StoryTerminalPanel", new Color(0.035f, 0.055f, 0.065f), false);
+        Material glowMat = CreateMaterial("MR3D_StoryTerminalGlow", new Color(0.08f, 0.75f, 0.95f), true);
+
+        CreateStoryTerminal(scene, root.transform, "Story Terminal_Hospital", new Vector3(7.8f, 1.15f, -8.5f), new Vector3(0f, -28f, 0f),
+            "병원 기록 단말",
+            "초기 기억 삭제 기술은 치료 장비로 승인되었습니다. 그러나 승인 문서에는 '고통의 제거'와 '증언의 제거'가 같은 절차로 묶여 있습니다.",
+            "치료 동의서 기억을 복원하면 도시가 왜 침묵했는지 알 수 있습니다.",
+            panelMat, glowMat);
+
+        CreateStoryTerminal(scene, root.transform, "Story Terminal_School", new Vector3(-11.5f, 1.15f, 3.5f), new Vector3(0f, 42f, 0f),
+            "폐교 출석 단말",
+            "졸업 앨범에서 지워진 이름은 한 명이 아니었습니다. 행정 서버는 집단 괴롭힘, 사고, 목격자 기록을 같은 묶음으로 보관했습니다.",
+            "후회와 죄책감 태그의 기억을 비교해 보세요.",
+            panelMat, glowMat);
+
+        CreateStoryTerminal(scene, root.transform, "Story Terminal_Broadcast", new Vector3(9.5f, 1.15f, 14.0f), new Vector3(0f, -64f, 0f),
+            "방송국 중계 단말",
+            "마지막 재난 방송은 송출되지 않았습니다. 누군가 시민 대피 문구를 지우고, 대신 '안정을 위해 잠들라'는 문장을 덮어썼습니다.",
+            "녹슨 방송 마이크와 중앙 아카이브의 자장가를 복원하면 마지막 명령의 윤곽이 드러납니다.",
+            panelMat, glowMat);
+
+        CreateStoryTerminal(scene, root.transform, "Story Terminal_ArchiveGate", new Vector3(-4.6f, 1.15f, 25.5f), new Vector3(0f, 8f, 0f),
+            "아카이브 관문 릴레이",
+            "중앙 아카이브는 단순 저장소가 아닙니다. 회수원이 내린 선택을 바탕으로 도시의 다음 상태를 계산하는 판단 장치입니다.",
+            "기억 5개 이상을 복원하고 처리해야 최종 접속이 열립니다.",
+            panelMat, glowMat);
+
+        GameObject terminal = FindRoot(scene, "Central Archive Terminal");
+        if (terminal != null)
+        {
+            ArchiveTerminal3D archive = terminal.GetComponent<ArchiveTerminal3D>();
+            if (archive == null)
+                archive = terminal.AddComponent<ArchiveTerminal3D>();
+            archive.requiredDecisions = 5;
+            EditorUtility.SetDirty(terminal);
+        }
+
+        EditorUtility.SetDirty(root);
+    }
+
+    private static void CreateStoryTerminal(Scene scene, Transform parent, string name, Vector3 position, Vector3 euler, string title, string body, string hint, Material panelMat, Material glowMat)
+    {
+        GameObject terminal = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        terminal.name = name;
+        SceneManager.MoveGameObjectToScene(terminal, scene);
+        terminal.transform.SetParent(parent, true);
+        terminal.transform.position = position;
+        terminal.transform.rotation = Quaternion.Euler(euler);
+        terminal.transform.localScale = new Vector3(0.72f, 1.35f, 0.12f);
+        terminal.GetComponent<Renderer>().sharedMaterial = panelMat;
+
+        BoxCollider collider = terminal.GetComponent<BoxCollider>();
+        collider.isTrigger = true;
+        collider.size = new Vector3(3.0f, 1.4f, 3.0f);
+
+        CityLoreTerminal3D lore = terminal.AddComponent<CityLoreTerminal3D>();
+        lore.terminalTitle = title;
+        lore.terminalBody = body;
+        lore.objectiveHint = hint;
+
+        GameObject glow = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        glow.name = "Terminal Cyan Line";
+        glow.transform.SetParent(terminal.transform, false);
+        glow.transform.localPosition = new Vector3(0f, 0.08f, -0.56f);
+        glow.transform.localScale = new Vector3(0.12f, 0.74f, 0.04f);
+        glow.GetComponent<Renderer>().sharedMaterial = glowMat;
+        Object.DestroyImmediate(glow.GetComponent<Collider>());
+
+        GameObject lightObject = new GameObject("Terminal Hint Light");
+        lightObject.transform.SetParent(terminal.transform, false);
+        lightObject.transform.localPosition = new Vector3(0f, 0.1f, -1.0f);
+        Light light = lightObject.AddComponent<Light>();
+        light.type = LightType.Point;
+        light.range = 4.5f;
+        light.intensity = 1.0f;
+        light.color = new Color(0.12f, 0.78f, 1f);
     }
 
     private static void RemoveCollidersRecursive(Transform root)
@@ -2030,7 +2118,8 @@ public static class MemoryRecycler3DSceneBuilder
         terminal.transform.position = new Vector3(0f, 3.9f, 31.5f);
         terminal.transform.localScale = new Vector3(3.4f, 7.8f, 1.6f);
         terminal.GetComponent<Renderer>().sharedMaterial = terminalMat;
-        terminal.AddComponent<ArchiveTerminal3D>();
+        ArchiveTerminal3D archive = terminal.AddComponent<ArchiveTerminal3D>();
+        archive.requiredDecisions = 5;
 
         GameObject frame = GameObject.CreatePrimitive(PrimitiveType.Cube);
         frame.name = "Terminal Frame";
@@ -2140,8 +2229,48 @@ public static class MemoryRecycler3DSceneBuilder
         data.sentencePieces = pieces;
         data.correctOrder = order;
         data.restoredText = restoredText;
+        ApplyMemoryWorldContext(data);
         EditorUtility.SetDirty(data);
         return data;
+    }
+
+    private static void ApplyMemoryWorldContext(MemoryData3D data)
+    {
+        switch (data.id)
+        {
+            case "MR3D_001":
+                data.locationName = "무너진 주거 구역";
+                data.archiveClue = "도시는 가족 단위 기록부터 지우기 시작했습니다. 사적인 웃음은 공적 질서보다 오래 남았습니다.";
+                break;
+            case "MR3D_002":
+                data.locationName = "폐교 복도";
+                data.archiveClue = "개인의 이름을 지우면 사건도 사라진다고 믿었던 시기의 기록입니다.";
+                break;
+            case "MR3D_003":
+                data.locationName = "기억 치료 병동";
+                data.archiveClue = "치료라는 이름의 삭제가 도시 전체의 표준 절차가 된 첫 흔적입니다.";
+                break;
+            case "MR3D_004":
+                data.locationName = "행정 서버 구역";
+                data.archiveClue = "중앙 명령은 시민을 보호한다는 문장으로 시민의 증언을 잠갔습니다.";
+                break;
+            case "MR3D_005":
+                data.locationName = "지하철 대피 통로";
+                data.archiveClue = "실종자 기록은 삭제되지 않았습니다. 다만 검색되지 않게 분류되었습니다.";
+                break;
+            case "MR3D_006":
+                data.locationName = "회수원 개인 파일";
+                data.archiveClue = "주인공은 피해자이자 기록 관리자였습니다. 마지막 선택은 본인의 과거까지 향합니다.";
+                break;
+            case "MR3D_007":
+                data.locationName = "재난 방송국";
+                data.archiveClue = "마지막 방송이 차단된 순간부터 도시는 진실 대신 안정된 침묵을 택했습니다.";
+                break;
+            case "MR3D_008":
+                data.locationName = "중앙 아카이브 심층부";
+                data.archiveClue = "자장가는 도시를 달래기 위한 노래가 아니라, 판단을 멈추게 하는 명령어였습니다.";
+                break;
+        }
     }
 
     private enum CinematicTextureKind
