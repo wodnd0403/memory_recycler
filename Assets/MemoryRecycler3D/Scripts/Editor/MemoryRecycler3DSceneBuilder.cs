@@ -71,6 +71,7 @@ public static class MemoryRecycler3DSceneBuilder
         CreateInstructionsSign();
         ApplyPhotoReferenceSceneLook(scene);
         ApplyCinematicReferenceLook(scene);
+        ConfigureInstructionsSign(scene);
 
         RenderSettings.fog = true;
         RenderSettings.fogColor = new Color(0.105f, 0.135f, 0.18f);
@@ -101,6 +102,7 @@ public static class MemoryRecycler3DSceneBuilder
         ApplyAdultMaleScenePose(scene);
         ApplyPhotoReferenceSceneLook(scene);
         ApplyCinematicReferenceLook(scene);
+        ConfigureInstructionsSign(scene);
 
         EditorSceneManager.SaveScene(scene);
         EnsurePrototypeSceneInBuildSettings();
@@ -641,6 +643,7 @@ public static class MemoryRecycler3DSceneBuilder
         ApplyCinematicCityDetails(scene);
         ApplyTripoAssetUpgrade(scene);
         ApplyStoryProgressionPass(scene);
+        ConfigureInstructionsSign(scene);
     }
 
     private static void ConfigureCinematicRenderSettings()
@@ -2487,6 +2490,20 @@ public static class MemoryRecycler3DSceneBuilder
         text.anchor = TextAnchor.MiddleCenter;
         text.alignment = TextAlignment.Center;
         text.color = Color.white;
+        sign.AddComponent<DismissOnEnter3D>();
+    }
+
+    private static void ConfigureInstructionsSign(Scene scene)
+    {
+        GameObject sign = FindRoot(scene, "Prototype Instructions");
+        if (sign == null)
+            return;
+
+        DismissOnEnter3D dismiss = sign.GetComponent<DismissOnEnter3D>();
+        if (dismiss == null)
+            dismiss = sign.AddComponent<DismissOnEnter3D>();
+        dismiss.target = sign;
+        EditorUtility.SetDirty(sign);
     }
 
     private static MemoryData3D[] CreateMemoryAssets()
