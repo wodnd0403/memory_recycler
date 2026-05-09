@@ -857,6 +857,7 @@ public static class MemoryRecycler3DSceneBuilder
         AddCinematicAvenueDepthCues(root, panelMat, trimMat, cyanMat, roadPatchMat);
         AddCinematicBackgroundDepth(root, buildingMat, trimMat);
         AddCinematicOverheadCables(root, trimMat);
+        AddCinematicArchiveGlow(root, cyanMat);
         AddCinematicWetHighlights(root, puddleMat, cyanMat);
         AddCinematicForegroundFraming(root, buildingMat, trimMat, cyanMat);
         AddCinematicPlayerSilhouette(scene, cyanMat, trimMat);
@@ -1609,12 +1610,72 @@ public static class MemoryRecycler3DSceneBuilder
 
     private static void AddCinematicOverheadCables(Transform root, Material trimMat)
     {
-        for (int i = 0; i < 7; i++)
+        for (int i = 0; i < 5; i++)
         {
-            float z = -18f + i * 6.3f;
-            float y = 4.6f + (i % 3) * 0.34f;
-            CreateCinematicWorldBox(root, "Cinematic Overhead Cable", new Vector3(0f, y, z), new Vector3(22.0f, 0.032f, 0.032f), trimMat, new Vector3(0f, ReferenceRange(i, 91.4f, -4f, 4f), ReferenceRange(i, 92.4f, -3f, 3f)));
+            float z = -18f + i * 7.4f + ReferenceRange(i, 90.7f, -0.6f, 0.6f);
+            float startY = 5.2f + ReferenceRange(i, 91.7f, -0.35f, 0.55f);
+            float endY = 4.8f + ReferenceRange(i, 92.7f, -0.45f, 0.45f);
+            float startX = -10.4f + ReferenceRange(i, 93.7f, -0.7f, 0.5f);
+            float endX = 10.6f + ReferenceRange(i, 94.7f, -0.5f, 0.8f);
+            float endZ = z + ReferenceRange(i, 95.7f, -1.5f, 1.5f);
+            float sag = ReferenceRange(i, 96.7f, 0.35f, 1.05f);
+            Vector3 p0 = new Vector3(startX, startY, z);
+            Vector3 p1 = new Vector3(-4.2f + ReferenceRange(i, 97.7f, -0.7f, 0.7f), Mathf.Min(startY, endY) - sag * 0.75f, z + ReferenceRange(i, 98.7f, -0.8f, 0.8f));
+            Vector3 p2 = new Vector3(3.2f + ReferenceRange(i, 99.7f, -0.8f, 0.8f), Mathf.Min(startY, endY) - sag, endZ + ReferenceRange(i, 100.7f, -0.8f, 0.8f));
+            Vector3 p3 = new Vector3(endX, endY, endZ);
+
+            CreateCinematicCableSegment(root, "Cinematic Sagging Cable", p0, p1, 0.026f, trimMat);
+            CreateCinematicCableSegment(root, "Cinematic Sagging Cable", p1, p2, 0.022f, trimMat);
+            CreateCinematicCableSegment(root, "Cinematic Sagging Cable", p2, p3, 0.026f, trimMat);
+
+            if (i % 2 == 0)
+            {
+                Vector3 dropStart = Vector3.Lerp(p1, p2, 0.55f);
+                Vector3 dropEnd = dropStart + new Vector3(ReferenceRange(i, 101.7f, -0.18f, 0.18f), -ReferenceRange(i, 102.7f, 0.45f, 0.95f), ReferenceRange(i, 103.7f, -0.08f, 0.08f));
+                CreateCinematicCableSegment(root, "Cinematic Loose Cable Drop", dropStart, dropEnd, 0.018f, trimMat);
+            }
         }
+    }
+
+    private static void AddCinematicArchiveGlow(Transform root, Material cyanMat)
+    {
+        Vector3 center = new Vector3(0f, 8.8f, 33.0f);
+
+        GameObject glowLight = new GameObject("Cinematic Archive Ambient Glow");
+        glowLight.transform.SetParent(root, false);
+        glowLight.transform.position = center;
+        Light light = glowLight.AddComponent<Light>();
+        light.type = LightType.Point;
+        light.color = new Color(0.10f, 0.88f, 1.0f);
+        light.range = 34f;
+        light.intensity = 2.15f;
+        light.shadows = LightShadows.None;
+
+        GameObject lowLight = new GameObject("Cinematic Archive Ground Glow");
+        lowLight.transform.SetParent(root, false);
+        lowLight.transform.position = new Vector3(0f, 2.7f, 31.6f);
+        Light low = lowLight.AddComponent<Light>();
+        low.type = LightType.Point;
+        low.color = new Color(0.08f, 0.65f, 0.92f);
+        low.range = 16f;
+        low.intensity = 0.95f;
+        low.shadows = LightShadows.None;
+
+        Material veilMat = CreateCinematicTransparentMaterial("MR3D_ArchiveGlowVeil", new Color(0.04f, 0.55f, 0.72f, 0.18f), 0.02f);
+        CreateCinematicWorldBox(root, "Cinematic Archive Glow Veil", new Vector3(0f, 7.1f, 31.35f), new Vector3(3.8f, 12.2f, 0.08f), veilMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Archive Soft Core", new Vector3(0f, 6.6f, 31.22f), new Vector3(0.42f, 9.8f, 0.10f), cyanMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Archive Mist Reflection", new Vector3(0f, 0.10f, 29.0f), new Vector3(5.5f, 0.012f, 1.6f), veilMat, new Vector3(0f, 3f, 0f));
+    }
+
+    private static void CreateCinematicCableSegment(Transform parent, string name, Vector3 start, Vector3 end, float thickness, Material material)
+    {
+        Vector3 direction = end - start;
+        float length = direction.magnitude;
+        if (length <= 0.01f)
+            return;
+
+        GameObject segment = CreateCinematicWorldBox(parent, name, (start + end) * 0.5f, new Vector3(length, thickness, thickness), material, Vector3.zero);
+        segment.transform.rotation = Quaternion.FromToRotation(Vector3.right, direction.normalized);
     }
 
     private static void AddCinematicWetHighlights(Transform root, Material puddleMat, Material cyanMat)
@@ -1766,6 +1827,7 @@ public static class MemoryRecycler3DSceneBuilder
             material.SetFloat("_ZWrite", 0f);
 
         material.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        material.SetOverrideTag("RenderType", "Transparent");
         material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
         EditorUtility.SetDirty(material);
         return material;
