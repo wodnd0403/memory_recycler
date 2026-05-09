@@ -1300,6 +1300,13 @@ public static class MemoryRecycler3DSceneBuilder
         GameObject root = new GameObject("Story Progression Pass");
         SceneManager.MoveGameObjectToScene(root, scene);
 
+        GameObject managers = FindRoot(scene, "Managers");
+        if (managers != null && managers.GetComponent<MemoryAudio3D>() == null)
+        {
+            managers.AddComponent<MemoryAudio3D>();
+            EditorUtility.SetDirty(managers);
+        }
+
         Material panelMat = CreateMaterial("MR3D_StoryTerminalPanel", new Color(0.035f, 0.055f, 0.065f), false);
         Material glowMat = CreateMaterial("MR3D_StoryTerminalGlow", new Color(0.08f, 0.75f, 0.95f), true);
 
@@ -1750,6 +1757,7 @@ public static class MemoryRecycler3DSceneBuilder
         GameObject managers = new GameObject("Managers");
         managers.AddComponent<GameState3D>();
         managers.AddComponent<MemoryManager3D>();
+        managers.AddComponent<MemoryAudio3D>();
         managers.AddComponent<UIManager3D>();
     }
 

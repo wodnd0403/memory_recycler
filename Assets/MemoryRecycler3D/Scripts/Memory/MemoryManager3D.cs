@@ -102,6 +102,8 @@ public class MemoryManager3D : MonoBehaviour
             SaveGame();
         }
 
+        if (MemoryAudio3D.Instance != null)
+            MemoryAudio3D.Instance.PlayDecision();
         UIManager3D.Instance.ShowToast("기억 처리 완료: " + DecisionToKorean(decision));
     }
 

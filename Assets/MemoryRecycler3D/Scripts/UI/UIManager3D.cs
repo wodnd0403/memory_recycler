@@ -13,14 +13,11 @@ public class UIManager3D : MonoBehaviour
 
     private GameObject objectivePanel;
     private Text objectiveText;
-
     private GameObject promptPanel;
     private Text promptText;
-
     private GameObject toastPanel;
     private Text toastText;
     private float toastUntil;
-
     private GameObject timePanel;
     private Text timeText;
 
@@ -41,11 +38,13 @@ public class UIManager3D : MonoBehaviour
 
     private GameObject archivePanel;
     private Text archiveText;
-
     private GameObject lorePanel;
     private Text loreTitle;
     private Text loreBody;
-
+    private GameObject echoPanel;
+    private Text echoTitle;
+    private Text echoBody;
+    private MemoryRecord3D currentEchoRecord;
     private GameObject endingPanel;
     private Text endingTitle;
     private Text endingBody;
@@ -177,6 +176,8 @@ public class UIManager3D : MonoBehaviour
     public void ShowArchiveLocked(int decided, int required)
     {
         CloseAllMajorPanels();
+        if (MemoryAudio3D.Instance != null)
+            MemoryAudio3D.Instance.PlayArchiveDenied();
 
         archiveText.text =
             "중앙 아카이브가 아직 열리지 않았습니다.\n\n" +
@@ -192,6 +193,8 @@ public class UIManager3D : MonoBehaviour
     public void ShowLore(string title, string body, string objectiveHint)
     {
         CloseAllMajorPanels();
+        if (MemoryAudio3D.Instance != null)
+            MemoryAudio3D.Instance.PlayLore();
 
         loreTitle.text = title;
         loreBody.text = body + (string.IsNullOrEmpty(objectiveHint) ? "" : "\n\n[탐사 힌트]\n" + objectiveHint);
@@ -199,9 +202,35 @@ public class UIManager3D : MonoBehaviour
         UnlockCursor();
     }
 
+    public void ShowMemoryEcho(MemoryRecord3D record)
+    {
+        if (record == null || record.memory == null)
+            return;
+
+        CloseAllMajorPanels();
+        currentEchoRecord = record;
+
+        string location = string.IsNullOrEmpty(record.memory.locationName) ? "위치 미상" : record.memory.locationName;
+        string clue = string.IsNullOrEmpty(record.memory.archiveClue) ? "아카이브 단서가 아직 안정화되지 않았습니다." : record.memory.archiveClue;
+        echoTitle.text = "기억 동기화: " + record.memory.memoryTitle;
+        echoBody.text =
+            "위치 신호: " + location + "\n" +
+            "감정 잔향: " + record.memory.emotion + "\n\n" +
+            record.memory.restoredText + "\n\n" +
+            "[아카이브 반응]\n" + clue;
+
+        if (MemoryAudio3D.Instance != null)
+            MemoryAudio3D.Instance.PlayMemoryRestored();
+
+        echoPanel.SetActive(true);
+        UnlockCursor();
+    }
+
     public void ShowEnding()
     {
         CloseAllMajorPanels();
+        if (MemoryAudio3D.Instance != null)
+            MemoryAudio3D.Instance.PlayArchiveOpen();
 
         int preserved = GameState3D.Instance.preservedCount;
         int deleted = GameState3D.Instance.deletedCount;
@@ -275,6 +304,7 @@ public class UIManager3D : MonoBehaviour
         BuildPuzzlePanel();
         BuildArchivePanel();
         BuildLorePanel();
+        BuildEchoPanel();
         BuildEndingPanel();
     }
 
@@ -324,10 +354,8 @@ public class UIManager3D : MonoBehaviour
         cardPanel = CreatePanel("MemoryCardPanel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(900f, 660f), Vector2.zero, new Color(0.04f, 0.05f, 0.07f, 0.95f));
         cardTitle = CreateText(cardPanel.transform, "CardTitle", "기억", 36, TextAnchor.MiddleLeft, Color.white);
         SetRect(cardTitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(40f, -92f), new Vector2(-40f, -25f));
-
         cardBody = CreateText(cardPanel.transform, "CardBody", "", 22, TextAnchor.UpperLeft, new Color(0.9f, 0.92f, 0.95f));
         SetRect(cardBody.rectTransform, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), new Vector2(44f, 116f), new Vector2(-44f, -105f));
-
         restoreButton = CreateButton(cardPanel.transform, "RestoreButton", "기억 복원", new Vector2(-285f, -270f), () => StartRestoreCurrent());
         preserveButton = CreateButton(cardPanel.transform, "PreserveButton", "보존", new Vector2(-285f, -270f), () => DecideCurrent(MemoryDecision3D.Preserve));
         deleteButton = CreateButton(cardPanel.transform, "DeleteButton", "삭제", new Vector2(0f, -270f), () => DecideCurrent(MemoryDecision3D.Delete));
@@ -341,10 +369,8 @@ public class UIManager3D : MonoBehaviour
         puzzlePanel = CreatePanel("PuzzlePanel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(980f, 720f), Vector2.zero, new Color(0.03f, 0.035f, 0.05f, 0.96f));
         puzzleTitle = CreateText(puzzlePanel.transform, "PuzzleTitle", "기억 복원 퍼즐", 34, TextAnchor.MiddleLeft, Color.white);
         SetRect(puzzleTitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(40f, -88f), new Vector2(-40f, -28f));
-
         Text guide = CreateText(puzzlePanel.transform, "PuzzleGuide", "문장 조각을 올바른 순서로 선택한 뒤 복원 확인을 누르세요.", 22, TextAnchor.MiddleLeft, new Color(0.82f, 0.86f, 0.9f));
         SetRect(guide.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(40f, -138f), new Vector2(-40f, -98f));
-
         puzzleSelectedText = CreateText(puzzlePanel.transform, "SelectedText", "선택한 문장:", 22, TextAnchor.UpperLeft, new Color(0.95f, 0.95f, 0.85f));
         SetRect(puzzleSelectedText.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(40f, 150f), new Vector2(-40f, 300f));
 
@@ -381,6 +407,22 @@ public class UIManager3D : MonoBehaviour
         lorePanel.SetActive(false);
     }
 
+    private void BuildEchoPanel()
+    {
+        echoPanel = CreatePanel("MemoryEchoPanel", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero, new Color(0.01f, 0.018f, 0.030f, 0.92f));
+        RectTransform panelRect = echoPanel.GetComponent<RectTransform>();
+        panelRect.offsetMin = Vector2.zero;
+        panelRect.offsetMax = Vector2.zero;
+
+        echoTitle = CreateText(echoPanel.transform, "EchoTitle", "기억 동기화", 42, TextAnchor.MiddleCenter, Color.white);
+        SetRect(echoTitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(120f, -185f), new Vector2(-120f, -95f));
+        echoBody = CreateText(echoPanel.transform, "EchoBody", "", 26, TextAnchor.UpperLeft, new Color(0.86f, 0.94f, 1f));
+        SetRect(echoBody.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-520f, -155f), new Vector2(520f, 205f));
+        CreateButton(echoPanel.transform, "EchoReturnButton", "기억 카드로 이동", new Vector2(-145f, -340f), () => ShowMemoryCard(currentEchoRecord));
+        CreateButton(echoPanel.transform, "EchoCloseButton", "닫기", new Vector2(145f, -340f), CloseAllAndLock);
+        echoPanel.SetActive(false);
+    }
+
     private void BuildEndingPanel()
     {
         endingPanel = CreatePanel("EndingPanel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(900f, 580f), Vector2.zero, new Color(0.03f, 0.03f, 0.045f, 0.97f));
@@ -401,7 +443,7 @@ public class UIManager3D : MonoBehaviour
         {
             currentRecord.restored = true;
             MemoryManager3D.Instance.SaveGame();
-            ShowMemoryCard(currentRecord);
+            ShowMemoryEcho(currentRecord);
             return;
         }
 
@@ -474,7 +516,7 @@ public class UIManager3D : MonoBehaviour
         {
             MemoryManager3D.Instance.MarkRestored(currentPuzzleRecord.memory);
             ShowToast("기억이 복원되었습니다.");
-            ShowMemoryCard(currentPuzzleRecord);
+            ShowMemoryEcho(currentPuzzleRecord);
         }
         else
         {
@@ -497,6 +539,7 @@ public class UIManager3D : MonoBehaviour
         if (puzzlePanel != null) puzzlePanel.SetActive(false);
         if (archivePanel != null) archivePanel.SetActive(false);
         if (lorePanel != null) lorePanel.SetActive(false);
+        if (echoPanel != null) echoPanel.SetActive(false);
         if (endingPanel != null) endingPanel.SetActive(false);
     }
 
@@ -552,7 +595,6 @@ public class UIManager3D : MonoBehaviour
     {
         GameObject go = new GameObject(name);
         go.transform.SetParent(parent, false);
-
         Image image = go.AddComponent<Image>();
         image.color = new Color(0.16f, 0.21f, 0.29f, 0.96f);
 
