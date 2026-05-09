@@ -117,7 +117,7 @@ public class UIManager3D : MonoBehaviour
             "손상률: " + record.memory.corruptionLevel + "%\n" +
             "처리 상태: " + decision + "\n\n" +
             record.memory.description +
-            (record.restored ? "\n\n[복원된 기억]\n" + record.memory.restoredText + clue : "\n\n아직 복원되지 않은 기억입니다. 문장 조각을 맞춰 원문을 복구하세요.");
+            (record.restored ? "\n\n[복원된 기억]\n" + record.memory.restoredText + clue + GetDecisionGuideText(record) : "\n\n아직 복원되지 않은 기억입니다. 문장 조각을 맞춰 원문을 복구하세요.");
 
         restoreButton.gameObject.SetActive(!record.restored);
         preserveButton.gameObject.SetActive(record.restored && record.decision == MemoryDecision3D.Unchosen);
@@ -531,6 +531,19 @@ public class UIManager3D : MonoBehaviour
 
         MemoryManager3D.Instance.ApplyDecision(currentRecord.memory, decision);
         ShowMemoryCard(currentRecord);
+    }
+
+    private string GetDecisionGuideText(MemoryRecord3D record)
+    {
+        if (record == null || record.decision != MemoryDecision3D.Unchosen)
+            return "";
+
+        return
+            "\n\n[처리 선택 안내]\n" +
+            "보존: 기억을 원본 그대로 남깁니다. 고통도 남지만 진실과 증언이 유지됩니다.\n" +
+            "삭제: 기억을 아카이브에서 지웁니다. 도시가 조용해지지만 잃어버린 사실도 함께 사라집니다.\n" +
+            "재가공: 기억을 덜 위험한 형태로 다시 편집합니다. 상처는 줄지만 원본의 의미가 바뀔 수 있습니다.\n" +
+            "이 선택들은 마지막 아카이브 결말에 반영됩니다.";
     }
 
     private void CloseAllMajorPanels()

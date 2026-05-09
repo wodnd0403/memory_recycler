@@ -693,6 +693,7 @@ public static class MemoryRecycler3DSceneBuilder
         if (orbit != null)
         {
             orbit.offset = new Vector3(0f, 2.95f, -6.45f);
+            orbit.mouseSensitivity = 1.55f;
             orbit.minPitch = -24f;
             orbit.maxPitch = 74f;
             orbit.baseLookHeight = 1.45f;
@@ -1179,6 +1180,8 @@ public static class MemoryRecycler3DSceneBuilder
         if (removeColliders)
             RemoveCollidersRecursive(instance.transform);
 
+        AddTripoGameplayCollider(instance, parent, name);
+
         SetStaticRecursive(instance.transform, parent.name == "Tripo Quality Pass");
         EditorUtility.SetDirty(instance);
         return instance;
@@ -1407,6 +1410,40 @@ public static class MemoryRecycler3DSceneBuilder
         Collider[] colliders = root.GetComponentsInChildren<Collider>(true);
         for (int i = 0; i < colliders.Length; i++)
             Object.DestroyImmediate(colliders[i]);
+    }
+
+    private static void AddTripoGameplayCollider(GameObject instance, Transform colliderParent, string objectName)
+    {
+        if (instance == null || colliderParent == null || colliderParent.name != "Tripo Quality Pass")
+            return;
+
+        bool blocksPlayer =
+            objectName.Contains("Building") ||
+            objectName.Contains("Background Block") ||
+            objectName.Contains("Archive Tower");
+        if (!blocksPlayer)
+            return;
+
+        if (!TryGetRendererBounds(instance.transform, out Bounds bounds))
+            return;
+
+        GameObject colliderObject = new GameObject(objectName + " Gameplay Collider");
+        colliderObject.transform.SetParent(colliderParent, true);
+        colliderObject.transform.position = bounds.center;
+        colliderObject.transform.rotation = Quaternion.identity;
+        colliderObject.transform.localScale = Vector3.one;
+
+        BoxCollider collider = colliderObject.AddComponent<BoxCollider>();
+        collider.isTrigger = false;
+        Vector3 size = bounds.size;
+        size.x = Mathf.Max(1.2f, size.x * 0.88f);
+        size.y = Mathf.Max(2.4f, size.y);
+        size.z = Mathf.Max(1.2f, size.z * 0.88f);
+        collider.size = size;
+        collider.center = Vector3.zero;
+
+        colliderObject.isStatic = true;
+        EditorUtility.SetDirty(colliderObject);
     }
 
     private static void SetStaticRecursive(Transform root, bool isStatic)
@@ -2085,6 +2122,7 @@ public static class MemoryRecycler3DSceneBuilder
 
         OrbitCamera3D orbit = cameraObject.AddComponent<OrbitCamera3D>();
         orbit.target = player;
+        orbit.mouseSensitivity = 1.55f;
         orbit.minPitch = -35f;
         orbit.maxPitch = 70f;
         orbit.baseLookHeight = 1.45f;

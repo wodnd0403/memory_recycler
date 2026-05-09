@@ -4,7 +4,7 @@ public class OrbitCamera3D : MonoBehaviour
 {
     public Transform target;
     public Vector3 offset = new Vector3(0f, 3.5f, -6f);
-    public float mouseSensitivity = 3f;
+    public float mouseSensitivity = 1.55f;
     public float minPitch = -35f;
     public float maxPitch = 70f;
     public float baseLookHeight = 1.45f;
