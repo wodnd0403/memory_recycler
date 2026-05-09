@@ -642,6 +642,7 @@ public static class MemoryRecycler3DSceneBuilder
         ApplyCinematicPostProcessing(scene);
         ApplyCinematicCityDetails(scene);
         ApplyTripoAssetUpgrade(scene);
+        RepositionMemoryOrbs(scene);
         ApplyStoryProgressionPass(scene);
         ConfigureInstructionsSign(scene);
     }
@@ -983,11 +984,11 @@ public static class MemoryRecycler3DSceneBuilder
     {
         Vector3[] expandedPositions =
         {
-            new Vector3(-15.8f, 2.8f, -24f), new Vector3(16.0f, 3.8f, -22f),
-            new Vector3(-17.4f, 4.6f, -8f), new Vector3(17.0f, 4.2f, -6f),
-            new Vector3(-16.6f, 3.1f, 9f), new Vector3(16.8f, 5.4f, 12f),
-            new Vector3(-17.8f, 4.8f, 27f), new Vector3(18.0f, 6.2f, 31f),
-            new Vector3(-24.8f, 3.4f, 19f), new Vector3(25.0f, 4.1f, 22f)
+            new Vector3(-24.5f, 2.8f, -26f), new Vector3(24.8f, 3.8f, -24f),
+            new Vector3(-25.6f, 4.6f, -10f), new Vector3(25.2f, 4.2f, -8f),
+            new Vector3(-24.8f, 3.1f, 8f), new Vector3(25.0f, 5.4f, 11f),
+            new Vector3(-26.2f, 4.8f, 29f), new Vector3(26.6f, 6.2f, 33f),
+            new Vector3(-34.0f, 3.4f, 18f), new Vector3(34.0f, 4.1f, 21f)
         };
 
         for (int i = 0; i < expandedPositions.Length; i++)
@@ -1140,14 +1141,14 @@ public static class MemoryRecycler3DSceneBuilder
         SceneManager.MoveGameObjectToScene(root, scene);
         root.transform.position = Vector3.zero;
 
-        PlaceTripoPrefab(scene, root.transform, "Tripo Building Ruined Concrete_L", "Buildings/RuinedConcreteBuilding/RuinedConcreteBuilding.fbx", new Vector3(-19.2f, 0f, -20.0f), new Vector3(0f, 92f, 0f), 13.6f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Building Post Apocalyptic_R", "Buildings/PostApocalypticBuilding/PostApocalypticBuilding.fbx", new Vector3(19.3f, 0f, -18.2f), new Vector3(0f, -90f, 0f), 14.8f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Building Apartment_L", "Buildings/RuinedApartmentBuilding/RuinedApartmentBuilding.fbx", new Vector3(-19.8f, 0f, -6.2f), new Vector3(0f, 88f, 0f), 16.4f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Building Ruined_R", "Buildings/RuinedBuilding/RuinedBuilding.fbx", new Vector3(19.6f, 0f, -1.2f), new Vector3(0f, -92f, 0f), 14.2f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Building Korean_L", "Buildings/KoreanRuinedBuilding/KoreanRuinedBuilding.fbx", new Vector3(-21.5f, 0f, 19.4f), new Vector3(0f, 112f, 0f), 13.8f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Building City Block_R", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(21.4f, 0f, 21.8f), new Vector3(0f, -112f, 0f), 11.4f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Background Block_L", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(-35.0f, 0f, 36.0f), new Vector3(0f, 38f, 0f), 15.6f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Background Block_R", "Buildings/RuinedConcreteBuilding/RuinedConcreteBuilding.fbx", new Vector3(35.0f, 0f, 37.5f), new Vector3(0f, -34f, 0f), 17.2f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building Ruined Concrete_L", "Buildings/RuinedConcreteBuilding/RuinedConcreteBuilding.fbx", new Vector3(-32.0f, 0f, -26.5f), new Vector3(0f, 98f, 0f), 13.6f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building Post Apocalyptic_R", "Buildings/PostApocalypticBuilding/PostApocalypticBuilding.fbx", new Vector3(32.5f, 0f, -23.0f), new Vector3(0f, -98f, 0f), 14.8f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building Apartment_L", "Buildings/RuinedApartmentBuilding/RuinedApartmentBuilding.fbx", new Vector3(-33.5f, 0f, -8.0f), new Vector3(0f, 102f, 0f), 16.4f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building Ruined_R", "Buildings/RuinedBuilding/RuinedBuilding.fbx", new Vector3(33.2f, 0f, -2.5f), new Vector3(0f, -102f, 0f), 14.2f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building Korean_L", "Buildings/KoreanRuinedBuilding/KoreanRuinedBuilding.fbx", new Vector3(-34.0f, 0f, 18.6f), new Vector3(0f, 118f, 0f), 13.8f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building City Block_R", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(34.0f, 0f, 22.4f), new Vector3(0f, -118f, 0f), 11.4f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Background Block_L", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(-46.0f, 0f, 40.0f), new Vector3(0f, 38f, 0f), 15.6f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Background Block_R", "Buildings/RuinedConcreteBuilding/RuinedConcreteBuilding.fbx", new Vector3(46.0f, 0f, 41.5f), new Vector3(0f, -34f, 0f), 17.2f, true);
         PlaceTripoPrefab(scene, root.transform, "Tripo Archive Tower", "Buildings/PostApocalypticTower/PostApocalypticTower.fbx", new Vector3(0f, 0f, ArchiveCenterZ + 1.5f), new Vector3(0f, 270f, 0f), 26.0f, true);
 
         PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_L0", "Props/StreetLamps/StreetLamps.fbx", new Vector3(-7.5f, 0f, -17.0f), new Vector3(0f, 15f, 0f), 6.2f, true);
@@ -1209,6 +1210,21 @@ public static class MemoryRecycler3DSceneBuilder
         SetStaticRecursive(instance.transform, parent.name == "Tripo Quality Pass");
         EditorUtility.SetDirty(instance);
         return instance;
+    }
+
+    private static void RepositionMemoryOrbs(Scene scene)
+    {
+        Vector3[] positions = GetMemoryOrbPositions();
+        for (int i = 0; i < positions.Length; i++)
+        {
+            GameObject root = FindRoot(scene, "Memory Orb_MR3D_" + (i + 1).ToString("000"));
+            if (root == null)
+                continue;
+
+            root.transform.position = positions[i];
+            root.transform.localScale = Vector3.one * 0.7f;
+            EditorUtility.SetDirty(root);
+        }
     }
 
     private static void PlaceTripoPlayerVisual(Scene scene)
@@ -1659,6 +1675,9 @@ public static class MemoryRecycler3DSceneBuilder
                 float depth = ReferenceRange(ring, i + 223.3f, 3.2f, 6.8f);
                 float yaw = angle + 90f + ReferenceRange(ring, i + 224.3f, -9f, 9f);
 
+                if (IsGameplayClearZone(position, width, depth))
+                    continue;
+
                 GameObject block = CreateCinematicWorldBox(root, "Cinematic Ring District Building", new Vector3(position.x, height * 0.5f, position.z), new Vector3(width, height, depth), buildingMat, new Vector3(0f, yaw, 0f));
                 CreateCinematicWorldBox(block.transform, "Cinematic Ring Roof Unit", new Vector3(0.22f, 0.53f, -0.08f), new Vector3(0.25f, 0.075f, 0.25f), trimMat, Vector3.zero, true);
 
@@ -1717,6 +1736,42 @@ public static class MemoryRecycler3DSceneBuilder
     {
         float radians = angle * Mathf.Deg2Rad;
         return new Vector3(Mathf.Sin(radians), 0f, Mathf.Cos(radians));
+    }
+
+    private static bool IsGameplayClearZone(Vector3 position, float width, float depth)
+    {
+        float halfFootprint = Mathf.Max(width, depth) * 0.5f;
+        if (position.z > -32f && position.z < ArchiveCenterZ + 27f && Mathf.Abs(position.x) < 12.5f + halfFootprint)
+            return true;
+
+        Vector3 archiveCenter = new Vector3(0f, 0f, ArchiveCenterZ);
+        if (Vector3.Distance(new Vector3(position.x, 0f, position.z), archiveCenter) < 13.5f + halfFootprint)
+            return true;
+
+        Vector3[] memoryPositions = GetMemoryOrbPositions();
+        for (int i = 0; i < memoryPositions.Length; i++)
+        {
+            Vector3 memory = memoryPositions[i];
+            if (Vector3.Distance(new Vector3(position.x, 0f, position.z), new Vector3(memory.x, 0f, memory.z)) < 7.5f + halfFootprint)
+                return true;
+        }
+
+        return false;
+    }
+
+    private static Vector3[] GetMemoryOrbPositions()
+    {
+        return new[]
+        {
+            new Vector3(-3.8f, 1.3f, -13.0f),
+            new Vector3(4.2f, 1.3f, -4.0f),
+            new Vector3(-4.6f, 1.3f, 7.5f),
+            new Vector3(4.6f, 1.3f, 16.0f),
+            new Vector3(-4.4f, 1.3f, 25.0f),
+            new Vector3(4.2f, 1.3f, 34.0f),
+            new Vector3(-4.8f, 1.3f, 43.0f),
+            new Vector3(4.8f, 1.3f, 52.0f)
+        };
     }
 
     private static void AddCinematicBackgroundDepth(Transform root, Material buildingMat, Material trimMat)
@@ -2400,17 +2455,7 @@ public static class MemoryRecycler3DSceneBuilder
 
     private static void CreateMemories(MemoryData3D[] memories, Material material)
     {
-        Vector3[] positions =
-        {
-            new Vector3(-9.0f, 1.3f, -12f),
-            new Vector3(8.5f, 1.3f, -3f),
-            new Vector3(-13.8f, 1.3f, 8f),
-            new Vector3(4.0f, 1.3f, 17f),
-            new Vector3(13.6f, 1.3f, 24f),
-            new Vector3(-5.5f, 1.3f, 35f),
-            new Vector3(10.2f, 1.3f, 43f),
-            new Vector3(-16.5f, 1.3f, 50f)
-        };
+        Vector3[] positions = GetMemoryOrbPositions();
 
         for (int i = 0; i < memories.Length && i < positions.Length; i++)
         {
