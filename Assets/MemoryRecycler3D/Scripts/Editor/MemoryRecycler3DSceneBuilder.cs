@@ -21,6 +21,12 @@ public static class MemoryRecycler3DSceneBuilder
     private const string CinematicVolumeProfilePath = DataPath + "/MR3D_CinematicVolumeProfile.asset";
     private const float ArchiveCenterZ = 18f;
 
+    [InitializeOnLoadMethod]
+    private static void ConfigurePrototypeSceneOnEditorLoad()
+    {
+        EditorApplication.delayCall += EnsurePrototypeSceneInBuildSettings;
+    }
+
     [MenuItem("Tools/Memory Recycler 3D/Build Prototype Scene")]
     public static void BuildPrototypeScene()
     {
@@ -2795,6 +2801,10 @@ public static class MemoryRecycler3DSceneBuilder
         {
             new EditorBuildSettingsScene(ScenePath, true)
         };
+
+        SceneAsset prototypeScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(ScenePath);
+        if (prototypeScene != null)
+            EditorSceneManager.playModeStartScene = prototypeScene;
     }
 
     private static void EnsurePlayerTag()
