@@ -19,6 +19,7 @@ public static class MemoryRecycler3DSceneBuilder
     private const string TripoAssetPath = Root + "/ExternalAssets/Tripo";
     private const string TripoMaterialPath = MaterialPath + "/Tripo";
     private const string CinematicVolumeProfilePath = DataPath + "/MR3D_CinematicVolumeProfile.asset";
+    private const float ExpandedArchiveZ = 58f;
 
     [MenuItem("Tools/Memory Recycler 3D/Build Prototype Scene")]
     public static void BuildPrototypeScene()
@@ -818,8 +819,8 @@ public static class MemoryRecycler3DSceneBuilder
         GameObject avenue = FindRoot(scene, "Main Avenue");
         if (avenue != null)
         {
-            avenue.transform.position = new Vector3(0f, 0.02f, 0f);
-            avenue.transform.localScale = new Vector3(12.5f, 0.04f, 58f);
+            avenue.transform.position = new Vector3(0f, 0.02f, 8f);
+            avenue.transform.localScale = new Vector3(13.8f, 0.04f, 96f);
             if (avenue.TryGetComponent(out Renderer avenueRenderer))
                 avenueRenderer.sharedMaterial = roadMat;
             EditorUtility.SetDirty(avenue);
@@ -828,7 +829,7 @@ public static class MemoryRecycler3DSceneBuilder
         GameObject ground = FindRoot(scene, "Abandoned City Ground");
         if (ground != null)
         {
-            ground.transform.localScale = new Vector3(14f, 1f, 14f);
+            ground.transform.localScale = new Vector3(24f, 1f, 24f);
             EditorUtility.SetDirty(ground);
         }
 
@@ -855,6 +856,7 @@ public static class MemoryRecycler3DSceneBuilder
         AlignCinematicStreetLights(city.transform);
         AddCinematicRoadDetails(root, roadPatchMat, debrisMat, boardMat);
         AddCinematicAvenueDepthCues(root, panelMat, trimMat, cyanMat, roadPatchMat);
+        AddCinematicDistrictExpansion(root, buildingMat, trimMat, panelMat, cyanMat);
         AddCinematicBackgroundDepth(root, buildingMat, trimMat);
         AddCinematicOverheadCables(root, trimMat);
         AddCinematicArchiveGlow(root, cyanMat);
@@ -932,18 +934,18 @@ public static class MemoryRecycler3DSceneBuilder
 
     private static void AddCinematicRoadDetails(Transform root, Material roadPatchMat, Material debrisMat, Material boardMat)
     {
-        for (int i = 0; i < 22; i++)
+        for (int i = 0; i < 34; i++)
         {
-            float z = -20f + i * 2.0f + ReferenceRange(i, 71.3f, -0.55f, 0.55f);
-            float x = ReferenceRange(i, 72.9f, -2.7f, 2.7f);
+            float z = -30f + i * 2.8f + ReferenceRange(i, 71.3f, -0.65f, 0.65f);
+            float x = ReferenceRange(i, 72.9f, -3.2f, 3.2f);
             Vector3 size = new Vector3(ReferenceRange(i, 73.7f, 0.75f, 2.6f), 0.018f, ReferenceRange(i, 74.4f, 0.55f, 2.2f));
             CreateCinematicWorldBox(root, "Cinematic Road Patch", new Vector3(x, 0.065f, z), size, roadPatchMat, new Vector3(0f, ReferenceRange(i, 75.1f, -8f, 8f), 0f));
         }
 
-        for (int i = 0; i < 16; i++)
+        for (int i = 0; i < 28; i++)
         {
             float side = i % 2 == 0 ? -1f : 1f;
-            Vector3 position = new Vector3(side * ReferenceRange(i, 77.2f, 5.0f, 7.2f), 0.13f, ReferenceRange(i, 78.1f, -24f, 27f));
+            Vector3 position = new Vector3(side * ReferenceRange(i, 77.2f, 5.0f, 8.2f), 0.13f, ReferenceRange(i, 78.1f, -30f, 56f));
             Vector3 size = new Vector3(ReferenceRange(i, 79.3f, 0.25f, 0.85f), ReferenceRange(i, 80.2f, 0.08f, 0.24f), ReferenceRange(i, 81.1f, 0.35f, 1.2f));
             CreateCinematicWorldBox(root, "Cinematic Street Rubble", position, size, debrisMat, new Vector3(0f, ReferenceRange(i, 82.5f, 0f, 180f), ReferenceRange(i, 83.4f, -10f, 10f)));
 
@@ -951,10 +953,10 @@ public static class MemoryRecycler3DSceneBuilder
                 AddCinematicRubbleCluster(root, position + new Vector3(-side * 0.18f, 0.025f, 0.12f), i, debrisMat);
         }
 
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < 14; i++)
         {
             float side = i % 2 == 0 ? -1f : 1f;
-            CreateCinematicWorldBox(root, "Cinematic Fallen Board", new Vector3(side * ReferenceRange(i, 84.4f, 6.0f, 7.8f), 0.17f, ReferenceRange(i, 85.4f, -20f, 24f)), new Vector3(0.24f, 0.10f, 1.65f), boardMat, new Vector3(ReferenceRange(i, 86.4f, -4f, 4f), ReferenceRange(i, 87.4f, -32f, 32f), ReferenceRange(i, 88.4f, -12f, 12f)));
+            CreateCinematicWorldBox(root, "Cinematic Fallen Board", new Vector3(side * ReferenceRange(i, 84.4f, 6.0f, 8.6f), 0.17f, ReferenceRange(i, 85.4f, -25f, 52f)), new Vector3(0.24f, 0.10f, 1.65f), boardMat, new Vector3(ReferenceRange(i, 86.4f, -4f, 4f), ReferenceRange(i, 87.4f, -32f, 32f), ReferenceRange(i, 88.4f, -12f, 12f)));
         }
     }
 
@@ -962,11 +964,11 @@ public static class MemoryRecycler3DSceneBuilder
     {
         Vector3[] expandedPositions =
         {
-            new Vector3(-14.5f, 2.8f, -22f), new Vector3(14.8f, 3.8f, -21f),
-            new Vector3(-15.5f, 4.6f, -10f), new Vector3(15.2f, 4.2f, -10f),
-            new Vector3(-14.8f, 3.1f, 2f), new Vector3(14.6f, 5.4f, 3f),
-            new Vector3(-15.0f, 4.8f, 15f), new Vector3(15.4f, 6.2f, 16f),
-            new Vector3(-20.2f, 3.4f, 8f), new Vector3(20.2f, 4.1f, 8f)
+            new Vector3(-15.8f, 2.8f, -24f), new Vector3(16.0f, 3.8f, -22f),
+            new Vector3(-17.4f, 4.6f, -8f), new Vector3(17.0f, 4.2f, -6f),
+            new Vector3(-16.6f, 3.1f, 9f), new Vector3(16.8f, 5.4f, 12f),
+            new Vector3(-17.8f, 4.8f, 27f), new Vector3(18.0f, 6.2f, 31f),
+            new Vector3(-24.8f, 3.4f, 19f), new Vector3(25.0f, 4.1f, 22f)
         };
 
         for (int i = 0; i < expandedPositions.Length; i++)
@@ -986,7 +988,7 @@ public static class MemoryRecycler3DSceneBuilder
         if (terminal == null)
             return;
 
-        terminal.transform.position = new Vector3(0f, 3.9f, 31.5f);
+        terminal.transform.position = new Vector3(0f, 3.9f, ExpandedArchiveZ);
         terminal.transform.localScale = new Vector3(3.4f, 7.8f, 1.6f);
 
         Renderer renderer = terminal.GetComponent<Renderer>();
@@ -1043,7 +1045,7 @@ public static class MemoryRecycler3DSceneBuilder
     private static void ConfigureArchiveTriggerOnly(GameObject terminal)
     {
         terminal.name = "Central Archive Terminal";
-        terminal.transform.position = new Vector3(0f, 1.8f, 32.0f);
+        terminal.transform.position = new Vector3(0f, 1.8f, ExpandedArchiveZ);
         terminal.transform.localScale = new Vector3(4.2f, 3.6f, 4.2f);
 
         Renderer renderer = terminal.GetComponent<Renderer>();
@@ -1123,28 +1125,30 @@ public static class MemoryRecycler3DSceneBuilder
         PlaceTripoPrefab(scene, root.transform, "Tripo Building Post Apocalyptic_R", "Buildings/PostApocalypticBuilding/PostApocalypticBuilding.fbx", new Vector3(19.3f, 0f, -18.2f), new Vector3(0f, -90f, 0f), 14.8f, true);
         PlaceTripoPrefab(scene, root.transform, "Tripo Building Apartment_L", "Buildings/RuinedApartmentBuilding/RuinedApartmentBuilding.fbx", new Vector3(-19.8f, 0f, -6.2f), new Vector3(0f, 88f, 0f), 16.4f, true);
         PlaceTripoPrefab(scene, root.transform, "Tripo Building Ruined_R", "Buildings/RuinedBuilding/RuinedBuilding.fbx", new Vector3(19.6f, 0f, -1.2f), new Vector3(0f, -92f, 0f), 14.2f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Building Korean_L", "Buildings/KoreanRuinedBuilding/KoreanRuinedBuilding.fbx", new Vector3(-19.5f, 0f, 11.4f), new Vector3(0f, 94f, 0f), 13.8f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Building City Block_R", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(19.4f, 0f, 14.8f), new Vector3(0f, -88f, 0f), 11.4f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Background Block_L", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(-29.0f, 0f, 32.0f), new Vector3(0f, 38f, 0f), 15.6f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Background Block_R", "Buildings/RuinedConcreteBuilding/RuinedConcreteBuilding.fbx", new Vector3(29.0f, 0f, 33.5f), new Vector3(0f, -34f, 0f), 17.2f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Archive Tower", "Buildings/PostApocalypticTower/PostApocalypticTower.fbx", new Vector3(0f, 0f, 33.5f), new Vector3(0f, 270f, 0f), 24.0f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building Korean_L", "Buildings/KoreanRuinedBuilding/KoreanRuinedBuilding.fbx", new Vector3(-19.5f, 0f, 15.4f), new Vector3(0f, 94f, 0f), 13.8f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Building City Block_R", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(19.4f, 0f, 20.8f), new Vector3(0f, -88f, 0f), 11.4f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Background Block_L", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(-31.0f, 0f, 46.0f), new Vector3(0f, 38f, 0f), 15.6f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Background Block_R", "Buildings/RuinedConcreteBuilding/RuinedConcreteBuilding.fbx", new Vector3(31.0f, 0f, 49.5f), new Vector3(0f, -34f, 0f), 17.2f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Archive Tower", "Buildings/PostApocalypticTower/PostApocalypticTower.fbx", new Vector3(0f, 0f, ExpandedArchiveZ + 1.5f), new Vector3(0f, 270f, 0f), 26.0f, true);
 
         PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_L0", "Props/StreetLamps/StreetLamps.fbx", new Vector3(-7.5f, 0f, -17.0f), new Vector3(0f, 15f, 0f), 6.2f, true);
         PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_R0", "Props/StreetLamps/StreetLamps.fbx", new Vector3(7.5f, 0f, -11.0f), new Vector3(0f, -165f, 0f), 6.2f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_L1", "Props/StreetLamps/StreetLamps.fbx", new Vector3(-7.6f, 0f, 3.5f), new Vector3(0f, -4f, 0f), 6.0f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_R1", "Props/StreetLamps/StreetLamps.fbx", new Vector3(7.6f, 0f, 10.5f), new Vector3(0f, 176f, 0f), 6.0f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_L1", "Props/StreetLamps/StreetLamps.fbx", new Vector3(-7.6f, 0f, 7.5f), new Vector3(0f, -4f, 0f), 6.0f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_R1", "Props/StreetLamps/StreetLamps.fbx", new Vector3(7.6f, 0f, 18.5f), new Vector3(0f, 176f, 0f), 6.0f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_L2", "Props/StreetLamps/StreetLamps.fbx", new Vector3(-7.7f, 0f, 31.5f), new Vector3(0f, 5f, 0f), 5.8f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_R2", "Props/StreetLamps/StreetLamps.fbx", new Vector3(7.7f, 0f, 43.0f), new Vector3(0f, 182f, 0f), 5.8f, true);
 
         PlaceTripoPrefab(scene, root.transform, "Tripo Rubble Near_L", "Environment/ConcreteRubble/ConcreteRubble.fbx", new Vector3(-4.2f, 0f, -10.0f), new Vector3(0f, 28f, 0f), 0.72f, true);
         PlaceTripoPrefab(scene, root.transform, "Tripo Rubble Near_R", "Environment/ConcreteRubble/ConcreteRubble.fbx", new Vector3(4.7f, 0f, -3.2f), new Vector3(0f, -52f, 0f), 0.68f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Rubble Far_L", "Environment/ConcreteRubble/ConcreteRubble.fbx", new Vector3(-5.6f, 0f, 15.5f), new Vector3(0f, 103f, 0f), 0.82f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Rubble Far_R", "Environment/ConcreteRubble/ConcreteRubble.fbx", new Vector3(5.3f, 0f, 21.0f), new Vector3(0f, -16f, 0f), 0.76f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Rubble Far_L", "Environment/ConcreteRubble/ConcreteRubble.fbx", new Vector3(-5.6f, 0f, 24.5f), new Vector3(0f, 103f, 0f), 0.82f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Rubble Far_R", "Environment/ConcreteRubble/ConcreteRubble.fbx", new Vector3(5.3f, 0f, 38.0f), new Vector3(0f, -16f, 0f), 0.76f, true);
 
         PlaceTripoPrefab(scene, root.transform, "Tripo Wall Pipes_L", "Props/Pipes/Pipes.fbx", new Vector3(-9.2f, 0f, -6.8f), new Vector3(0f, 88f, 0f), 2.3f, true);
         PlaceTripoPrefab(scene, root.transform, "Tripo Wall Pipes_R", "Props/Pipes/Pipes.fbx", new Vector3(9.2f, 0f, 5.4f), new Vector3(0f, -92f, 0f), 2.1f, true);
         PlaceTripoPrefab(scene, root.transform, "Tripo Air Conditioner_L", "Props/AirConditioners/AirConditioners.fbx", new Vector3(-9.0f, 0f, 1.8f), new Vector3(0f, 90f, 0f), 1.25f, true);
         PlaceTripoPrefab(scene, root.transform, "Tripo Window Barricade_R", "Props/WindowBarricades/WindowBarricades.fbx", new Vector3(9.0f, 0f, -13.8f), new Vector3(0f, -90f, 0f), 1.5f, true);
         PlaceTripoPrefab(scene, root.transform, "Tripo Metal Door_L", "Props/MetalDoors/MetalDoors.fbx", new Vector3(-8.9f, 0f, 8.6f), new Vector3(0f, 90f, 0f), 1.8f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Recycling Sign_R", "Props/RecyclingSigns/RecyclingSigns.fbx", new Vector3(8.9f, 0f, 18.2f), new Vector3(0f, -90f, 0f), 1.45f, true);
+        PlaceTripoPrefab(scene, root.transform, "Tripo Recycling Sign_R", "Props/RecyclingSigns/RecyclingSigns.fbx", new Vector3(8.9f, 0f, 35.2f), new Vector3(0f, -90f, 0f), 1.45f, true);
 
         PlaceTripoPlayerVisual(scene);
 
@@ -1349,7 +1353,7 @@ public static class MemoryRecycler3DSceneBuilder
             "녹슨 방송 마이크와 중앙 아카이브의 자장가를 복원하면 마지막 명령의 윤곽이 드러납니다.",
             panelMat, glowMat);
 
-        CreateStoryTerminal(scene, root.transform, "Story Terminal_ArchiveGate", new Vector3(-4.6f, 1.15f, 25.5f), new Vector3(0f, 8f, 0f),
+        CreateStoryTerminal(scene, root.transform, "Story Terminal_ArchiveGate", new Vector3(-5.2f, 1.15f, ExpandedArchiveZ - 8.5f), new Vector3(0f, 8f, 0f),
             "아카이브 관문 릴레이",
             "중앙 아카이브는 단순 저장소가 아닙니다. 회수원이 내린 선택을 바탕으로 도시의 다음 상태를 계산하는 판단 장치입니다.",
             "기억 5개 이상을 복원하고 처리해야 최종 접속이 열립니다.",
@@ -1577,33 +1581,59 @@ public static class MemoryRecycler3DSceneBuilder
 
     private static void AddCinematicAvenueDepthCues(Transform root, Material panelMat, Material trimMat, Material cyanMat, Material roadPatchMat)
     {
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < 10; i++)
         {
-            float z = -20f + i * 7.2f;
-            float width = Mathf.Lerp(4.8f, 2.0f, i / 5f);
+            float z = -22f + i * 8.0f;
+            float width = Mathf.Lerp(5.6f, 1.5f, i / 9f);
             CreateCinematicWorldBox(root, "Cinematic Street Cross Shadow", new Vector3(0f, 0.064f, z + 0.55f), new Vector3(width, 0.010f, 0.34f), roadPatchMat, new Vector3(0f, ReferenceRange(i, 131.2f, -5f, 5f), 0f));
         }
 
-        CreateCinematicWorldBox(root, "Cinematic Distant Memory Gate", new Vector3(0f, 2.6f, 32.2f), new Vector3(1.15f, 4.1f, 0.16f), cyanMat, Vector3.zero);
-        CreateCinematicWorldBox(root, "Cinematic Distant Gate Core", new Vector3(0f, 2.45f, 32.08f), new Vector3(0.62f, 3.15f, 0.10f), panelMat, Vector3.zero);
-        CreateCinematicWorldBox(root, "Cinematic Distant Gate Cap", new Vector3(0f, 4.58f, 32.0f), new Vector3(1.45f, 0.10f, 0.18f), trimMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Distant Memory Gate", new Vector3(0f, 2.6f, ExpandedArchiveZ - 2.0f), new Vector3(1.15f, 4.1f, 0.16f), cyanMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Distant Gate Core", new Vector3(0f, 2.45f, ExpandedArchiveZ - 2.12f), new Vector3(0.62f, 3.15f, 0.10f), panelMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Distant Gate Cap", new Vector3(0f, 4.58f, ExpandedArchiveZ - 2.2f), new Vector3(1.45f, 0.10f, 0.18f), trimMat, Vector3.zero);
 
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 7; i++)
         {
             float side = i % 2 == 0 ? -1f : 1f;
-            float z = 8f + i * 7.0f;
+            float z = 8f + i * 7.4f;
             CreateCinematicWorldBox(root, "Cinematic Tiny Signal", new Vector3(side * 6.6f, 1.15f, z), new Vector3(0.050f, 0.38f, 0.050f), cyanMat, Vector3.zero);
+        }
+    }
+
+    private static void AddCinematicDistrictExpansion(Transform root, Material buildingMat, Material trimMat, Material panelMat, Material cyanMat)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            float side = i % 2 == 0 ? -1f : 1f;
+            float z = -14f + i * 8.4f + ReferenceRange(i, 201.3f, -1.0f, 1.0f);
+            float height = ReferenceRange(i, 202.3f, 5.2f, 12.8f);
+            float width = ReferenceRange(i, 203.3f, 2.8f, 5.2f);
+            float depth = ReferenceRange(i, 204.3f, 3.0f, 6.8f);
+            float x = side * ReferenceRange(i, 205.3f, 23.0f, 34.0f);
+            GameObject block = CreateCinematicWorldBox(root, "Cinematic Outer District Block", new Vector3(x, height * 0.5f, z), new Vector3(width, height, depth), buildingMat, new Vector3(0f, side * ReferenceRange(i, 206.3f, -18f, 18f), 0f));
+            CreateCinematicWorldBox(block.transform, "Cinematic District Roof Unit", new Vector3(0.18f, 0.54f, -0.05f), new Vector3(0.22f, 0.07f, 0.22f), trimMat, Vector3.zero, true);
+
+            if (i % 3 == 0)
+                CreateCinematicWorldBox(root, "Cinematic Far Cyan Window", new Vector3(x - side * (width * 0.42f), height * 0.55f, z - depth * 0.45f), new Vector3(0.060f, 0.62f, 0.050f), cyanMat, Vector3.zero);
+        }
+
+        for (int i = 0; i < 5; i++)
+        {
+            float side = i % 2 == 0 ? -1f : 1f;
+            float z = 4f + i * 10.5f;
+            CreateCinematicWorldBox(root, "Cinematic Side Street Mouth", new Vector3(side * 10.8f, 1.85f, z), new Vector3(0.35f, 3.7f, 4.8f), panelMat, new Vector3(0f, side * 24f, 0f), false, true);
+            CreateCinematicWorldBox(root, "Cinematic Side Street Back Wall", new Vector3(side * 16.6f, 2.45f, z + side * 0.6f), new Vector3(0.40f, 4.9f, 7.2f), buildingMat, new Vector3(0f, side * 18f, 0f), false, true);
         }
     }
 
     private static void AddCinematicBackgroundDepth(Transform root, Material buildingMat, Material trimMat)
     {
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < 14; i++)
         {
             float side = i % 2 == 0 ? -1f : 1f;
-            float z = 31f + i * 5.2f;
-            float height = 8.2f + (i % 4) * 1.45f;
-            GameObject block = CreateCinematicWorldBox(root, "Cinematic Background Block", new Vector3(side * (12.0f + i * 0.9f), height * 0.5f, z), new Vector3(4.0f + i * 0.20f, height, 4.6f), buildingMat, Vector3.zero);
+            float z = 42f + i * 5.8f;
+            float height = 8.2f + (i % 5) * 1.55f;
+            GameObject block = CreateCinematicWorldBox(root, "Cinematic Background Block", new Vector3(side * (14.0f + i * 1.05f), height * 0.5f, z), new Vector3(4.0f + i * 0.18f, height, 4.6f), buildingMat, Vector3.zero);
             CreateCinematicWorldBox(block.transform, "Cinematic Roof Antenna", new Vector3(0.32f, 0.56f, 0f), new Vector3(0.035f, 0.26f, 0.035f), trimMat, Vector3.zero, true);
         }
     }
@@ -1639,7 +1669,7 @@ public static class MemoryRecycler3DSceneBuilder
 
     private static void AddCinematicArchiveGlow(Transform root, Material cyanMat)
     {
-        Vector3 center = new Vector3(0f, 8.8f, 33.0f);
+        Vector3 center = new Vector3(0f, 8.8f, ExpandedArchiveZ + 1.0f);
 
         GameObject glowLight = new GameObject("Cinematic Archive Ambient Glow");
         glowLight.transform.SetParent(root, false);
@@ -1653,7 +1683,7 @@ public static class MemoryRecycler3DSceneBuilder
 
         GameObject lowLight = new GameObject("Cinematic Archive Ground Glow");
         lowLight.transform.SetParent(root, false);
-        lowLight.transform.position = new Vector3(0f, 2.7f, 31.6f);
+        lowLight.transform.position = new Vector3(0f, 2.7f, ExpandedArchiveZ - 0.4f);
         Light low = lowLight.AddComponent<Light>();
         low.type = LightType.Point;
         low.color = new Color(0.08f, 0.65f, 0.92f);
@@ -1662,9 +1692,9 @@ public static class MemoryRecycler3DSceneBuilder
         low.shadows = LightShadows.None;
 
         Material veilMat = CreateCinematicTransparentMaterial("MR3D_ArchiveGlowVeil", new Color(0.04f, 0.55f, 0.72f, 0.18f), 0.02f);
-        CreateCinematicWorldBox(root, "Cinematic Archive Glow Veil", new Vector3(0f, 7.1f, 31.35f), new Vector3(3.8f, 12.2f, 0.08f), veilMat, Vector3.zero);
-        CreateCinematicWorldBox(root, "Cinematic Archive Soft Core", new Vector3(0f, 6.6f, 31.22f), new Vector3(0.42f, 9.8f, 0.10f), cyanMat, Vector3.zero);
-        CreateCinematicWorldBox(root, "Cinematic Archive Mist Reflection", new Vector3(0f, 0.10f, 29.0f), new Vector3(5.5f, 0.012f, 1.6f), veilMat, new Vector3(0f, 3f, 0f));
+        CreateCinematicWorldBox(root, "Cinematic Archive Glow Veil", new Vector3(0f, 7.1f, ExpandedArchiveZ - 0.65f), new Vector3(3.8f, 12.2f, 0.08f), veilMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Archive Soft Core", new Vector3(0f, 6.6f, ExpandedArchiveZ - 0.78f), new Vector3(0.42f, 9.8f, 0.10f), cyanMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Archive Mist Reflection", new Vector3(0f, 0.10f, ExpandedArchiveZ - 3.0f), new Vector3(5.5f, 0.012f, 1.6f), veilMat, new Vector3(0f, 3f, 0f));
     }
 
     private static void CreateCinematicCableSegment(Transform parent, string name, Vector3 start, Vector3 end, float thickness, Material material)
@@ -1784,11 +1814,11 @@ public static class MemoryRecycler3DSceneBuilder
 
     private static void AddCinematicSideAlleyDepth(Transform root, Material buildingMat, Material trimMat, Material cyanMat)
     {
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < 10; i++)
         {
             float side = i % 2 == 0 ? -1f : 1f;
-            float z = -8f + i * 5.8f;
-            CreateCinematicWorldBox(root, "Cinematic Side Alley Wall", new Vector3(side * 9.6f, 2.1f, z), new Vector3(0.32f, 4.2f, 3.6f), buildingMat, new Vector3(0f, side * 12f, 0f));
+            float z = -10f + i * 7.2f;
+            CreateCinematicWorldBox(root, "Cinematic Side Alley Wall", new Vector3(side * 9.6f, 2.1f, z), new Vector3(0.32f, 4.2f, 3.6f), buildingMat, new Vector3(0f, side * 12f, 0f), false, true);
             CreateCinematicWorldBox(root, "Cinematic Alley Pipe", new Vector3(side * 9.25f, 2.0f, z + 0.42f), new Vector3(0.070f, 2.9f, 0.070f), trimMat, Vector3.zero);
 
             if (i % 3 == 0)
@@ -1833,7 +1863,7 @@ public static class MemoryRecycler3DSceneBuilder
         return material;
     }
 
-    private static GameObject CreateCinematicWorldBox(Transform parent, string name, Vector3 position, Vector3 scale, Material material, Vector3 euler, bool local = false)
+    private static GameObject CreateCinematicWorldBox(Transform parent, string name, Vector3 position, Vector3 scale, Material material, Vector3 euler, bool local = false, bool keepCollider = false)
     {
         GameObject box = GameObject.CreatePrimitive(PrimitiveType.Cube);
         box.name = name;
@@ -1856,8 +1886,10 @@ public static class MemoryRecycler3DSceneBuilder
             renderer.sharedMaterial = material;
 
         Collider collider = box.GetComponent<Collider>();
-        if (collider != null)
+        if (collider != null && !keepCollider)
             Object.DestroyImmediate(collider);
+        else if (collider != null)
+            collider.isTrigger = false;
 
         return box;
     }
@@ -1908,30 +1940,30 @@ public static class MemoryRecycler3DSceneBuilder
     {
         GameObject ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
         ground.name = "Abandoned City Ground";
-        ground.transform.localScale = new Vector3(14f, 1f, 14f);
+        ground.transform.localScale = new Vector3(24f, 1f, 24f);
         ground.GetComponent<Renderer>().sharedMaterial = groundMat;
 
         GameObject avenue = GameObject.CreatePrimitive(PrimitiveType.Cube);
         avenue.name = "Main Avenue";
-        avenue.transform.position = new Vector3(0f, 0.02f, 0f);
-        avenue.transform.localScale = new Vector3(12.5f, 0.04f, 58f);
+        avenue.transform.position = new Vector3(0f, 0.02f, 8f);
+        avenue.transform.localScale = new Vector3(13.8f, 0.04f, 96f);
         avenue.GetComponent<Renderer>().sharedMaterial = roadMat;
 
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 18; i++)
         {
             GameObject marking = GameObject.CreatePrimitive(PrimitiveType.Cube);
             marking.name = "Road Marking_" + i;
-            marking.transform.position = new Vector3(0f, 0.05f, -18f + i * 4f);
+            marking.transform.position = new Vector3(0f, 0.05f, -28f + i * 5.0f);
             marking.transform.localScale = new Vector3(0.22f, 0.01f, 1.8f);
             marking.GetComponent<Renderer>().sharedMaterial = CreateMaterial("MR3D_Marking", new Color(0.6f, 0.65f, 0.7f), false);
         }
 
-        for (int i = 0; i < 16; i++)
+        for (int i = 0; i < 26; i++)
         {
             GameObject rubble = GameObject.CreatePrimitive(PrimitiveType.Cube);
             rubble.name = "Rubble_" + i;
-            float side = (i % 2 == 0) ? -7.4f : 7.4f;
-            rubble.transform.position = new Vector3(side + Random.Range(-1.8f, 1.8f), 0.14f + Random.Range(0f, 0.12f), -24f + i * 3.0f);
+            float side = (i % 2 == 0) ? -8.2f : 8.2f;
+            rubble.transform.position = new Vector3(side + Random.Range(-2.2f, 2.2f), 0.14f + Random.Range(0f, 0.12f), -30f + i * 3.8f);
             rubble.transform.rotation = Quaternion.Euler(0f, Random.Range(0f, 180f), Random.Range(0f, 12f));
             rubble.transform.localScale = new Vector3(Random.Range(0.3f, 0.9f), Random.Range(0.18f, 0.4f), Random.Range(0.35f, 1.0f));
             rubble.GetComponent<Renderer>().sharedMaterial = debrisMat;
@@ -2200,14 +2232,14 @@ public static class MemoryRecycler3DSceneBuilder
     {
         Vector3[] positions =
         {
-            new Vector3(-9f, 1.3f, -9f),
-            new Vector3(8f, 1.3f, -8f),
-            new Vector3(-12f, 1.3f, 4f),
-            new Vector3(4f, 1.3f, 6f),
-            new Vector3(13f, 1.3f, 2f),
-            new Vector3(-2f, 1.3f, 14f),
-            new Vector3(10f, 1.3f, 14f),
-            new Vector3(-16f, 1.3f, -16f)
+            new Vector3(-9.0f, 1.3f, -12f),
+            new Vector3(8.5f, 1.3f, -3f),
+            new Vector3(-13.8f, 1.3f, 8f),
+            new Vector3(4.0f, 1.3f, 17f),
+            new Vector3(13.6f, 1.3f, 24f),
+            new Vector3(-5.5f, 1.3f, 35f),
+            new Vector3(10.2f, 1.3f, 43f),
+            new Vector3(-16.5f, 1.3f, 50f)
         };
 
         for (int i = 0; i < memories.Length && i < positions.Length; i++)
@@ -2240,7 +2272,7 @@ public static class MemoryRecycler3DSceneBuilder
     {
         GameObject terminal = GameObject.CreatePrimitive(PrimitiveType.Cube);
         terminal.name = "Central Archive Terminal";
-        terminal.transform.position = new Vector3(0f, 3.9f, 31.5f);
+        terminal.transform.position = new Vector3(0f, 3.9f, ExpandedArchiveZ);
         terminal.transform.localScale = new Vector3(3.4f, 7.8f, 1.6f);
         terminal.GetComponent<Renderer>().sharedMaterial = terminalMat;
         ArchiveTerminal3D archive = terminal.AddComponent<ArchiveTerminal3D>();
