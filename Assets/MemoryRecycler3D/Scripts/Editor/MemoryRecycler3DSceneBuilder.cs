@@ -72,6 +72,7 @@ public static class MemoryRecycler3DSceneBuilder
         RenderSettings.ambientLight = new Color(0.075f, 0.09f, 0.115f);
 
         EditorSceneManager.SaveScene(scene, ScenePath);
+        EnsurePrototypeSceneInBuildSettings();
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
         EditorUtility.DisplayDialog("Memory Recycler 3D", "업데이트된 3D 프로토타입 씬 생성 완료\n" + ScenePath, "확인");
@@ -96,9 +97,17 @@ public static class MemoryRecycler3DSceneBuilder
         ApplyCinematicReferenceLook(scene);
 
         EditorSceneManager.SaveScene(scene);
+        EnsurePrototypeSceneInBuildSettings();
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
         Debug.Log("Memory Recycler 3D cinematic reference look applied. Removed objects: " + removed);
+    }
+
+    [MenuItem("Tools/Memory Recycler 3D/Open Prototype Scene")]
+    public static void OpenPrototypeScene()
+    {
+        EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+        EnsurePrototypeSceneInBuildSettings();
     }
 
     [MenuItem("Tools/Memory Recycler 3D/Clean Prototype Scene")]
@@ -2778,6 +2787,14 @@ public static class MemoryRecycler3DSceneBuilder
         if (!AssetDatabase.IsValidFolder(parent))
             EnsureFolder(parent);
         AssetDatabase.CreateFolder(parent, folderName);
+    }
+
+    private static void EnsurePrototypeSceneInBuildSettings()
+    {
+        EditorBuildSettings.scenes = new[]
+        {
+            new EditorBuildSettingsScene(ScenePath, true)
+        };
     }
 
     private static void EnsurePlayerTag()
