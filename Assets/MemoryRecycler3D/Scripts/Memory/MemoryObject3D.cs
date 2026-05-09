@@ -53,6 +53,8 @@ public class MemoryObject3D : MonoBehaviour
     {
         playerInside = false;
         UIManager3D.Instance.HidePrompt();
+        if (MemoryCinematicCamera3D.Instance != null)
+            MemoryCinematicCamera3D.Instance.PlayMemoryPickup(transform);
         if (MemoryAudio3D.Instance != null)
             MemoryAudio3D.Instance.PlayMemoryFound();
         MemoryManager3D.Instance.CollectMemory(memoryData);

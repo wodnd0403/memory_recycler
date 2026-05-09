@@ -41,10 +41,14 @@ public class ArchiveTerminal3D : MonoBehaviour
         int decided = MemoryManager3D.Instance != null ? MemoryManager3D.Instance.CountDecidedMemories() : 0;
         if (decided < requiredDecisions)
         {
+            if (MemoryCinematicCamera3D.Instance != null)
+                MemoryCinematicCamera3D.Instance.PlayArchiveReveal(transform, true);
             UIManager3D.Instance.ShowArchiveLocked(decided, requiredDecisions);
             return;
         }
 
+        if (MemoryCinematicCamera3D.Instance != null)
+            MemoryCinematicCamera3D.Instance.PlayArchiveReveal(transform, false);
         UIManager3D.Instance.ShowEnding();
     }
 }

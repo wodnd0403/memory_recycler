@@ -17,7 +17,11 @@ public class CityLoreTerminal3D : MonoBehaviour
     private void Update()
     {
         if (playerInside && Input.GetKeyDown(KeyCode.E))
+        {
+            if (MemoryCinematicCamera3D.Instance != null)
+                MemoryCinematicCamera3D.Instance.PlayLoreGlance(transform);
             UIManager3D.Instance.ShowLore(terminalTitle, terminalBody, objectiveHint);
+        }
     }
 
     private void OnTriggerEnter(Collider other)

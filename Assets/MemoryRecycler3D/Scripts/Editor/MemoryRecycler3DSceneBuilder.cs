@@ -704,6 +704,23 @@ public static class MemoryRecycler3DSceneBuilder
             orbit.target = player.transform;
         }
 
+        MemoryCinematicCamera3D cinematic = cameraObject.GetComponent<MemoryCinematicCamera3D>();
+        if (cinematic == null)
+            cinematic = cameraObject.AddComponent<MemoryCinematicCamera3D>();
+        cinematic.orbitCamera = orbit;
+        cinematic.playerTarget = player.transform;
+        cinematic.playerController = player.GetComponent<ThirdPersonPlayer3D>();
+        cinematic.memoryMoveTime = 0.55f;
+        cinematic.memoryHoldTime = 0.45f;
+        cinematic.archiveMoveTime = 0.9f;
+        cinematic.archiveHoldTime = 0.85f;
+        cinematic.returnTime = 0.45f;
+        cinematic.memoryDistance = 4.8f;
+        cinematic.memoryHeight = 2.4f;
+        cinematic.archiveDistance = 12f;
+        cinematic.archiveHeight = 7.2f;
+        cinematic.minimumCameraY = 0.85f;
+
         cameraObject.transform.position = player.transform.position + new Vector3(0f, 2.95f, -6.45f);
         cameraObject.transform.LookAt(player.transform.position + Vector3.up * 1.42f);
         EditorUtility.SetDirty(cameraObject);
