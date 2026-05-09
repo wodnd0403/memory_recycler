@@ -1766,8 +1766,8 @@ public static class MemoryRecycler3DSceneBuilder
         Light light = glowLight.AddComponent<Light>();
         light.type = LightType.Point;
         light.color = new Color(0.10f, 0.88f, 1.0f);
-        light.range = 24f;
-        light.intensity = 1.05f;
+        light.range = 42f;
+        light.intensity = 2.35f;
         light.shadows = LightShadows.None;
 
         GameObject lowLight = new GameObject("Cinematic Archive Ground Glow");
@@ -1776,20 +1776,27 @@ public static class MemoryRecycler3DSceneBuilder
         Light low = lowLight.AddComponent<Light>();
         low.type = LightType.Point;
         low.color = new Color(0.08f, 0.65f, 0.92f);
-        low.range = 16f;
-        low.intensity = 0.95f;
+        low.range = 24f;
+        low.intensity = 1.45f;
         low.shadows = LightShadows.None;
 
-        Material veilMat = CreateCinematicTransparentMaterial("MR3D_ArchiveGlowVeil", new Color(0.04f, 0.55f, 0.72f, 0.10f), 0.02f);
+        Material veilMat = CreateCinematicTransparentMaterial("MR3D_ArchiveGlowVeil", new Color(0.04f, 0.55f, 0.72f, 0.22f), 0.04f);
         Material glassMat = CreateCinematicGlassGlowMaterial();
-        CreateCinematicWorldBox(root, "Cinematic Archive Glass Spine", new Vector3(0f, 7.8f, ArchiveCenterZ - 1.58f), new Vector3(0.82f, 11.4f, 0.10f), glassMat, Vector3.zero);
-        CreateCinematicWorldBox(root, "Cinematic Archive Glass Core", new Vector3(0f, 7.9f, ArchiveCenterZ - 1.68f), new Vector3(0.26f, 10.1f, 0.12f), cyanMat, Vector3.zero);
-        CreateCinematicWorldBox(root, "Cinematic Archive Glass Panel_L", new Vector3(-1.18f, 7.4f, ArchiveCenterZ - 1.34f), new Vector3(0.34f, 8.6f, 0.10f), glassMat, new Vector3(0f, -7f, 0f));
-        CreateCinematicWorldBox(root, "Cinematic Archive Glass Panel_R", new Vector3(1.18f, 7.4f, ArchiveCenterZ - 1.34f), new Vector3(0.34f, 8.6f, 0.10f), glassMat, new Vector3(0f, 7f, 0f));
-        CreateCinematicWorldBox(root, "Cinematic Archive Upper Glass", new Vector3(0f, 13.5f, ArchiveCenterZ - 1.42f), new Vector3(1.65f, 1.1f, 0.09f), glassMat, Vector3.zero);
-        CreateCinematicWorldBox(root, "Cinematic Archive Low Glass", new Vector3(0f, 2.8f, ArchiveCenterZ - 1.62f), new Vector3(1.24f, 1.45f, 0.09f), glassMat, Vector3.zero);
-        CreateCinematicWorldBox(root, "Cinematic Archive Glass Halo", new Vector3(0f, 7.8f, ArchiveCenterZ - 1.78f), new Vector3(2.4f, 12.6f, 0.06f), veilMat, Vector3.zero);
-        CreateCinematicWorldBox(root, "Cinematic Archive Mist Reflection", new Vector3(0f, 0.10f, ArchiveCenterZ - 3.0f), new Vector3(4.2f, 0.012f, 1.2f), veilMat, new Vector3(0f, 3f, 0f));
+        CreateCinematicWorldBox(root, "Cinematic Archive Glass Facade", new Vector3(0f, 8.8f, ArchiveCenterZ - 1.88f), new Vector3(1.95f, 17.8f, 0.12f), glassMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Archive Glass Spine", new Vector3(0f, 8.8f, ArchiveCenterZ - 2.02f), new Vector3(0.95f, 18.5f, 0.13f), cyanMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Archive Glass Core", new Vector3(0f, 8.7f, ArchiveCenterZ - 2.16f), new Vector3(0.46f, 16.8f, 0.15f), cyanMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Archive Glass Panel_L", new Vector3(-1.22f, 8.4f, ArchiveCenterZ - 1.72f), new Vector3(0.48f, 15.6f, 0.11f), glassMat, new Vector3(0f, -8f, 0f));
+        CreateCinematicWorldBox(root, "Cinematic Archive Glass Panel_R", new Vector3(1.22f, 8.4f, ArchiveCenterZ - 1.72f), new Vector3(0.48f, 15.6f, 0.11f), glassMat, new Vector3(0f, 8f, 0f));
+        CreateCinematicWorldBox(root, "Cinematic Archive Upper Glass", new Vector3(0f, 16.4f, ArchiveCenterZ - 1.90f), new Vector3(2.15f, 1.4f, 0.10f), glassMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Archive Low Glass", new Vector3(0f, 2.6f, ArchiveCenterZ - 1.98f), new Vector3(1.65f, 2.2f, 0.10f), glassMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Archive Glass Halo", new Vector3(0f, 9.0f, ArchiveCenterZ - 2.24f), new Vector3(3.8f, 19.0f, 0.07f), veilMat, Vector3.zero);
+        CreateCinematicWorldBox(root, "Cinematic Archive Mist Reflection", new Vector3(0f, 0.10f, ArchiveCenterZ - 3.3f), new Vector3(7.4f, 0.012f, 1.8f), veilMat, new Vector3(0f, 3f, 0f));
+
+        for (int i = 0; i < 9; i++)
+        {
+            float y = 2.45f + i * 1.65f;
+            CreateCinematicWorldBox(root, "Cinematic Archive Glass Energy Band", new Vector3(0f, y, ArchiveCenterZ - 2.26f), new Vector3(1.72f, 0.055f, 0.16f), cyanMat, Vector3.zero);
+        }
 
         GameObject glassLight = new GameObject("Cinematic Archive Glass Light");
         glassLight.transform.SetParent(root, false);
@@ -1797,9 +1804,19 @@ public static class MemoryRecycler3DSceneBuilder
         Light panelLight = glassLight.AddComponent<Light>();
         panelLight.type = LightType.Point;
         panelLight.color = new Color(0.06f, 0.86f, 1.0f);
-        panelLight.range = 13f;
-        panelLight.intensity = 1.55f;
+        panelLight.range = 28f;
+        panelLight.intensity = 3.2f;
         panelLight.shadows = LightShadows.None;
+
+        GameObject upperGlassLight = new GameObject("Cinematic Archive Upper Glass Light");
+        upperGlassLight.transform.SetParent(root, false);
+        upperGlassLight.transform.position = new Vector3(0f, 14.8f, ArchiveCenterZ - 2.0f);
+        Light upperLight = upperGlassLight.AddComponent<Light>();
+        upperLight.type = LightType.Point;
+        upperLight.color = new Color(0.07f, 0.78f, 1.0f);
+        upperLight.range = 24f;
+        upperLight.intensity = 2.1f;
+        upperLight.shadows = LightShadows.None;
     }
 
     private static void CreateCinematicCableSegment(Transform parent, string name, Vector3 start, Vector3 end, float thickness, Material material)
@@ -1970,10 +1987,10 @@ public static class MemoryRecycler3DSceneBuilder
 
     private static Material CreateCinematicGlassGlowMaterial()
     {
-        Color glassColor = new Color(0.06f, 0.78f, 0.95f, 0.42f);
-        Material material = CreateCinematicTransparentMaterial("MR3D_ArchiveGlassGlow", glassColor, 0.76f);
+        Color glassColor = new Color(0.08f, 0.88f, 1.0f, 0.72f);
+        Material material = CreateCinematicTransparentMaterial("MR3D_ArchiveGlassGlow", glassColor, 0.90f);
         if (material.HasProperty("_EmissionColor"))
-            material.SetColor("_EmissionColor", new Color(0.08f, 0.86f, 1.0f) * 2.6f);
+            material.SetColor("_EmissionColor", new Color(0.09f, 0.92f, 1.0f) * 5.4f);
         material.EnableKeyword("_EMISSION");
         EditorUtility.SetDirty(material);
         return material;
