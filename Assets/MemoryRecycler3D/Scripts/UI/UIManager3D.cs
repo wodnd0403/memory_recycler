@@ -13,6 +13,7 @@ public class UIManager3D : MonoBehaviour
 
     private GameObject objectivePanel;
     private Text objectiveText;
+    private bool objectiveDismissed;
     private GameObject promptPanel;
     private Text promptText;
     private GameObject toastPanel;
@@ -69,6 +70,13 @@ public class UIManager3D : MonoBehaviour
 
     private void Update()
     {
+        if (!objectiveDismissed && Input.GetKeyDown(KeyCode.Return))
+        {
+            objectiveDismissed = true;
+            if (objectivePanel != null)
+                objectivePanel.SetActive(false);
+        }
+
         if (toastPanel != null && toastPanel.activeSelf && Time.time > toastUntil)
             toastPanel.SetActive(false);
 
@@ -324,6 +332,9 @@ public class UIManager3D : MonoBehaviour
 
     private void UpdateObjectiveDisplay()
     {
+        if (objectiveDismissed)
+            return;
+
         if (objectiveText == null || MemoryManager3D.Instance == null)
             return;
 

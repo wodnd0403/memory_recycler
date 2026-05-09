@@ -873,6 +873,7 @@ public static class MemoryRecycler3DSceneBuilder
         AddCinematicAvenueDepthCues(root, panelMat, trimMat, cyanMat, roadPatchMat);
         AddCinematicRadialCityLayout(root, buildingMat, trimMat, roadMat, roadPatchMat, cyanMat);
         AddCinematicBackgroundDepth(root, buildingMat, trimMat);
+        AddCinematicPerimeterSkyline(root, buildingMat, trimMat, roadPatchMat, cyanMat);
         AddCinematicOverheadCables(root, trimMat);
         AddCinematicArchiveGlow(root, cyanMat);
         AddCinematicWetHighlights(root, puddleMat, cyanMat);
@@ -1724,6 +1725,39 @@ public static class MemoryRecycler3DSceneBuilder
             float height = 8.2f + (i % 5) * 1.55f;
             GameObject block = CreateCinematicWorldBox(root, "Cinematic Background Block", new Vector3(side * (14.0f + i * 1.05f), height * 0.5f, z), new Vector3(4.0f + i * 0.18f, height, 4.6f), buildingMat, Vector3.zero);
             CreateCinematicWorldBox(block.transform, "Cinematic Roof Antenna", new Vector3(0.32f, 0.56f, 0f), new Vector3(0.035f, 0.26f, 0.035f), trimMat, Vector3.zero, true);
+        }
+    }
+
+    private static void AddCinematicPerimeterSkyline(Transform root, Material buildingMat, Material trimMat, Material hazeMat, Material cyanMat)
+    {
+        Vector3 center = new Vector3(0f, 0f, ArchiveCenterZ);
+
+        for (int i = 0; i < 36; i++)
+        {
+            float angle = i * 10f + ReferenceRange(i, 271.3f, -2.2f, 2.2f);
+            float radius = ReferenceRange(i, 272.3f, 53f, 70f);
+            Vector3 direction = DirectionFromAngle(angle);
+            Vector3 position = center + direction * radius;
+            float height = ReferenceRange(i, 273.3f, 12f, 34f);
+            float width = ReferenceRange(i, 274.3f, 5.2f, 11.0f);
+            float depth = ReferenceRange(i, 275.3f, 5.0f, 10.5f);
+            float yaw = angle + 90f + ReferenceRange(i, 276.3f, -12f, 12f);
+
+            GameObject tower = CreateCinematicWorldBox(root, "Cinematic Perimeter Ruin Tower", new Vector3(position.x, height * 0.5f, position.z), new Vector3(width, height, depth), buildingMat, new Vector3(0f, yaw, 0f));
+            CreateCinematicWorldBox(tower.transform, "Cinematic Perimeter Roof Break", new Vector3(0.18f, 0.54f, -0.08f), new Vector3(0.42f, 0.08f, 0.36f), trimMat, Vector3.zero, true);
+
+            if (i % 5 == 0)
+                CreateCinematicWorldBox(root, "Cinematic Far Archive Signal", new Vector3(position.x - direction.x * 0.4f, height * 0.62f, position.z - direction.z * 0.4f), new Vector3(0.075f, 0.95f, 0.075f), cyanMat, new Vector3(0f, yaw, 0f));
+        }
+
+        for (int i = 0; i < 18; i++)
+        {
+            float angle = i * 20f + 8f;
+            Vector3 direction = DirectionFromAngle(angle);
+            Vector3 tangent = DirectionFromAngle(angle + 90f);
+            Vector3 position = center + direction * 48f;
+            GameObject haze = CreateCinematicWorldBox(root, "Cinematic Perimeter Haze Wall", new Vector3(position.x, 6.2f, position.z), new Vector3(14.0f, 12.0f, 0.08f), hazeMat, Vector3.zero);
+            haze.transform.rotation = Quaternion.FromToRotation(Vector3.right, tangent);
         }
     }
 
