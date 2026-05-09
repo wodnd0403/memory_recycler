@@ -1821,29 +1821,39 @@ public static class MemoryRecycler3DSceneBuilder
 
     private static void AddCinematicOverheadCables(Transform root, Material trimMat)
     {
-        for (int i = 0; i < 5; i++)
+        Vector3[,] cableAnchors =
         {
-            float z = -18f + i * 7.4f + ReferenceRange(i, 90.7f, -0.6f, 0.6f);
-            float startY = 5.2f + ReferenceRange(i, 91.7f, -0.35f, 0.55f);
-            float endY = 4.8f + ReferenceRange(i, 92.7f, -0.45f, 0.45f);
-            float startX = -10.4f + ReferenceRange(i, 93.7f, -0.7f, 0.5f);
-            float endX = 10.6f + ReferenceRange(i, 94.7f, -0.5f, 0.8f);
-            float endZ = z + ReferenceRange(i, 95.7f, -1.5f, 1.5f);
-            float sag = ReferenceRange(i, 96.7f, 0.35f, 1.05f);
-            Vector3 p0 = new Vector3(startX, startY, z);
-            Vector3 p1 = new Vector3(-4.2f + ReferenceRange(i, 97.7f, -0.7f, 0.7f), Mathf.Min(startY, endY) - sag * 0.75f, z + ReferenceRange(i, 98.7f, -0.8f, 0.8f));
-            Vector3 p2 = new Vector3(3.2f + ReferenceRange(i, 99.7f, -0.8f, 0.8f), Mathf.Min(startY, endY) - sag, endZ + ReferenceRange(i, 100.7f, -0.8f, 0.8f));
-            Vector3 p3 = new Vector3(endX, endY, endZ);
+            { new Vector3(-7.55f, 3.78f, -16.70f), new Vector3(7.45f, 3.64f, -11.30f) },
+            { new Vector3(-7.62f, 3.62f, 7.80f), new Vector3(7.58f, 3.78f, 18.10f) },
+            { new Vector3(-15.10f, 3.55f, 25.20f), new Vector3(15.05f, 3.68f, 26.80f) },
+            { new Vector3(-7.55f, 3.34f, -16.60f), new Vector3(-7.62f, 3.20f, 7.65f) },
+            { new Vector3(7.46f, 3.36f, -11.20f), new Vector3(7.58f, 3.26f, 18.25f) }
+        };
 
-            CreateCinematicCableSegment(root, "Cinematic Sagging Cable", p0, p1, 0.026f, trimMat);
-            CreateCinematicCableSegment(root, "Cinematic Sagging Cable", p1, p2, 0.022f, trimMat);
-            CreateCinematicCableSegment(root, "Cinematic Sagging Cable", p2, p3, 0.026f, trimMat);
+        for (int i = 0; i < cableAnchors.GetLength(0); i++)
+        {
+            Vector3 p0 = cableAnchors[i, 0];
+            Vector3 p3 = cableAnchors[i, 1];
+            Vector3 direction = p3 - p0;
+            Vector3 side = new Vector3(-direction.z, 0f, direction.x).normalized;
+            float sag = ReferenceRange(i, 96.7f, 0.24f, 0.62f);
+            float drift = ReferenceRange(i, 97.7f, -0.18f, 0.18f);
+            Vector3 p1 = Vector3.Lerp(p0, p3, 0.34f) + side * drift + Vector3.down * sag * 0.72f;
+            Vector3 p2 = Vector3.Lerp(p0, p3, 0.68f) - side * drift * 0.65f + Vector3.down * sag;
+            float thickEnd = i < 3 ? 0.018f : 0.014f;
+            float thickMid = i < 3 ? 0.014f : 0.011f;
 
-            if (i % 2 == 0)
+            CreateCinematicCableClamp(root, "Cinematic Cable Clamp", p0, p1, trimMat);
+            CreateCinematicCableClamp(root, "Cinematic Cable Clamp", p3, p2, trimMat);
+            CreateCinematicCableSegment(root, "Cinematic Sagging Cable", p0, p1, thickEnd, trimMat);
+            CreateCinematicCableSegment(root, "Cinematic Sagging Cable", p1, p2, thickMid, trimMat);
+            CreateCinematicCableSegment(root, "Cinematic Sagging Cable", p2, p3, thickEnd, trimMat);
+
+            if (i == 1 || i == 4)
             {
                 Vector3 dropStart = Vector3.Lerp(p1, p2, 0.55f);
-                Vector3 dropEnd = dropStart + new Vector3(ReferenceRange(i, 101.7f, -0.18f, 0.18f), -ReferenceRange(i, 102.7f, 0.45f, 0.95f), ReferenceRange(i, 103.7f, -0.08f, 0.08f));
-                CreateCinematicCableSegment(root, "Cinematic Loose Cable Drop", dropStart, dropEnd, 0.018f, trimMat);
+                Vector3 dropEnd = dropStart + new Vector3(ReferenceRange(i, 101.7f, -0.12f, 0.12f), -ReferenceRange(i, 102.7f, 0.28f, 0.56f), ReferenceRange(i, 103.7f, -0.06f, 0.06f));
+                CreateCinematicCableSegment(root, "Cinematic Loose Cable Drop", dropStart, dropEnd, 0.010f, trimMat);
             }
         }
     }
@@ -1920,6 +1930,16 @@ public static class MemoryRecycler3DSceneBuilder
 
         GameObject segment = CreateCinematicWorldBox(parent, name, (start + end) * 0.5f, new Vector3(length, thickness, thickness), material, Vector3.zero);
         segment.transform.rotation = Quaternion.FromToRotation(Vector3.right, direction.normalized);
+    }
+
+    private static void CreateCinematicCableClamp(Transform parent, string name, Vector3 position, Vector3 toward, Material material)
+    {
+        Vector3 direction = toward - position;
+        if (direction.sqrMagnitude <= 0.001f)
+            direction = Vector3.right;
+
+        GameObject clamp = CreateCinematicWorldBox(parent, name, position, new Vector3(0.24f, 0.055f, 0.055f), material, Vector3.zero);
+        clamp.transform.rotation = Quaternion.FromToRotation(Vector3.right, direction.normalized);
     }
 
     private static void AddCinematicWetHighlights(Transform root, Material puddleMat, Material cyanMat)
