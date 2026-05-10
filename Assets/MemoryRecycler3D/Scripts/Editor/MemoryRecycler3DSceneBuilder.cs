@@ -1823,11 +1823,14 @@ public static class MemoryRecycler3DSceneBuilder
     {
         Vector3[,] cableAnchors =
         {
-            { new Vector3(-7.55f, 3.78f, -16.70f), new Vector3(7.45f, 3.64f, -11.30f) },
-            { new Vector3(-7.62f, 3.62f, 7.80f), new Vector3(7.58f, 3.78f, 18.10f) },
-            { new Vector3(-15.10f, 3.55f, 25.20f), new Vector3(15.05f, 3.68f, 26.80f) },
-            { new Vector3(-7.55f, 3.34f, -16.60f), new Vector3(-7.62f, 3.20f, 7.65f) },
-            { new Vector3(7.46f, 3.36f, -11.20f), new Vector3(7.58f, 3.26f, 18.25f) }
+            { new Vector3(-7.55f, 3.62f, -16.70f), new Vector3(-8.45f, 3.44f, -16.55f) },
+            { new Vector3(-7.48f, 3.18f, -16.68f), new Vector3(-7.72f, 2.05f, -16.86f) },
+            { new Vector3(7.48f, 3.58f, -11.26f), new Vector3(8.55f, 3.48f, -11.10f) },
+            { new Vector3(7.38f, 3.14f, -11.22f), new Vector3(7.08f, 2.12f, -11.42f) },
+            { new Vector3(-7.62f, 3.48f, 7.80f), new Vector3(-8.58f, 3.32f, 7.58f) },
+            { new Vector3(7.58f, 3.50f, 18.10f), new Vector3(8.45f, 3.34f, 18.38f) },
+            { new Vector3(-15.10f, 3.44f, 25.20f), new Vector3(-16.05f, 3.26f, 25.55f) },
+            { new Vector3(15.05f, 3.50f, 26.80f), new Vector3(16.00f, 3.30f, 26.52f) }
         };
 
         for (int i = 0; i < cableAnchors.GetLength(0); i++)
@@ -1835,13 +1838,16 @@ public static class MemoryRecycler3DSceneBuilder
             Vector3 p0 = cableAnchors[i, 0];
             Vector3 p3 = cableAnchors[i, 1];
             Vector3 direction = p3 - p0;
+            if (direction.magnitude > 4.0f)
+                continue;
+
             Vector3 side = new Vector3(-direction.z, 0f, direction.x).normalized;
-            float sag = ReferenceRange(i, 96.7f, 0.24f, 0.62f);
-            float drift = ReferenceRange(i, 97.7f, -0.18f, 0.18f);
+            float sag = ReferenceRange(i, 96.7f, 0.05f, 0.18f);
+            float drift = ReferenceRange(i, 97.7f, -0.05f, 0.05f);
             Vector3 p1 = Vector3.Lerp(p0, p3, 0.34f) + side * drift + Vector3.down * sag * 0.72f;
             Vector3 p2 = Vector3.Lerp(p0, p3, 0.68f) - side * drift * 0.65f + Vector3.down * sag;
-            float thickEnd = i < 3 ? 0.018f : 0.014f;
-            float thickMid = i < 3 ? 0.014f : 0.011f;
+            float thickEnd = 0.012f;
+            float thickMid = 0.009f;
 
             CreateCinematicCableClamp(root, "Cinematic Cable Clamp", p0, p1, trimMat);
             CreateCinematicCableClamp(root, "Cinematic Cable Clamp", p3, p2, trimMat);
@@ -1849,11 +1855,11 @@ public static class MemoryRecycler3DSceneBuilder
             CreateCinematicCableSegment(root, "Cinematic Sagging Cable", p1, p2, thickMid, trimMat);
             CreateCinematicCableSegment(root, "Cinematic Sagging Cable", p2, p3, thickEnd, trimMat);
 
-            if (i == 1 || i == 4)
+            if (i == 1 || i == 3)
             {
                 Vector3 dropStart = Vector3.Lerp(p1, p2, 0.55f);
-                Vector3 dropEnd = dropStart + new Vector3(ReferenceRange(i, 101.7f, -0.12f, 0.12f), -ReferenceRange(i, 102.7f, 0.28f, 0.56f), ReferenceRange(i, 103.7f, -0.06f, 0.06f));
-                CreateCinematicCableSegment(root, "Cinematic Loose Cable Drop", dropStart, dropEnd, 0.010f, trimMat);
+                Vector3 dropEnd = dropStart + new Vector3(ReferenceRange(i, 101.7f, -0.06f, 0.06f), -ReferenceRange(i, 102.7f, 0.20f, 0.38f), ReferenceRange(i, 103.7f, -0.04f, 0.04f));
+                CreateCinematicCableSegment(root, "Cinematic Loose Cable Drop", dropStart, dropEnd, 0.008f, trimMat);
             }
         }
     }
