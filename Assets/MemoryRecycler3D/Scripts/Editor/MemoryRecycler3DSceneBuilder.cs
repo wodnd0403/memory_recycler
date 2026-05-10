@@ -878,7 +878,6 @@ public static class MemoryRecycler3DSceneBuilder
         AddCinematicRadialCityLayout(root, buildingMat, trimMat, roadMat, roadPatchMat, cyanMat);
         AddCinematicBackgroundDepth(root, buildingMat, trimMat);
         AddCinematicPerimeterSkyline(root, buildingMat, trimMat, roadPatchMat, cyanMat);
-        AddCinematicOverheadCables(root, trimMat);
         AddCinematicArchiveGlow(root, cyanMat);
         AddCinematicWetHighlights(root, puddleMat, cyanMat);
         AddCinematicForegroundFraming(root, buildingMat, trimMat, cyanMat);
