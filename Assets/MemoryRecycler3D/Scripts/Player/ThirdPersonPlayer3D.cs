@@ -107,6 +107,9 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
     private void Update()
     {
+        if (UIManager3D.Instance != null && UIManager3D.Instance.IsGameplayInputBlocked())
+            return;
+
         Move();
         UpdateAnimation();
 

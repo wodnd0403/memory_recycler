@@ -20,6 +20,8 @@ public class UIManager3D : MonoBehaviour
     private float toastUntil;
     private GameObject timePanel;
     private Text timeText;
+    private GameObject startMenuPanel;
+    private Button continueButton;
 
     private GameObject cardPanel;
     private Text cardTitle;
@@ -65,6 +67,7 @@ public class UIManager3D : MonoBehaviour
     private void Start()
     {
         BuildUI();
+        ShowStartMenu();
     }
 
     private void Update()
@@ -99,6 +102,11 @@ public class UIManager3D : MonoBehaviour
         toastText.text = message;
         toastPanel.SetActive(true);
         toastUntil = Time.time + 2.4f;
+    }
+
+    public bool IsGameplayInputBlocked()
+    {
+        return startMenuPanel != null && startMenuPanel.activeSelf;
     }
 
     public void ShowMemoryCard(MemoryRecord3D record)
@@ -306,6 +314,83 @@ public class UIManager3D : MonoBehaviour
         BuildLorePanel();
         BuildEchoPanel();
         BuildEndingPanel();
+        BuildStartMenu();
+    }
+
+    private void BuildStartMenu()
+    {
+        startMenuPanel = CreatePanel("StartMenuPanel", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero, new Color(0.005f, 0.011f, 0.018f, 0.94f));
+        RectTransform panelRect = startMenuPanel.GetComponent<RectTransform>();
+        panelRect.offsetMin = Vector2.zero;
+        panelRect.offsetMax = Vector2.zero;
+
+        Text title = CreateText(startMenuPanel.transform, "StartTitle", "Memory Recycler 3D", 54, TextAnchor.MiddleCenter, new Color(0.88f, 0.96f, 1f));
+        SetRect(title.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-520f, 140f), new Vector2(520f, 225f));
+
+        Text body = CreateText(startMenuPanel.transform, "StartBody", "폐허가 된 도시에서 푸른 기억 구체를 회수하고, 중앙 아카이브에서 기억의 운명을 선택하세요.", 24, TextAnchor.MiddleCenter, new Color(0.76f, 0.84f, 0.9f));
+        SetRect(body.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-560f, 58f), new Vector2(560f, 128f));
+
+        Button newGameButton = CreateButton(startMenuPanel.transform, "NewGameButton", "처음부터 시작", new Vector2(-145f, -20f), StartFreshGame);
+        RectTransform newRect = newGameButton.GetComponent<RectTransform>();
+        newRect.sizeDelta = new Vector2(270f, 64f);
+
+        continueButton = CreateButton(startMenuPanel.transform, "ContinueGameButton", "저장된 시점부터", new Vector2(145f, -20f), ContinueSavedGame);
+        RectTransform continueRect = continueButton.GetComponent<RectTransform>();
+        continueRect.sizeDelta = new Vector2(270f, 64f);
+
+        Text hint = CreateText(startMenuPanel.transform, "StartHint", "WASD 이동 / Shift 달리기 / E 상호작용 / Tab 아카이브", 20, TextAnchor.MiddleCenter, new Color(0.62f, 0.70f, 0.76f));
+        SetRect(hint.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-520f, -130f), new Vector2(520f, -80f));
+
+        startMenuPanel.SetActive(false);
+    }
+
+    private void ShowStartMenu()
+    {
+        if (startMenuPanel == null)
+            return;
+
+        bool hasSave = MemoryManager3D.HasSaveGame();
+        continueButton.interactable = hasSave;
+        Image continueImage = continueButton.GetComponent<Image>();
+        if (continueImage != null)
+            continueImage.color = hasSave ? new Color(0.16f, 0.21f, 0.29f, 0.96f) : new Color(0.08f, 0.10f, 0.13f, 0.82f);
+
+        startMenuPanel.SetActive(true);
+        Time.timeScale = 0f;
+        UnlockCursor();
+    }
+
+    private void HideStartMenu()
+    {
+        if (startMenuPanel != null)
+            startMenuPanel.SetActive(false);
+
+        Time.timeScale = 1f;
+        LockCursor();
+    }
+
+    private void StartFreshGame()
+    {
+        if (MemoryManager3D.Instance != null)
+            MemoryManager3D.Instance.StartNewGame();
+
+        HideStartMenu();
+        ShowToast("새 탐사를 시작합니다.");
+    }
+
+    private void ContinueSavedGame()
+    {
+        if (!MemoryManager3D.HasSaveGame())
+        {
+            ShowToast("저장된 진행이 없습니다.");
+            return;
+        }
+
+        if (MemoryManager3D.Instance != null)
+            MemoryManager3D.Instance.ContinueSavedGame();
+
+        HideStartMenu();
+        ShowToast("저장된 시점부터 이어합니다.");
     }
 
     private void UpdateTimeDisplay()

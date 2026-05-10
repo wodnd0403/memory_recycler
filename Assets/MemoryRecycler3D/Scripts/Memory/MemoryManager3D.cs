@@ -7,6 +7,9 @@ public class MemoryManager3D : MonoBehaviour
     public static MemoryManager3D Instance { get; private set; }
 
     private const string SaveKey = "MR3D_Save_v2";
+    private const string PlayerObjectName = "Player_Recycler";
+    private const float AutoSaveInterval = 10f;
+    private static readonly Vector3 DefaultPlayerPosition = new Vector3(0f, 0f, -18f);
 
     public readonly List<MemoryRecord3D> collectedMemories = new List<MemoryRecord3D>();
 
@@ -14,6 +17,7 @@ public class MemoryManager3D : MonoBehaviour
     private readonly Dictionary<string, MemoryObject3D> memoryObjects = new Dictionary<string, MemoryObject3D>();
     private SaveData loadedSave;
     private bool loaded;
+    private float nextAutoSaveTime;
 
     [Serializable]
     private class SaveData
@@ -21,6 +25,9 @@ public class MemoryManager3D : MonoBehaviour
         public int preservedCount;
         public int deletedCount;
         public int editedCount;
+        public bool hasPlayerPose;
+        public Vector3 playerPosition;
+        public float playerYaw;
         public List<MemoryEntry> memories = new List<MemoryEntry>();
     }
 
@@ -47,6 +54,20 @@ public class MemoryManager3D : MonoBehaviour
     private void Start()
     {
         LoadGame();
+    }
+
+    private void Update()
+    {
+        if (!loaded || !HasSaveGame() || Time.unscaledTime < nextAutoSaveTime)
+            return;
+
+        SaveGame();
+        nextAutoSaveTime = Time.unscaledTime + AutoSaveInterval;
+    }
+
+    public static bool HasSaveGame()
+    {
+        return PlayerPrefs.HasKey(SaveKey);
     }
 
     public void RegisterMemoryObject(MemoryObject3D memoryObject)
@@ -162,6 +183,8 @@ public class MemoryManager3D : MonoBehaviour
             editedCount = GameState3D.Instance != null ? GameState3D.Instance.editedCount : 0
         };
 
+        CapturePlayerPose(save);
+
         for (int i = 0; i < collectedMemories.Count; i++)
         {
             MemoryRecord3D record = collectedMemories[i];
@@ -180,6 +203,7 @@ public class MemoryManager3D : MonoBehaviour
         PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(save));
         PlayerPrefs.Save();
         loadedSave = save;
+        nextAutoSaveTime = Time.unscaledTime + AutoSaveInterval;
     }
 
     public void LoadGame()
@@ -190,6 +214,8 @@ public class MemoryManager3D : MonoBehaviour
         if (!PlayerPrefs.HasKey(SaveKey))
         {
             loadedSave = new SaveData();
+            if (GameState3D.Instance != null)
+                GameState3D.Instance.ResetState();
             return;
         }
 
@@ -202,13 +228,22 @@ public class MemoryManager3D : MonoBehaviour
 
         foreach (KeyValuePair<string, MemoryObject3D> pair in memoryObjects)
             ApplySavedState(pair.Value);
+
+        ApplySavedPlayerPose();
+        nextAutoSaveTime = Time.unscaledTime + AutoSaveInterval;
     }
 
-    public void ClearSave()
+    public void ContinueSavedGame()
+    {
+        LoadGame();
+    }
+
+    public void StartNewGame()
     {
         PlayerPrefs.DeleteKey(SaveKey);
         PlayerPrefs.Save();
         loadedSave = new SaveData();
+        loaded = true;
         collectedMemories.Clear();
         if (GameState3D.Instance != null)
             GameState3D.Instance.ResetState();
@@ -216,7 +251,63 @@ public class MemoryManager3D : MonoBehaviour
         foreach (KeyValuePair<string, MemoryObject3D> pair in memoryObjects)
             pair.Value.SetCollectedFromSave(false);
 
+        ResetPlayerPose();
+        if (WorldToneController3D.Instance != null)
+            WorldToneController3D.Instance.RefreshWorldTone();
+    }
+
+    public void ClearSave()
+    {
+        StartNewGame();
+
         UIManager3D.Instance.ShowToast("저장된 아카이브 상태를 초기화했습니다.");
+    }
+
+    private void CapturePlayerPose(SaveData save)
+    {
+        Transform player = FindPlayerTransform();
+        if (player == null)
+            return;
+
+        save.hasPlayerPose = true;
+        save.playerPosition = player.position;
+        save.playerYaw = player.eulerAngles.y;
+    }
+
+    private void ApplySavedPlayerPose()
+    {
+        if (loadedSave == null || !loadedSave.hasPlayerPose)
+            return;
+
+        ApplyPlayerPose(loadedSave.playerPosition, loadedSave.playerYaw);
+    }
+
+    private void ResetPlayerPose()
+    {
+        ApplyPlayerPose(DefaultPlayerPosition, 0f);
+    }
+
+    private void ApplyPlayerPose(Vector3 position, float yaw)
+    {
+        Transform player = FindPlayerTransform();
+        if (player == null)
+            return;
+
+        CharacterController controller = player.GetComponent<CharacterController>();
+        if (controller != null)
+            controller.enabled = false;
+
+        player.position = position;
+        player.rotation = Quaternion.Euler(0f, yaw, 0f);
+
+        if (controller != null)
+            controller.enabled = true;
+    }
+
+    private Transform FindPlayerTransform()
+    {
+        GameObject player = GameObject.Find(PlayerObjectName);
+        return player != null ? player.transform : null;
     }
 
     private void ApplySavedState(MemoryObject3D memoryObject)
