@@ -29,8 +29,28 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     [Header("Visual Refinement")]
     public bool refineHumanSilhouette = true;
 
+    [Header("External Humanoid Model")]
+    // Mixamo MR_Player_TPose 모델을 쓸 때 true. 절차형 RecyclerVisual 빌드/회전을 모두 건너뛴다.
+    public bool useExternalHumanoidModel = true;
+    public Transform externalVisualRoot;
+    public Animator externalAnimator;
+    // Run 전용 클립이 없어 Walk를 빠르게 재생해 달리기를 표현. 1=Walk 속도, 1.55≈Run 속도.
+    public float walkAnimationPlaybackSpeed = 1f;
+    public float runAnimationPlaybackSpeed = 1.55f;
+    public float animatorParameterSmooth = 12f;
+
     private CharacterController controller;
     private float verticalVelocity;
+
+    // Animator 파라미터 해시 — 매 프레임 string lookup을 피한다.
+    private static readonly int AnimMoveSpeed = Animator.StringToHash("MoveSpeed");
+    private static readonly int AnimForward = Animator.StringToHash("Forward");
+    private static readonly int AnimSide = Animator.StringToHash("Side");
+    private static readonly int AnimIsMoving = Animator.StringToHash("IsMoving");
+    private static readonly int AnimIsRunning = Animator.StringToHash("IsRunning");
+    private static readonly int AnimIsGrounded = Animator.StringToHash("IsGrounded");
+    private static readonly int AnimVerticalSpeed = Animator.StringToHash("VerticalSpeed");
+    private static readonly int AnimJumpTrigger = Animator.StringToHash("JumpTrigger");
 
     private Transform visualRoot;
     private Transform torso;
@@ -92,6 +112,22 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
+
+        // 외부 모델을 쓰지만 인스펙터 연결이 비어 있으면 자식에서 Animator를 자동 탐색해 와이어링.
+        // 에디터 자동 셋업이 실행되지 않은 환경에서도 Play만 눌러 동작하게 만든다.
+        if (useExternalHumanoidModel)
+        {
+            if (externalAnimator == null)
+                externalAnimator = GetComponentInChildren<Animator>(true);
+            if (externalAnimator != null)
+            {
+                if (externalVisualRoot == null)
+                    externalVisualRoot = externalAnimator.transform;
+                externalAnimator.applyRootMotion = false;
+                if (!externalAnimator.gameObject.activeSelf)
+                    externalAnimator.gameObject.SetActive(true);
+            }
+        }
     }
 
     private void Start()
@@ -99,10 +135,30 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         if (cameraTransform == null && Camera.main != null)
             cameraTransform = Camera.main.transform;
 
+        if (useExternalHumanoidModel)
+        {
+            // 외부 모델(Mixamo MR_Player) 사용 시 절차형 비주얼 코드는 모두 비활성화.
+            ConfigureExternalHumanoid();
+            return;
+        }
+
         if (refineHumanSilhouette)
             RefineHumanSilhouette();
 
         CacheAnimationRig();
+    }
+
+    // 외부 휴머노이드 모델용 초기 설정. Animator/visualRoot 자동 탐색 + Root Motion 비활성화.
+    private void ConfigureExternalHumanoid()
+    {
+        if (externalAnimator == null)
+            externalAnimator = GetComponentInChildren<Animator>();
+
+        if (externalVisualRoot == null && externalAnimator != null)
+            externalVisualRoot = externalAnimator.transform;
+
+        if (externalAnimator != null)
+            externalAnimator.applyRootMotion = false; // CharacterController 이동을 유지하기 위함.
     }
 
     private void Update()
@@ -115,7 +171,10 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         }
 
         Move();
-        UpdateAnimation();
+        if (useExternalHumanoidModel)
+            UpdateExternalAnimator();
+        else
+            UpdateAnimation();
 
         // Tab은 아카이브 열기 전용. 아카이브가 이미 열려 있으면 ToggleArchive가 닫아준다.
         if (Input.GetKeyDown(KeyCode.Tab) && UIManager3D.Instance != null)
@@ -142,6 +201,37 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         moveBlend = Mathf.Lerp(moveBlend, 0f, Time.deltaTime * animationSmooth);
         localMoveForward = Mathf.Lerp(localMoveForward, 0f, Time.deltaTime * animationSmooth);
         localMoveSide = Mathf.Lerp(localMoveSide, 0f, Time.deltaTime * animationSmooth);
+
+        // 외부 Animator도 Idle로 수렴시켜 UI 위에서 캐릭터가 계속 걷는 듯한 잔여 모션 방지.
+        if (useExternalHumanoidModel)
+            UpdateExternalAnimator();
+    }
+
+    // Animator 파라미터를 매 프레임 갱신.
+    // MoveSpeed: 0(Idle) ↔ 0.5(Walk) ↔ 1.0(Run) — Locomotion BlendTree의 1D blend 입력.
+    private void UpdateExternalAnimator()
+    {
+        if (externalAnimator == null)
+            return;
+
+        float targetSpeed = 0f;
+        if (IsMoving)
+            targetSpeed = isRunning ? 1f : 0.5f;
+
+        externalAnimator.SetFloat(AnimMoveSpeed, targetSpeed, 0.12f, Time.deltaTime);
+        externalAnimator.SetFloat(AnimForward, localMoveForward, 0.1f, Time.deltaTime);
+        externalAnimator.SetFloat(AnimSide, localMoveSide, 0.1f, Time.deltaTime);
+        externalAnimator.SetBool(AnimIsMoving, IsMoving);
+        externalAnimator.SetBool(AnimIsRunning, isRunning && IsMoving);
+        externalAnimator.SetBool(AnimIsGrounded, controller != null && controller.isGrounded);
+        externalAnimator.SetFloat(AnimVerticalSpeed, verticalVelocity);
+    }
+
+    // 점프 액션 추가 시 외부에서 호출하면 Animator 점프 진입. 현재는 미사용.
+    public void TriggerJump()
+    {
+        if (useExternalHumanoidModel && externalAnimator != null)
+            externalAnimator.SetTrigger(AnimJumpTrigger);
     }
 
     private void Move()

@@ -1226,12 +1226,35 @@ public static class MemoryRecycler3DSceneBuilder
         }
     }
 
+    private const string MixamoPlayerFbxPath = "Assets/MemoryRecycler3D/ExternalAssets/Mixamo/Player/MR_Player_TPose.fbx";
+    private const string MixamoControllerPath = "Assets/MemoryRecycler3D/Animations/Player/MR_Player.controller";
+    private const string MixamoVisualName = "MR_Player_Model";
+
     private static void PlaceTripoPlayerVisual(Scene scene)
     {
         GameObject player = FindRoot(scene, "Player_Recycler");
         if (player == null)
             return;
 
+        // 1) 새 Mixamo 모델(MR_Player_Model)이 이미 있으면 기존 Tripo 비주얼을 다시 만들지 않는다.
+        Transform existingMixamo = FindDeepChild(player.transform, MixamoVisualName);
+        if (existingMixamo != null)
+        {
+            DisableLegacyPlayerVisuals(player.transform);
+            EnsureExternalHumanoidWiring(player, existingMixamo);
+            EditorUtility.SetDirty(player);
+            return;
+        }
+
+        // 2) Mixamo FBX가 임포트되어 있으면 그것으로 교체.
+        GameObject mixamoPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(MixamoPlayerFbxPath);
+        if (mixamoPrefab != null)
+        {
+            PlaceMixamoPlayerVisual(scene, player, mixamoPrefab);
+            return;
+        }
+
+        // 3) 폴백: 기존 Tripo 비주얼 빌드 경로(MR_Player FBX가 아직 임포트되지 않은 환경 대비).
         Transform existing = FindDeepChild(player.transform, "Tripo Player Visual");
         if (existing != null)
             Object.DestroyImmediate(existing.gameObject);
@@ -1250,6 +1273,70 @@ public static class MemoryRecycler3DSceneBuilder
             proceduralVisual.gameObject.SetActive(false);
 
         EditorUtility.SetDirty(player);
+    }
+
+    // Mixamo MR_Player_TPose 프리팹을 Player_Recycler 자식으로 인스턴스화한다.
+    private static void PlaceMixamoPlayerVisual(Scene scene, GameObject player, GameObject mixamoPrefab)
+    {
+        // 기존 Tripo 비주얼/절차형 RecyclerVisual은 비활성화 → 중첩 방지.
+        DisableLegacyPlayerVisuals(player.transform);
+
+        GameObject instance = PrefabUtility.InstantiatePrefab(mixamoPrefab, scene) as GameObject;
+        if (instance == null)
+        {
+            instance = Object.Instantiate(mixamoPrefab);
+            SceneManager.MoveGameObjectToScene(instance, scene);
+        }
+
+        instance.name = MixamoVisualName;
+        instance.transform.SetParent(player.transform, false);
+        instance.transform.localPosition = Vector3.zero;
+        instance.transform.localRotation = Quaternion.identity;
+        instance.transform.localScale = Vector3.one;
+
+        // Mixamo 캐릭터는 보통 100단위 cm 스케일이 적용된 채 들어오므로 ModelImporter가 1m로 정규화한다고 가정.
+        // 추가 보정이 필요하면 NormalizeImportedModel로 키 2m 기준 맞춤.
+        NormalizeImportedModel(instance.transform, 0f, 1.85f);
+        instance.transform.localPosition = Vector3.zero;
+
+        EnsureExternalHumanoidWiring(player, instance.transform);
+        EditorUtility.SetDirty(player);
+    }
+
+    private static void DisableLegacyPlayerVisuals(Transform playerRoot)
+    {
+        Transform tripoVisual = FindDeepChild(playerRoot, "Tripo Player Visual");
+        if (tripoVisual != null)
+            tripoVisual.gameObject.SetActive(false);
+
+        Transform proceduralVisual = FindDeepChild(playerRoot, "RecyclerVisual");
+        if (proceduralVisual != null)
+            proceduralVisual.gameObject.SetActive(false);
+    }
+
+    // ThirdPersonPlayer3D의 외부 모델 슬롯과 Animator를 연결한다.
+    private static void EnsureExternalHumanoidWiring(GameObject player, Transform mixamoVisual)
+    {
+        ThirdPersonPlayer3D playerScript = player.GetComponent<ThirdPersonPlayer3D>();
+        if (playerScript == null)
+            return;
+
+        playerScript.useExternalHumanoidModel = true;
+        playerScript.externalVisualRoot = mixamoVisual;
+
+        Animator animator = mixamoVisual.GetComponent<Animator>();
+        if (animator == null)
+            animator = mixamoVisual.GetComponentInChildren<Animator>();
+        if (animator != null)
+        {
+            animator.applyRootMotion = false;
+            RuntimeAnimatorController controller = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(MixamoControllerPath);
+            if (controller != null && animator.runtimeAnimatorController == null)
+                animator.runtimeAnimatorController = controller;
+            playerScript.externalAnimator = animator;
+        }
+
+        EditorUtility.SetDirty(playerScript);
     }
 
     private static Quaternion GetTripoWorldRotation(Vector3 euler)
