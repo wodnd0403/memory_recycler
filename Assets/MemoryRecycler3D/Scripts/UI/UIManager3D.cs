@@ -8,6 +8,9 @@ public class UIManager3D : MonoBehaviour
 {
     public static UIManager3D Instance { get; private set; }
 
+    // 제출 시연용 엔딩 진입 임계값. Docs/07 §11 — 8개 중 5개 처리 시 엔딩 허용.
+    public const int RequiredDecisionsForEnding = 5;
+
     private Canvas canvas;
     private Font uiFont;
 
@@ -36,6 +39,9 @@ public class UIManager3D : MonoBehaviour
     private Text puzzleSelectedText;
     private Transform puzzlePiecesRoot;
     private readonly List<string> selectedPieces = new List<string>();
+    // 퍼즐 조각 인덱스별 버튼을 저장해 중복 클릭 방지에 사용한다.
+    private readonly List<Button> puzzlePieceButtons = new List<Button>();
+    private readonly List<int> selectedPieceIndices = new List<int>();
     private MemoryRecord3D currentPuzzleRecord;
 
     private GameObject archivePanel;
@@ -104,9 +110,25 @@ public class UIManager3D : MonoBehaviour
         toastUntil = Time.time + 2.4f;
     }
 
+    // 시작 메뉴 또는 주요 패널 중 하나라도 열려 있으면 게임플레이 입력을 차단한다.
     public bool IsGameplayInputBlocked()
     {
-        return startMenuPanel != null && startMenuPanel.activeSelf;
+        if (startMenuPanel != null && startMenuPanel.activeSelf)
+            return true;
+
+        return IsAnyMajorPanelOpen();
+    }
+
+    // 기억 카드/퍼즐/아카이브/도시 기록/복원 에코/엔딩 패널 중 하나라도 켜져 있는지 확인.
+    public bool IsAnyMajorPanelOpen()
+    {
+        if (cardPanel != null && cardPanel.activeSelf) return true;
+        if (puzzlePanel != null && puzzlePanel.activeSelf) return true;
+        if (archivePanel != null && archivePanel.activeSelf) return true;
+        if (lorePanel != null && lorePanel.activeSelf) return true;
+        if (echoPanel != null && echoPanel.activeSelf) return true;
+        if (endingPanel != null && endingPanel.activeSelf) return true;
+        return false;
     }
 
     public void ShowMemoryCard(MemoryRecord3D record)
@@ -156,7 +178,9 @@ public class UIManager3D : MonoBehaviour
         sb.AppendLine("중앙 아카이브 - 회수 기록");
         sb.AppendLine("--------------------------------");
 
-        List<MemoryRecord3D> records = MemoryManager3D.Instance.collectedMemories;
+        List<MemoryRecord3D> records = MemoryManager3D.Instance != null
+            ? MemoryManager3D.Instance.collectedMemories
+            : new List<MemoryRecord3D>();
         if (records.Count == 0)
         {
             sb.AppendLine("아직 회수한 기억이 없습니다.");
@@ -174,7 +198,7 @@ public class UIManager3D : MonoBehaviour
         }
 
         sb.AppendLine();
-        sb.AppendLine("중앙 아카이브 결말 접속 조건: 처리 완료 기억 5개 이상");
+        sb.AppendLine("중앙 아카이브 결말 접속 조건: 처리 완료 기억 " + RequiredDecisionsForEnding + "개 이상");
 
         archiveText.text = sb.ToString();
         archivePanel.SetActive(true);
@@ -240,15 +264,15 @@ public class UIManager3D : MonoBehaviour
         if (MemoryAudio3D.Instance != null)
             MemoryAudio3D.Instance.PlayArchiveOpen();
 
-        int preserved = GameState3D.Instance.preservedCount;
-        int deleted = GameState3D.Instance.deletedCount;
-        int edited = GameState3D.Instance.editedCount;
-        int decided = MemoryManager3D.Instance.CountDecidedMemories();
+        int preserved = GameState3D.Instance != null ? GameState3D.Instance.preservedCount : 0;
+        int deleted = GameState3D.Instance != null ? GameState3D.Instance.deletedCount : 0;
+        int edited = GameState3D.Instance != null ? GameState3D.Instance.editedCount : 0;
+        int decided = MemoryManager3D.Instance != null ? MemoryManager3D.Instance.CountDecidedMemories() : 0;
 
         string title;
         string body;
 
-        if (decided < 5)
+        if (decided < RequiredDecisionsForEnding)
         {
             title = "미완성 아카이브";
             body = "중앙 아카이브는 아직 충분한 판단 기록을 확보하지 못했습니다. 더 많은 기억을 복원하고 처리해야 최종 결론에 도달할 수 있습니다.";
@@ -417,12 +441,16 @@ public class UIManager3D : MonoBehaviour
         int decided = MemoryManager3D.Instance.CountDecidedMemories();
         int known = MemoryManager3D.Instance.CountKnownMemories();
 
+        // 단계별 안내 임계값. 회수/복원은 시연용 가이드 수치이므로 엔딩 임계값과 분리해 둔다.
+        const int CollectGuide = 3;
+        const int RestoreGuide = 3;
+
         string next;
-        if (collected < 3)
-            next = "푸른 기억 구체를 찾아 최소 3개 회수";
-        else if (restored < 3)
+        if (collected < CollectGuide)
+            next = "푸른 기억 구체를 찾아 최소 " + CollectGuide + "개 회수";
+        else if (restored < RestoreGuide)
             next = "회수한 기억의 문장 조각을 복원";
-        else if (decided < 5)
+        else if (decided < RequiredDecisionsForEnding)
             next = "복원된 기억을 보존/삭제/재가공으로 처리";
         else
             next = "중앙 아카이브 탑으로 이동해 결말 확인";
@@ -430,7 +458,7 @@ public class UIManager3D : MonoBehaviour
         objectiveText.text =
             "현재 목표\n" +
             next + "\n\n" +
-            "회수 " + collected + " / " + known + "   복원 " + restored + "   처리 " + decided + " / 5\n" +
+            "회수 " + collected + " / " + known + "   복원 " + restored + "   처리 " + decided + " / " + RequiredDecisionsForEnding + "\n" +
             "Tab 아카이브  |  E 상호작용";
     }
 
@@ -547,35 +575,78 @@ public class UIManager3D : MonoBehaviour
         foreach (Transform child in puzzlePiecesRoot)
             Destroy(child.gameObject);
 
+        puzzlePieceButtons.Clear();
+        selectedPieceIndices.Clear();
+
         string[] pieces = currentPuzzleRecord.memory.sentencePieces;
         for (int i = 0; i < pieces.Length; i++)
         {
+            int pieceIndex = i; // 클로저 캡처용 인덱스
             string piece = pieces[i];
-            Button button = CreateButton(puzzlePiecesRoot, "Piece_" + i, piece, Vector2.zero, () => SelectPuzzlePiece(piece));
+            Button button = CreateButton(puzzlePiecesRoot, "Piece_" + i, piece, Vector2.zero, () => SelectPuzzlePiece(pieceIndex));
             RectTransform rect = button.GetComponent<RectTransform>();
             rect.anchorMin = new Vector2(0f, 1f);
             rect.anchorMax = new Vector2(1f, 1f);
             rect.pivot = new Vector2(0.5f, 1f);
             rect.sizeDelta = new Vector2(0f, 58f);
             rect.anchoredPosition = new Vector2(0f, -i * 68f);
+            puzzlePieceButtons.Add(button);
         }
     }
 
-    private void SelectPuzzlePiece(string piece)
+    // 중복 클릭으로 같은 조각이 두 번 들어가지 않도록 인덱스 기반으로 선택을 관리한다.
+    private void SelectPuzzlePiece(int pieceIndex)
     {
-        selectedPieces.Add(piece);
+        if (currentPuzzleRecord == null || currentPuzzleRecord.memory == null)
+            return;
+
+        string[] pieces = currentPuzzleRecord.memory.sentencePieces;
+        if (pieceIndex < 0 || pieceIndex >= pieces.Length)
+            return;
+
+        if (selectedPieceIndices.Contains(pieceIndex))
+            return;
+
+        selectedPieceIndices.Add(pieceIndex);
+        selectedPieces.Add(pieces[pieceIndex]);
+        SetPuzzlePieceInteractable(pieceIndex, false);
         RefreshSelectedPiecesText();
     }
 
     private void RefreshSelectedPiecesText()
     {
+        if (puzzleSelectedText == null)
+            return;
         puzzleSelectedText.text = "선택한 문장:\n" + string.Join(" / ", selectedPieces.ToArray());
     }
 
+    // 다시 선택 시 모든 버튼이 다시 눌릴 수 있도록 복구한다.
     private void ResetPuzzleSelection()
     {
         selectedPieces.Clear();
+        selectedPieceIndices.Clear();
+        for (int i = 0; i < puzzlePieceButtons.Count; i++)
+            SetPuzzlePieceInteractable(i, true);
         RefreshSelectedPiecesText();
+    }
+
+    private void SetPuzzlePieceInteractable(int index, bool interactable)
+    {
+        if (index < 0 || index >= puzzlePieceButtons.Count)
+            return;
+
+        Button button = puzzlePieceButtons[index];
+        if (button == null)
+            return;
+
+        button.interactable = interactable;
+        Image image = button.GetComponent<Image>();
+        if (image != null)
+        {
+            image.color = interactable
+                ? new Color(0.16f, 0.21f, 0.29f, 0.96f)
+                : new Color(0.08f, 0.11f, 0.16f, 0.74f);
+        }
     }
 
     private void CheckPuzzle()

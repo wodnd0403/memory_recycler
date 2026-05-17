@@ -1,0 +1,56 @@
+e13e2a7 MR3D 시작 선택 메뉴 추가
+08e6241 MR3D 공중 배선 조각 제거
+a07c508 MR3D 긴 전선 제거와 배선 축소
+e0ffd5f MR3D 전선 고정 위치 정리
+6ccfa00 MR3D 재질 직렬화 변경 정리
+dbe27ac MR3D 건물 겹침과 기억 구슬 동선 정리
+a7032b6 MR3D 하위 프로젝트 포인터 정리
+d938e09 MR3D 중앙 안내 문구 숨김 수정
+3c11357 MR3D 안내 숨김과 도시 외곽 확장
+a167329 MR3D 아카이브 유리 발광 강화
+c693df8 MR3D 기억 단서 데이터 정리
+72866a0 MR3D 아카이브 유리 발광 추가
+7dc0b37 MR3D 플레이 시작 씬 고정
+d870c81 MR3D 프로토타입 씬 실행 설정 수정
+0898c57 MR3D 원형 도시 배치 적용
+3982a75 MR3D 도시 규모와 탐험 거리 확장
+292a0ea MR3D 전선 형태와 아카이브 발광 개선
+0b56e8e MR3D 하위 프로젝트 포인터 갱신
+fb7ff17 MR3D 카메라 감도와 건물 충돌 개선
+86eae9d MR3D 미니 컷신과 카메라 이동 추가
+dc5b793 MR3D 기억 동기화 연출과 사운드 추가
+07d4e36 MR3D 목표 진행과 아카이브 상호작용 구현
+33f248a MR3D 재질 저장 상태와 서브프로젝트 포인터 반영
+a84ac27 MR3D 건물 배치와 카메라 지면 클램프 수정
+df59928 MR3D Tripo 캐릭터와 현실 비율 스케일 조정
+dd07620 MR3D 아카이브 회전과 캐릭터 생동감 개선
+513fa97 MR3D 아카이브 배치와 캐릭터 방향 보정
+ae8a567 MR3D 아카이브 오브젝트 겹침 제거
+22b8272 MR3D 이동과 관절 애니메이션 개선
+0c9c664 MR3D Tripo 모델 축 보정
+2971bdf MR3D Tripo 에셋 게임 배치 적용
+80dc436 MR3D memory_recycler 포인터 갱신
+dce2aac MR3D Tripo 에셋 묶음 추가
+da1826b MR3D Tripo 에셋 분류 폴더 추가
+c6accc5 MR3D Tripo 에셋 위치 정리
+c5761d8 MR3D Tripo 폐허 도시 에셋 추가
+dd1e16a MR3D 카메라 상향 시야 개선
+4276b5a MR3D 도시 확장과 아카이브 탑 강화
+28dca0b MR3D 주인공 장비형 외형 개선
+3fac4ba MR3D 건물 구조와 잔해 밀도 개선
+5b0ed12 MR3D 가로등 정렬과 폐허 스킨 개선
+f2daadc MR3D 화면 가림 오브젝트 제거
+a4ba620 MR3D 거리 깊이와 캐릭터 디테일 개선
+6daa5b9 MR3D 건물 입체감과 골목 디테일 개선
+b978ad0 MR3D 사진풍 분위기 디테일 추가
+a9fcc90 MR3D 사진풍 그래픽 개선
+69edace Fix MR3D signs and character silhouette
+98f5b65 Style MR3D scene after reference art
+84d25c7 memory_recycler 서브프로젝트 참조 업데이트
+0ab6dd1 Update memory_recycler subproject
+06521e2 Improve MR3D humanoid rig and atmosphere
+d604a39 MR3D 밤하늘, 폐허 도시, 플레이어 비율 개선
+ac51bba MR3D 폐허 분위기와 플레이어 비율 정리
+9332239 Merge branch 'main' of https://github.com/wodnd0403/memory_recycler
+69421dc first commit
+c6a10db Initial commit

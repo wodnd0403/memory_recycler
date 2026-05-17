@@ -107,17 +107,41 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
     private void Update()
     {
+        // UI 패널이 열려 있는 동안에는 이동/애니메이션/단축키 입력을 모두 정지시킨다.
         if (UIManager3D.Instance != null && UIManager3D.Instance.IsGameplayInputBlocked())
+        {
+            ApplyIdleWhileBlocked();
             return;
+        }
 
         Move();
         UpdateAnimation();
 
+        // Tab은 아카이브 열기 전용. 아카이브가 이미 열려 있으면 ToggleArchive가 닫아준다.
         if (Input.GetKeyDown(KeyCode.Tab) && UIManager3D.Instance != null)
             UIManager3D.Instance.ToggleArchive();
 
         if (Input.GetKeyDown(KeyCode.Escape))
             Cursor.lockState = Cursor.lockState == CursorLockMode.Locked ? CursorLockMode.None : CursorLockMode.Locked;
+    }
+
+    // UI 차단 중에도 중력은 계속 작용시켜 캐릭터가 공중에 멈춰 있지 않도록 한다.
+    private void ApplyIdleWhileBlocked()
+    {
+        if (controller == null)
+            return;
+
+        if (controller.isGrounded && verticalVelocity < 0f)
+            verticalVelocity = -2f;
+
+        verticalVelocity += gravity * Time.deltaTime;
+        controller.Move(new Vector3(0f, verticalVelocity, 0f) * Time.deltaTime);
+
+        IsMoving = false;
+        isRunning = false;
+        moveBlend = Mathf.Lerp(moveBlend, 0f, Time.deltaTime * animationSmooth);
+        localMoveForward = Mathf.Lerp(localMoveForward, 0f, Time.deltaTime * animationSmooth);
+        localMoveSide = Mathf.Lerp(localMoveSide, 0f, Time.deltaTime * animationSmooth);
     }
 
     private void Move()

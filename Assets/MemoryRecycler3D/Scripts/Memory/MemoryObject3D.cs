@@ -26,6 +26,10 @@ public class MemoryObject3D : MonoBehaviour
         transform.Rotate(Vector3.up, rotateSpeed * Time.deltaTime, Space.World);
         transform.position = startPosition + Vector3.up * (Mathf.Sin(Time.time * bobSpeed) * bobHeight);
 
+        // UI 패널 열려 있는 동안에는 E 상호작용이 다시 호출되지 않도록 차단.
+        if (UIManager3D.Instance != null && UIManager3D.Instance.IsGameplayInputBlocked())
+            return;
+
         if (playerInside && Input.GetKeyDown(KeyCode.E))
             Interact();
     }
@@ -37,7 +41,8 @@ public class MemoryObject3D : MonoBehaviour
 
         playerInside = true;
         string title = memoryData != null ? memoryData.memoryTitle : "기억";
-        UIManager3D.Instance.ShowPrompt("E : 기억 회수 - " + title);
+        if (UIManager3D.Instance != null)
+            UIManager3D.Instance.ShowPrompt("E : 기억 회수 - " + title);
     }
 
     private void OnTriggerExit(Collider other)
@@ -46,13 +51,19 @@ public class MemoryObject3D : MonoBehaviour
             return;
 
         playerInside = false;
-        UIManager3D.Instance.HidePrompt();
+        if (UIManager3D.Instance != null)
+            UIManager3D.Instance.HidePrompt();
     }
 
     private void Interact()
     {
+        // memoryData 또는 매니저가 비어 있는 상태에서 클릭되면 조용히 무시한다.
+        if (memoryData == null || MemoryManager3D.Instance == null)
+            return;
+
         playerInside = false;
-        UIManager3D.Instance.HidePrompt();
+        if (UIManager3D.Instance != null)
+            UIManager3D.Instance.HidePrompt();
         if (MemoryCinematicCamera3D.Instance != null)
             MemoryCinematicCamera3D.Instance.PlayMemoryPickup(transform);
         if (MemoryAudio3D.Instance != null)

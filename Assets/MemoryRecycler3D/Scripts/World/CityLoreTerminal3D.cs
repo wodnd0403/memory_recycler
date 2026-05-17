@@ -16,11 +16,16 @@ public class CityLoreTerminal3D : MonoBehaviour
 
     private void Update()
     {
+        // UI 패널이 열려 있으면 E 상호작용을 차단한다.
+        if (UIManager3D.Instance != null && UIManager3D.Instance.IsGameplayInputBlocked())
+            return;
+
         if (playerInside && Input.GetKeyDown(KeyCode.E))
         {
             if (MemoryCinematicCamera3D.Instance != null)
                 MemoryCinematicCamera3D.Instance.PlayLoreGlance(transform);
-            UIManager3D.Instance.ShowLore(terminalTitle, terminalBody, objectiveHint);
+            if (UIManager3D.Instance != null)
+                UIManager3D.Instance.ShowLore(terminalTitle, terminalBody, objectiveHint);
         }
     }
 
@@ -30,7 +35,8 @@ public class CityLoreTerminal3D : MonoBehaviour
             return;
 
         playerInside = true;
-        UIManager3D.Instance.ShowPrompt("E : 도시 기록 조사 - " + terminalTitle);
+        if (UIManager3D.Instance != null)
+            UIManager3D.Instance.ShowPrompt("E : 도시 기록 조사 - " + terminalTitle);
     }
 
     private void OnTriggerExit(Collider other)
@@ -39,6 +45,7 @@ public class CityLoreTerminal3D : MonoBehaviour
             return;
 
         playerInside = false;
-        UIManager3D.Instance.HidePrompt();
+        if (UIManager3D.Instance != null)
+            UIManager3D.Instance.HidePrompt();
     }
 }
