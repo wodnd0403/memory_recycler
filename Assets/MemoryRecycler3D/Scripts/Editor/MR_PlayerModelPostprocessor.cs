@@ -165,7 +165,7 @@ public class MR_PlayerModelPostprocessor : AssetPostprocessor
     }
 
     // 메뉴: TPose가 먼저 임포트된 뒤 나머지 클립이 Avatar를 복사하도록 강제 재임포트한다.
-    [MenuItem("Tools/Memory Recycler 3D/Reimport MR_Player FBX Set")]
+    [MenuItem("Tools/Memory Recycler 3D/Advanced/Reimport MR_Player FBX Set")]
     private static void ReimportMixamoSet()
     {
         // 1) TPose 먼저 임포트해 Avatar 생성

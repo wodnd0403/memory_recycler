@@ -5,12 +5,9 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// 사용자가 Play만 눌러도 동작하도록, 에디터 로드/스크립트 리로드/플레이 진입 직전에
-// 1) MR_Player FBX 5종 임포트 정렬
-// 2) MR_Player.controller 빌드
-// 3) Prototype3D 씬의 Player_Recycler에 MR_Player_Model 부착 + 와이어링
-// 을 자동으로 수행한다.
-[InitializeOnLoad]
+// MR_Player FBX 정렬 + Animator Controller 빌드 + Player_Recycler 와이어링 단위 모듈.
+// 자동 실행은 MR_FullSetupPipeline이 통합 관리하므로 여기서는 [InitializeOnLoad]를 제거했다.
+// 외부에서 메뉴 또는 EnsurePlayerSetup(force) 호출로만 동작한다.
 public static class MR_PlayerAutoSetup
 {
     private const string MixamoFolder = "Assets/MemoryRecycler3D/ExternalAssets/Mixamo/Player";
@@ -18,31 +15,9 @@ public static class MR_PlayerAutoSetup
     private const string ControllerPath = "Assets/MemoryRecycler3D/Animations/Player/MR_Player.controller";
     private const string ScenePath = "Assets/MemoryRecycler3D/Scenes/Prototype3D.unity";
     private const string MixamoVisualName = "MR_Player_Model";
-    private const string SetupCompletedKey = "MR3D_PlayerAutoSetup_Done_v3";
 
-    static MR_PlayerAutoSetup()
-    {
-        // 에디터가 막 열렸을 때 한 번 실행. delayCall로 AssetDatabase가 준비된 후 실행.
-        EditorApplication.delayCall += RunIfNeeded;
-        // Play 진입 직전에 한 번 더 보장.
-        EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
-    }
-
-    private static void OnPlayModeStateChanged(PlayModeStateChange change)
-    {
-        if (change == PlayModeStateChange.ExitingEditMode)
-            EnsurePlayerSetup(force: true);
-    }
-
-    private static void RunIfNeeded()
-    {
-        if (SessionState.GetBool(SetupCompletedKey, false))
-            return;
-        EnsurePlayerSetup(force: false);
-        SessionState.SetBool(SetupCompletedKey, true);
-    }
-
-    [MenuItem("Tools/Memory Recycler 3D/Apply MR_Player Setup Now")]
+    // 단독 메뉴는 디버깅용으로 유지. 일반 사용은 통합 메뉴(Apply Full Setup)를 권장.
+    [MenuItem("Tools/Memory Recycler 3D/Advanced/Apply MR_Player Setup Only")]
     public static void ApplyNow()
     {
         EnsurePlayerSetup(force: true);
@@ -177,6 +152,8 @@ public static class MR_PlayerAutoSetup
             playerScript.runAnimationPlaybackSpeed = 1f;
             playerScript.animatorParameterSmooth = 12f;
             playerScript.lockExternalVisualTransform = true;
+            playerScript.autoGroundExternalVisual = true;
+            playerScript.externalVisualGroundPadding = 0.02f;
             playerScript.stabilizeExternalClipRootMotion = true;
             playerScript.externalVisualLocalPosition = Vector3.zero;
             playerScript.externalVisualLocalEuler = Vector3.zero;

@@ -44,6 +44,8 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     public float runAnimationPlaybackSpeed = 1f;
     public float animatorParameterSmooth = 12f;
     public bool lockExternalVisualTransform = true;
+    public bool autoGroundExternalVisual = true;
+    public float externalVisualGroundPadding = 0.02f;
     public bool stabilizeExternalClipRootMotion = true;
     public Vector3 externalVisualLocalPosition = Vector3.zero;
     public Vector3 externalVisualLocalEuler = Vector3.zero;
@@ -198,6 +200,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
             }
         }
 
+        GroundExternalVisualToController();
         StabilizeExternalMotionDrift();
     }
 
@@ -247,6 +250,50 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         hipsPosition.x = externalHipsDefaultLocalPosition.x;
         hipsPosition.z = externalHipsDefaultLocalPosition.z;
         externalHips.localPosition = hipsPosition;
+    }
+
+    private void GroundExternalVisualToController()
+    {
+        if (!autoGroundExternalVisual || externalVisualRoot == null || controller == null)
+            return;
+
+        Renderer[] renderers = externalVisualRoot.GetComponentsInChildren<Renderer>(true);
+        if (renderers == null || renderers.Length == 0)
+            return;
+
+        bool hasBounds = false;
+        Bounds visualBounds = default;
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            Renderer renderer = renderers[i];
+            if (renderer == null || !renderer.enabled)
+                continue;
+
+            if (!hasBounds)
+            {
+                visualBounds = renderer.bounds;
+                hasBounds = true;
+            }
+            else
+            {
+                visualBounds.Encapsulate(renderer.bounds);
+            }
+        }
+
+        if (!hasBounds)
+            return;
+
+        Vector3 controllerCenterWorld = transform.TransformPoint(controller.center);
+        float controllerBottomY = controllerCenterWorld.y - controller.height * 0.5f + externalVisualGroundPadding;
+        float yDelta = controllerBottomY - visualBounds.min.y;
+        if (Mathf.Abs(yDelta) < 0.001f)
+            return;
+
+        Vector3 localDelta = externalVisualRoot.parent != null
+            ? externalVisualRoot.parent.InverseTransformVector(Vector3.up * yDelta)
+            : Vector3.up * yDelta;
+        externalVisualLocalPosition += new Vector3(0f, localDelta.y, 0f);
+        externalVisualRoot.localPosition = externalVisualLocalPosition;
     }
 
     private void ApplyIdleWhileBlocked()

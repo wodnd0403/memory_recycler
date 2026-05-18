@@ -83,6 +83,22 @@ public class UIManager3D : MonoBehaviour
 
         UpdateTimeDisplay();
         UpdateObjectiveDisplay();
+
+        // 시작 메뉴/주요 패널이 켜져 있는데 다른 컴포넌트가 마우스를 잠가버리면 클릭 불가가 된다.
+        // 매 프레임 가드: UI가 열려 있는 동안에는 항상 커서가 보이도록 보정.
+        if (IsAnyUiPanelOpen() && Cursor.lockState != CursorLockMode.None)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+    }
+
+    // 시작 메뉴를 포함해 어떤 UI 패널이라도 켜져 있는지 확인.
+    private bool IsAnyUiPanelOpen()
+    {
+        if (startMenuPanel != null && startMenuPanel.activeSelf)
+            return true;
+        return IsAnyMajorPanelOpen();
     }
 
     public void ShowPrompt(string message)
@@ -312,14 +328,14 @@ public class UIManager3D : MonoBehaviour
         canvas.pixelPerfect = true;
         CanvasScaler scaler = canvasObject.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1280, 720);
+        scaler.referenceResolution = new Vector2(1920, 1080);
         scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
         scaler.matchWidthOrHeight = 0.5f;
         canvasObject.AddComponent<GraphicRaycaster>();
 
-        objectivePanel = CreatePanel("ObjectivePanel", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(610f, 168f), new Vector2(28f, -28f), new Color(0.025f, 0.032f, 0.045f, 0.82f));
-        objectiveText = CreateText(objectivePanel.transform, "ObjectiveText", "", 22, TextAnchor.UpperLeft, new Color(0.94f, 0.97f, 1f));
-        SetRect(objectiveText.rectTransform, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), new Vector2(20f, 16f), new Vector2(-20f, -16f));
+        objectivePanel = CreatePanel("ObjectivePanel", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(560f, 150f), new Vector2(28f, -28f), new Color(0.025f, 0.032f, 0.045f, 0.82f));
+        objectiveText = CreateText(objectivePanel.transform, "ObjectiveText", "", 21, TextAnchor.UpperLeft, new Color(0.94f, 0.97f, 1f));
+        SetRect(objectiveText.rectTransform, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), new Vector2(18f, 14f), new Vector2(-18f, -14f));
 
         promptPanel = CreatePanel("PromptPanel", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(760f, 72f), new Vector2(0f, 80f), new Color(0f, 0f, 0f, 0.68f));
         promptText = CreateText(promptPanel.transform, "PromptText", "E : 상호작용", 28, TextAnchor.MiddleCenter, Color.white);

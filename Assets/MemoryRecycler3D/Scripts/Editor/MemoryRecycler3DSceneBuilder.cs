@@ -27,7 +27,7 @@ public static class MemoryRecycler3DSceneBuilder
         EditorApplication.delayCall += EnsurePrototypeSceneInBuildSettings;
     }
 
-    [MenuItem("Tools/Memory Recycler 3D/Build Prototype Scene")]
+    [MenuItem("Tools/Memory Recycler 3D/Advanced/Build Prototype Scene (Destructive)")]
     public static void BuildPrototypeScene()
     {
         EnsureFolder(Root + "/Data");
@@ -85,7 +85,7 @@ public static class MemoryRecycler3DSceneBuilder
         EditorUtility.DisplayDialog("Memory Recycler 3D", "업데이트된 3D 프로토타입 씬 생성 완료\n" + ScenePath, "확인");
     }
 
-    [MenuItem("Tools/Memory Recycler 3D/Apply Cinematic Reference Look")]
+    [MenuItem("Tools/Memory Recycler 3D/Advanced/Apply Cinematic Reference Look")]
     public static void ApplyCinematicReferenceLook()
     {
         EnsureFolder(Root + "/Data");
@@ -118,7 +118,7 @@ public static class MemoryRecycler3DSceneBuilder
         EnsurePrototypeSceneInBuildSettings();
     }
 
-    [MenuItem("Tools/Memory Recycler 3D/Clean Prototype Scene")]
+    [MenuItem("Tools/Memory Recycler 3D/Advanced/Clean Prototype Scene")]
     public static void CleanPrototypeScene()
     {
         Scene scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
@@ -1324,6 +1324,8 @@ public static class MemoryRecycler3DSceneBuilder
         playerScript.useExternalHumanoidModel = true;
         playerScript.externalVisualRoot = mixamoVisual;
         playerScript.lockExternalVisualTransform = true;
+        playerScript.autoGroundExternalVisual = true;
+        playerScript.externalVisualGroundPadding = 0.02f;
         playerScript.stabilizeExternalClipRootMotion = true;
         playerScript.externalVisualLocalPosition = Vector3.zero;
         playerScript.externalVisualLocalEuler = Vector3.zero;

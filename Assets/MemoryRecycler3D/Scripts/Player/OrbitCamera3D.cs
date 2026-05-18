@@ -33,6 +33,11 @@ public class OrbitCamera3D : MonoBehaviour
 
     private void Start()
     {
+        // 시작 메뉴가 떠 있는 동안 마우스를 잠그면 클릭이 불가능해진다.
+        // UIManager3D가 메뉴 닫힐 때 LockCursor()를 호출하므로 여기서는 강제 잠금하지 않는다.
+        if (UIManager3D.Instance != null && UIManager3D.Instance.IsGameplayInputBlocked())
+            return;
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }

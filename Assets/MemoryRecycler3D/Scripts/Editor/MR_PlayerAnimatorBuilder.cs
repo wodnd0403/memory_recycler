@@ -12,7 +12,7 @@ public static class MR_PlayerAnimatorBuilder
     private const string ControllerFolder = "Assets/MemoryRecycler3D/Animations/Player";
     private const string ControllerPath = ControllerFolder + "/MR_Player.controller";
 
-    [MenuItem("Tools/Memory Recycler 3D/Build MR_Player Animator Controller")]
+    [MenuItem("Tools/Memory Recycler 3D/Advanced/Build MR_Player Animator Controller")]
     public static AnimatorController BuildController()
     {
         EnsureFolder("Assets/MemoryRecycler3D/Animations");
