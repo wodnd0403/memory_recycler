@@ -38,7 +38,7 @@ public static class MR_PlayerAnimatorBuilder
         AnimationClip walkClip = LoadAnimationClip("MR_Player_Walking");
         AnimationClip runClip = LoadAnimationClip("MR_Player_Running");
         AnimationClip jumpClip = LoadAnimationClip("MR_Player_Jumping");
-        AnimationClip fallClip = LoadAnimationClip("MR_Player_JumpingDown");
+        AnimationClip fallClip = jumpClip;
 
         // Locomotion BlendTree: MoveSpeed 0=Idle, 0.5=Walk, 1=Run.
         BlendTree locomotionTree = new BlendTree();
@@ -61,6 +61,7 @@ public static class MR_PlayerAnimatorBuilder
 
         AnimatorState fall = root.AddState("Falling", new Vector3(260f, 300f, 0f));
         fall.motion = fallClip;
+        fall.speed = 0.75f;
 
         root.defaultState = locomotion;
 

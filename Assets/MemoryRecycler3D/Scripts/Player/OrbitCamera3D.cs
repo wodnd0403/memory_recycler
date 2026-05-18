@@ -11,6 +11,8 @@ public class OrbitCamera3D : MonoBehaviour
     public float lookUpHeight = 5.2f;
     public float lookDownHeight = 1.05f;
     public float followSmooth = 12f;
+    public float targetFollowSmooth = 18f;
+    public float jumpVerticalFollowSmooth = 7.5f;
     public float minCameraHeightAboveTarget = 0.8f;
     public float absoluteMinCameraY = 0.55f;
 
@@ -20,10 +22,14 @@ public class OrbitCamera3D : MonoBehaviour
     public float collisionRadius = 0.32f;
     public float collisionPadding = 0.18f;
     public float collisionRecoverSmooth = 14f;
+    public bool ignoreTargetCollision = true;
 
     private float yaw;
     private float pitch = 20f;
     private float currentDistanceRatio = 1f;
+    private bool hasSmoothedPivot;
+    private Vector3 smoothedPivot;
+    private readonly RaycastHit[] cameraHits = new RaycastHit[16];
 
     private void Start()
     {
@@ -48,7 +54,21 @@ public class OrbitCamera3D : MonoBehaviour
         float lookUpAmount = Mathf.InverseLerp(maxPitch, minPitch, pitch);
         float lookHeight = Mathf.Lerp(lookDownHeight, lookUpHeight, lookUpAmount);
         lookHeight = Mathf.Max(lookHeight, baseLookHeight);
-        Vector3 pivot = target.position + Vector3.up * Mathf.Min(lookHeight * 0.5f, 1.6f);
+        float pivotLift = Mathf.Min(lookHeight * 0.5f, 1.6f);
+        Vector3 targetPivot = target.position + Vector3.up * pivotLift;
+        if (!hasSmoothedPivot)
+        {
+            smoothedPivot = targetPivot;
+            hasSmoothedPivot = true;
+        }
+        else
+        {
+            smoothedPivot.x = Mathf.Lerp(smoothedPivot.x, targetPivot.x, Damp(targetFollowSmooth));
+            smoothedPivot.z = Mathf.Lerp(smoothedPivot.z, targetPivot.z, Damp(targetFollowSmooth));
+            smoothedPivot.y = Mathf.Lerp(smoothedPivot.y, targetPivot.y, Damp(jumpVerticalFollowSmooth));
+        }
+
+        Vector3 pivot = smoothedPivot;
         Vector3 rawDesiredPosition = pivot + rotation * offset;
 
         // pivot → 원하는 카메라 위치 사이에 벽이 있으면 SphereCast로 안전한 거리로 당겨준다.
@@ -58,26 +78,67 @@ public class OrbitCamera3D : MonoBehaviour
         if (fullDistance > 0.001f)
         {
             Vector3 dirNorm = direction / fullDistance;
-            RaycastHit hit;
-            if (Physics.SphereCast(pivot, collisionRadius, dirNorm, out hit, fullDistance + collisionPadding, collisionMask, QueryTriggerInteraction.Ignore))
+            float hitDistance;
+            if (TryGetNearestCameraHit(pivot, dirNorm, fullDistance + collisionPadding, out hitDistance))
             {
-                float safeDistance = Mathf.Max(0.1f, hit.distance - collisionPadding);
+                float safeDistance = Mathf.Max(0.1f, hitDistance - collisionPadding);
                 targetRatio = Mathf.Clamp01(safeDistance / fullDistance);
             }
         }
 
         // 벽에 막혔다 풀릴 때 자연스럽게 복귀하도록 보간.
         currentDistanceRatio = Mathf.Lerp(currentDistanceRatio, targetRatio,
-            (targetRatio < currentDistanceRatio ? 30f : collisionRecoverSmooth) * Time.deltaTime);
+            Damp(targetRatio < currentDistanceRatio ? 30f : collisionRecoverSmooth));
 
         Vector3 desiredPosition = pivot + direction * currentDistanceRatio;
-        float minCameraY = Mathf.Max(absoluteMinCameraY, target.position.y + minCameraHeightAboveTarget);
+        float smoothedTargetY = pivot.y - pivotLift;
+        float minCameraY = Mathf.Max(absoluteMinCameraY, smoothedTargetY + minCameraHeightAboveTarget);
         desiredPosition.y = Mathf.Max(desiredPosition.y, minCameraY);
 
-        transform.position = Vector3.Lerp(transform.position, desiredPosition, followSmooth * Time.deltaTime);
+        transform.position = Vector3.Lerp(transform.position, desiredPosition, Damp(followSmooth));
         Vector3 clampedPosition = transform.position;
         clampedPosition.y = Mathf.Max(clampedPosition.y, minCameraY);
         transform.position = clampedPosition;
-        transform.LookAt(target.position + Vector3.up * lookHeight);
+        transform.LookAt(pivot + Vector3.up * Mathf.Max(0.15f, lookHeight - pivotLift));
+    }
+
+    private bool TryGetNearestCameraHit(Vector3 origin, Vector3 direction, float distance, out float hitDistance)
+    {
+        hitDistance = 0f;
+        int hitCount = Physics.SphereCastNonAlloc(origin, collisionRadius, direction, cameraHits, distance, collisionMask, QueryTriggerInteraction.Ignore);
+        bool found = false;
+        float nearest = float.MaxValue;
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            RaycastHit hit = cameraHits[i];
+            if (hit.collider == null || ShouldIgnoreCollisionHit(hit.collider.transform))
+                continue;
+
+            if (hit.distance < nearest)
+            {
+                nearest = hit.distance;
+                found = true;
+            }
+        }
+
+        if (!found)
+            return false;
+
+        hitDistance = nearest;
+        return true;
+    }
+
+    private bool ShouldIgnoreCollisionHit(Transform hitTransform)
+    {
+        if (!ignoreTargetCollision || target == null || hitTransform == null)
+            return false;
+
+        return hitTransform == target || hitTransform.IsChildOf(target) || target.IsChildOf(hitTransform);
+    }
+
+    private float Damp(float smooth)
+    {
+        return 1f - Mathf.Exp(-Mathf.Max(0f, smooth) * Time.deltaTime);
     }
 }

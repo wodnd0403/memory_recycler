@@ -150,6 +150,11 @@ public static class MR_PlayerAutoSetup
             Debug.Log("[MR_PlayerAutoSetup] " + MixamoVisualName + " 인스턴스 생성 완료");
         }
 
+        mixamoVisual.localPosition = Vector3.zero;
+        mixamoVisual.localRotation = Quaternion.identity;
+        mixamoVisual.localScale = Vector3.one;
+        mixamoVisual.gameObject.SetActive(true);
+
         // 기존 비주얼 비활성화
         Transform tripoVisual = FindDeepChild(player.transform, "Tripo Player Visual");
         if (tripoVisual != null && tripoVisual != mixamoVisual)
@@ -164,6 +169,18 @@ public static class MR_PlayerAutoSetup
         {
             playerScript.useExternalHumanoidModel = true;
             playerScript.externalVisualRoot = mixamoVisual;
+            playerScript.acceleration = 28f;
+            playerScript.deceleration = 34f;
+            playerScript.airControl = 0.35f;
+            playerScript.inputDeadZone = 0.08f;
+            playerScript.jumpHeight = 1.25f;
+            playerScript.runAnimationPlaybackSpeed = 1f;
+            playerScript.animatorParameterSmooth = 12f;
+            playerScript.lockExternalVisualTransform = true;
+            playerScript.stabilizeExternalClipRootMotion = true;
+            playerScript.externalVisualLocalPosition = Vector3.zero;
+            playerScript.externalVisualLocalEuler = Vector3.zero;
+            playerScript.externalVisualLocalScale = Vector3.one;
 
             Animator animator = mixamoVisual.GetComponent<Animator>();
             if (animator == null)

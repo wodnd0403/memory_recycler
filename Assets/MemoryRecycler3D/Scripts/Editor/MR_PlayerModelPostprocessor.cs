@@ -82,9 +82,14 @@ public class MR_PlayerModelPostprocessor : AssetPostprocessor
                 changed = true;
             }
 
+            if (clip.loopPose != wantsLoop)
+            {
+                clip.loopPose = wantsLoop;
+                changed = true;
+            }
+
             // Walking/Running은 코드 이동과 겹치지 않도록 XZ 루트 모션을 Bake Into Pose 한다.
-            bool bakeIntoPoseXZ = baseName.Equals("MR_Player_Walking", System.StringComparison.OrdinalIgnoreCase)
-                                  || baseName.Equals("MR_Player_Running", System.StringComparison.OrdinalIgnoreCase);
+            bool bakeIntoPoseXZ = !baseName.Equals("MR_Player_TPose", System.StringComparison.OrdinalIgnoreCase);
             if (clip.lockRootPositionXZ != bakeIntoPoseXZ)
             {
                 clip.lockRootPositionXZ = bakeIntoPoseXZ;
@@ -92,11 +97,34 @@ public class MR_PlayerModelPostprocessor : AssetPostprocessor
             }
 
             // Y(점프 높이)는 점프 클립에서는 살려두고, 그 외에는 잠근다.
-            bool keepY = baseName.Equals("MR_Player_Jumping", System.StringComparison.OrdinalIgnoreCase)
-                         || baseName.Equals("MR_Player_JumpingDown", System.StringComparison.OrdinalIgnoreCase);
+            bool keepY = false;
             if (clip.lockRootHeightY != !keepY)
             {
                 clip.lockRootHeightY = !keepY;
+                changed = true;
+            }
+
+            if (clip.keepOriginalPositionXZ)
+            {
+                clip.keepOriginalPositionXZ = false;
+                changed = true;
+            }
+
+            if (clip.keepOriginalPositionY)
+            {
+                clip.keepOriginalPositionY = false;
+                changed = true;
+            }
+
+            if (clip.keepOriginalOrientation)
+            {
+                clip.keepOriginalOrientation = false;
+                changed = true;
+            }
+
+            if (clip.heightFromFeet)
+            {
+                clip.heightFromFeet = false;
                 changed = true;
             }
 

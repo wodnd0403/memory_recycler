@@ -11,6 +11,11 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     public float gravity = -20f;
     public float backwardSpeedMultiplier = 0.62f;
     public float strafeSpeedMultiplier = 0.82f;
+    public float acceleration = 28f;
+    public float deceleration = 34f;
+    public float airControl = 0.35f;
+    public float inputDeadZone = 0.08f;
+    public float jumpHeight = 1.25f;
 
     [Header("Camera")]
     public Transform cameraTransform;
@@ -36,8 +41,13 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     public Animator externalAnimator;
     // Run 전용 클립이 없어 Walk를 빠르게 재생해 달리기를 표현. 1=Walk 속도, 1.55≈Run 속도.
     public float walkAnimationPlaybackSpeed = 1f;
-    public float runAnimationPlaybackSpeed = 1.55f;
+    public float runAnimationPlaybackSpeed = 1f;
     public float animatorParameterSmooth = 12f;
+    public bool lockExternalVisualTransform = true;
+    public bool stabilizeExternalClipRootMotion = true;
+    public Vector3 externalVisualLocalPosition = Vector3.zero;
+    public Vector3 externalVisualLocalEuler = Vector3.zero;
+    public Vector3 externalVisualLocalScale = Vector3.one;
 
     private CharacterController controller;
     private float verticalVelocity;
@@ -104,6 +114,9 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     private float localMoveSide;
     private float lookBackBlend;
     private Vector3 lastPlanarMove;
+    private Vector3 currentPlanarVelocity;
+    private Transform externalHips;
+    private Vector3 externalHipsDefaultLocalPosition;
 
     public bool IsMoving { get; private set; }
     public bool IsRunning => isRunning && IsMoving;
@@ -158,7 +171,34 @@ public class ThirdPersonPlayer3D : MonoBehaviour
             externalVisualRoot = externalAnimator.transform;
 
         if (externalAnimator != null)
-            externalAnimator.applyRootMotion = false; // CharacterController 이동을 유지하기 위함.
+        {
+            externalAnimator.applyRootMotion = false;
+            externalAnimator.updateMode = AnimatorUpdateMode.Normal;
+            externalAnimator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+            externalAnimator.speed = 1f;
+            if (externalAnimator.runtimeAnimatorController != null)
+            {
+                externalAnimator.Rebind();
+                externalAnimator.Update(0f);
+            }
+
+            externalHips = externalAnimator.GetBoneTransform(HumanBodyBones.Hips);
+            if (externalHips != null)
+                externalHipsDefaultLocalPosition = externalHips.localPosition;
+        }
+
+        if (externalVisualRoot != null)
+        {
+            externalVisualRoot.gameObject.SetActive(true);
+            if (lockExternalVisualTransform)
+            {
+                externalVisualRoot.localPosition = externalVisualLocalPosition;
+                externalVisualRoot.localEulerAngles = externalVisualLocalEuler;
+                externalVisualRoot.localScale = externalVisualLocalScale;
+            }
+        }
+
+        StabilizeExternalMotionDrift();
     }
 
     private void Update()
@@ -185,6 +225,30 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     }
 
     // UI 차단 중에도 중력은 계속 작용시켜 캐릭터가 공중에 멈춰 있지 않도록 한다.
+    private void LateUpdate()
+    {
+        if (useExternalHumanoidModel)
+            StabilizeExternalMotionDrift();
+    }
+
+    private void StabilizeExternalMotionDrift()
+    {
+        if (lockExternalVisualTransform && externalVisualRoot != null)
+        {
+            externalVisualRoot.localPosition = externalVisualLocalPosition;
+            externalVisualRoot.localEulerAngles = externalVisualLocalEuler;
+            externalVisualRoot.localScale = externalVisualLocalScale;
+        }
+
+        if (!stabilizeExternalClipRootMotion || externalHips == null)
+            return;
+
+        Vector3 hipsPosition = externalHips.localPosition;
+        hipsPosition.x = externalHipsDefaultLocalPosition.x;
+        hipsPosition.z = externalHipsDefaultLocalPosition.z;
+        externalHips.localPosition = hipsPosition;
+    }
+
     private void ApplyIdleWhileBlocked()
     {
         if (controller == null)
@@ -198,6 +262,8 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
         IsMoving = false;
         isRunning = false;
+        currentPlanarVelocity = Vector3.zero;
+        lastPlanarMove = Vector3.zero;
         moveBlend = Mathf.Lerp(moveBlend, 0f, Time.deltaTime * animationSmooth);
         localMoveForward = Mathf.Lerp(localMoveForward, 0f, Time.deltaTime * animationSmooth);
         localMoveSide = Mathf.Lerp(localMoveSide, 0f, Time.deltaTime * animationSmooth);
@@ -214,13 +280,13 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         if (externalAnimator == null)
             return;
 
-        float targetSpeed = 0f;
-        if (IsMoving)
-            targetSpeed = isRunning ? 1f : 0.5f;
+        float targetSpeed = IsMoving ? moveBlend : 0f;
+        float dampTime = 1f / Mathf.Max(1f, animatorParameterSmooth);
+        externalAnimator.speed = 1f;
 
-        externalAnimator.SetFloat(AnimMoveSpeed, targetSpeed, 0.12f, Time.deltaTime);
-        externalAnimator.SetFloat(AnimForward, localMoveForward, 0.1f, Time.deltaTime);
-        externalAnimator.SetFloat(AnimSide, localMoveSide, 0.1f, Time.deltaTime);
+        externalAnimator.SetFloat(AnimMoveSpeed, targetSpeed, dampTime, Time.deltaTime);
+        externalAnimator.SetFloat(AnimForward, localMoveForward, dampTime, Time.deltaTime);
+        externalAnimator.SetFloat(AnimSide, localMoveSide, dampTime, Time.deltaTime);
         externalAnimator.SetBool(AnimIsMoving, IsMoving);
         externalAnimator.SetBool(AnimIsRunning, isRunning && IsMoving);
         externalAnimator.SetBool(AnimIsGrounded, controller != null && controller.isGrounded);
@@ -236,14 +302,18 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
     private void Move()
     {
+        if (controller == null)
+            return;
+
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
 
-        Vector3 input = new Vector3(horizontal, 0f, vertical).normalized;
+        Vector2 rawInput = new Vector2(horizontal, vertical);
+        float inputMagnitude = Mathf.Clamp01(rawInput.magnitude);
+        Vector2 moveInput = inputMagnitude >= inputDeadZone ? rawInput.normalized : Vector2.zero;
         Vector3 moveDirection = Vector3.zero;
-        float inputMagnitude = Mathf.Clamp01(new Vector2(horizontal, vertical).magnitude);
 
-        if (input.magnitude >= 0.1f)
+        if (moveInput.sqrMagnitude > 0.001f)
         {
             Vector3 cameraForward = cameraTransform != null ? cameraTransform.forward : Vector3.forward;
             Vector3 cameraRight = cameraTransform != null ? cameraTransform.right : Vector3.right;
@@ -252,47 +322,54 @@ public class ThirdPersonPlayer3D : MonoBehaviour
             cameraForward.Normalize();
             cameraRight.Normalize();
 
-            moveDirection = cameraForward * input.z + cameraRight * input.x;
+            moveDirection = cameraForward * moveInput.y + cameraRight * moveInput.x;
             moveDirection.Normalize();
 
-            Vector3 facingDirection = moveDirection;
-            if (input.z < -0.12f)
+            if (moveDirection.sqrMagnitude > 0.001f)
             {
-                facingDirection = cameraForward + cameraRight * input.x * 0.45f;
-                facingDirection.y = 0f;
-                facingDirection.Normalize();
-            }
-
-            if (facingDirection.sqrMagnitude > 0.001f)
-            {
-                Quaternion targetRotation = Quaternion.LookRotation(facingDirection);
+                Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
             }
         }
 
-        Vector3 localMove = moveDirection.sqrMagnitude > 0.001f ? transform.InverseTransformDirection(moveDirection) : Vector3.zero;
-        localMoveForward = Mathf.Lerp(localMoveForward, Mathf.Clamp(localMove.z, -1f, 1f), Time.deltaTime * animationSmooth);
-        localMoveSide = Mathf.Lerp(localMoveSide, Mathf.Clamp(localMove.x, -1f, 1f), Time.deltaTime * animationSmooth);
-
         if (controller.isGrounded && verticalVelocity < 0f)
             verticalVelocity = -2f;
 
+        bool wantsMove = moveDirection.sqrMagnitude > 0.001f;
+        isRunning = Input.GetKey(KeyCode.LeftShift) && wantsMove;
+        float targetSpeed = (isRunning ? runSpeed : walkSpeed) * inputMagnitude;
+        Vector3 targetPlanarVelocity = wantsMove ? moveDirection * targetSpeed : Vector3.zero;
+        float velocityChangeRate = targetPlanarVelocity.sqrMagnitude > currentPlanarVelocity.sqrMagnitude ? acceleration : deceleration;
+        if (!controller.isGrounded)
+            velocityChangeRate *= airControl;
+        currentPlanarVelocity = Vector3.MoveTowards(currentPlanarVelocity, targetPlanarVelocity, velocityChangeRate * Time.deltaTime);
+
+        if (controller.isGrounded && Input.GetKeyDown(KeyCode.Space))
+        {
+            verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            TriggerJump();
+        }
+
         verticalVelocity += gravity * Time.deltaTime;
 
-        isRunning = Input.GetKey(KeyCode.LeftShift) && input.magnitude >= 0.1f;
-        float speed = isRunning ? runSpeed : walkSpeed;
-        if (vertical < -0.1f)
-            speed *= backwardSpeedMultiplier;
-        else if (Mathf.Abs(horizontal) > 0.1f && Mathf.Abs(vertical) < 0.35f)
-            speed *= strafeSpeedMultiplier;
-
-        Vector3 finalMove = moveDirection * speed;
+        Vector3 finalMove = currentPlanarVelocity;
         finalMove.y = verticalVelocity;
 
-        controller.Move(finalMove * Time.deltaTime);
+        CollisionFlags collisionFlags = controller.Move(finalMove * Time.deltaTime);
+        if ((collisionFlags & CollisionFlags.Below) != 0 && verticalVelocity < 0f)
+            verticalVelocity = -2f;
 
-        lastPlanarMove = new Vector3(moveDirection.x, 0f, moveDirection.z) * speed;
-        IsMoving = inputMagnitude >= 0.1f && controller.isGrounded;
+        float planarSpeed = new Vector3(currentPlanarVelocity.x, 0f, currentPlanarVelocity.z).magnitude;
+        float targetMoveBlend = runSpeed > 0.001f ? Mathf.Clamp01(planarSpeed / runSpeed) : 0f;
+        float blendRate = (wantsMove ? acceleration : deceleration) / Mathf.Max(1f, runSpeed);
+        moveBlend = Mathf.MoveTowards(moveBlend, targetMoveBlend, blendRate * Time.deltaTime);
+
+        Vector3 localMove = planarSpeed > 0.01f ? transform.InverseTransformDirection(currentPlanarVelocity.normalized) : Vector3.zero;
+        localMoveForward = Mathf.Lerp(localMoveForward, Mathf.Clamp(localMove.z, -1f, 1f), Time.deltaTime * animationSmooth);
+        localMoveSide = Mathf.Lerp(localMoveSide, Mathf.Clamp(localMove.x, -1f, 1f), Time.deltaTime * animationSmooth);
+
+        lastPlanarMove = currentPlanarVelocity;
+        IsMoving = planarSpeed > 0.05f;
     }
 
     private void CacheAnimationRig()

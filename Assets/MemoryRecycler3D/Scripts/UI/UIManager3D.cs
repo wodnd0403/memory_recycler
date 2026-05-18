@@ -302,21 +302,24 @@ public class UIManager3D : MonoBehaviour
     private void BuildUI()
     {
         EnsureEventSystem();
-        uiFont = Font.CreateDynamicFontFromOSFont("Malgun Gothic", 18);
+        uiFont = Font.CreateDynamicFontFromOSFont("Malgun Gothic", 32);
         if (uiFont == null)
-            uiFont = Font.CreateDynamicFontFromOSFont("Arial", 18);
+            uiFont = Font.CreateDynamicFontFromOSFont("Arial", 32);
 
         GameObject canvasObject = new GameObject("MemoryRecycler3D_Canvas");
         canvas = canvasObject.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.pixelPerfect = true;
         CanvasScaler scaler = canvasObject.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920, 1080);
+        scaler.referenceResolution = new Vector2(1280, 720);
+        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+        scaler.matchWidthOrHeight = 0.5f;
         canvasObject.AddComponent<GraphicRaycaster>();
 
-        objectivePanel = CreatePanel("ObjectivePanel", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(520f, 150f), new Vector2(28f, -28f), new Color(0.025f, 0.032f, 0.045f, 0.78f));
-        objectiveText = CreateText(objectivePanel.transform, "ObjectiveText", "", 20, TextAnchor.UpperLeft, new Color(0.9f, 0.94f, 0.98f));
-        SetRect(objectiveText.rectTransform, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), new Vector2(18f, 14f), new Vector2(-18f, -14f));
+        objectivePanel = CreatePanel("ObjectivePanel", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(610f, 168f), new Vector2(28f, -28f), new Color(0.025f, 0.032f, 0.045f, 0.82f));
+        objectiveText = CreateText(objectivePanel.transform, "ObjectiveText", "", 22, TextAnchor.UpperLeft, new Color(0.94f, 0.97f, 1f));
+        SetRect(objectiveText.rectTransform, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), new Vector2(20f, 16f), new Vector2(-20f, -16f));
 
         promptPanel = CreatePanel("PromptPanel", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(760f, 72f), new Vector2(0f, 80f), new Color(0f, 0f, 0f, 0.68f));
         promptText = CreateText(promptPanel.transform, "PromptText", "E : 상호작용", 28, TextAnchor.MiddleCenter, Color.white);
@@ -755,6 +758,9 @@ public class UIManager3D : MonoBehaviour
         uiText.fontSize = size;
         uiText.alignment = anchor;
         uiText.color = color;
+        uiText.alignByGeometry = true;
+        uiText.resizeTextForBestFit = false;
+        uiText.raycastTarget = false;
         uiText.horizontalOverflow = HorizontalWrapMode.Wrap;
         uiText.verticalOverflow = VerticalWrapMode.Overflow;
         return uiText;

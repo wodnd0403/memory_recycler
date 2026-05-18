@@ -1323,6 +1323,11 @@ public static class MemoryRecycler3DSceneBuilder
 
         playerScript.useExternalHumanoidModel = true;
         playerScript.externalVisualRoot = mixamoVisual;
+        playerScript.lockExternalVisualTransform = true;
+        playerScript.stabilizeExternalClipRootMotion = true;
+        playerScript.externalVisualLocalPosition = Vector3.zero;
+        playerScript.externalVisualLocalEuler = Vector3.zero;
+        playerScript.externalVisualLocalScale = Vector3.one;
 
         Animator animator = mixamoVisual.GetComponent<Animator>();
         if (animator == null)
