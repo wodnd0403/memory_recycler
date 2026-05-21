@@ -8,8 +8,8 @@ public class UIManager3D : MonoBehaviour
 {
     public static UIManager3D Instance { get; private set; }
 
-    // 제출 시연용 엔딩 진입 임계값. Docs/07 §11 — 8개 중 5개 처리 시 엔딩 허용.
-    public const int RequiredDecisionsForEnding = 5;
+    // 제출 시연용 엔딩 진입 임계값. 발표 5분 루프에 맞춰 8개 중 3개 처리 시 엔딩 허용.
+    public const int RequiredDecisionsForEnding = 3;
 
     private Canvas canvas;
     private Font uiFont;
@@ -25,6 +25,7 @@ public class UIManager3D : MonoBehaviour
     private Text timeText;
     private GameObject startMenuPanel;
     private Button continueButton;
+    private Text startMenuSaveStatusText;
 
     private GameObject cardPanel;
     private Text cardTitle;
@@ -373,13 +374,19 @@ public class UIManager3D : MonoBehaviour
         Text body = CreateText(startMenuPanel.transform, "StartBody", "폐허가 된 도시에서 푸른 기억 구체를 회수하고, 중앙 아카이브에서 기억의 운명을 선택하세요.", 24, TextAnchor.MiddleCenter, new Color(0.76f, 0.84f, 0.9f));
         SetRect(body.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-560f, 58f), new Vector2(560f, 128f));
 
-        Button newGameButton = CreateButton(startMenuPanel.transform, "NewGameButton", "처음부터 시작", new Vector2(-145f, -20f), StartFreshGame);
+        Button newGameButton = CreateButton(startMenuPanel.transform, "NewGameButton", "새 게임 (저장 삭제)", new Vector2(-145f, -20f), StartFreshGame);
         RectTransform newRect = newGameButton.GetComponent<RectTransform>();
         newRect.sizeDelta = new Vector2(270f, 64f);
+        Image newImage = newGameButton.GetComponent<Image>();
+        if (newImage != null)
+            newImage.color = new Color(0.24f, 0.36f, 0.30f, 0.96f);
 
-        continueButton = CreateButton(startMenuPanel.transform, "ContinueGameButton", "저장된 시점부터", new Vector2(145f, -20f), ContinueSavedGame);
+        continueButton = CreateButton(startMenuPanel.transform, "ContinueGameButton", "이어하기", new Vector2(145f, -20f), ContinueSavedGame);
         RectTransform continueRect = continueButton.GetComponent<RectTransform>();
         continueRect.sizeDelta = new Vector2(270f, 64f);
+
+        startMenuSaveStatusText = CreateText(startMenuPanel.transform, "StartSaveStatus", "", 20, TextAnchor.MiddleCenter, new Color(0.80f, 0.86f, 0.74f));
+        SetRect(startMenuSaveStatusText.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-520f, -78f), new Vector2(520f, -52f));
 
         Text hint = CreateText(startMenuPanel.transform, "StartHint", "WASD 이동 / Shift 달리기 / E 상호작용 / Tab 아카이브", 20, TextAnchor.MiddleCenter, new Color(0.62f, 0.70f, 0.76f));
         SetRect(hint.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-520f, -130f), new Vector2(520f, -80f));
@@ -398,6 +405,14 @@ public class UIManager3D : MonoBehaviour
         if (continueImage != null)
             continueImage.color = hasSave ? new Color(0.16f, 0.21f, 0.29f, 0.96f) : new Color(0.08f, 0.10f, 0.13f, 0.82f);
 
+        if (startMenuSaveStatusText != null)
+        {
+            startMenuSaveStatusText.text = hasSave
+                ? "이전 저장 데이터가 있습니다. '새 게임'을 누르면 즉시 삭제됩니다."
+                : "저장된 데이터 없음 — 새 게임으로 시작하세요.";
+            startMenuSaveStatusText.color = hasSave ? new Color(0.96f, 0.78f, 0.45f) : new Color(0.62f, 0.72f, 0.78f);
+        }
+
         startMenuPanel.SetActive(true);
         Time.timeScale = 0f;
         UnlockCursor();
@@ -414,11 +429,14 @@ public class UIManager3D : MonoBehaviour
 
     private void StartFreshGame()
     {
+        bool hadSave = MemoryManager3D.HasSaveGame();
         if (MemoryManager3D.Instance != null)
             MemoryManager3D.Instance.StartNewGame();
 
         HideStartMenu();
-        ShowToast("새 탐사를 시작합니다.");
+        ShowToast(hadSave
+            ? "이전 저장을 삭제하고 새 탐사를 시작합니다."
+            : "새 탐사를 시작합니다.");
     }
 
     private void ContinueSavedGame()

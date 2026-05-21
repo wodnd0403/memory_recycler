@@ -11,6 +11,8 @@ public class ArchiveTerminal3D : MonoBehaviour
     private void Start()
     {
         GetComponent<Collider>().isTrigger = true;
+        // 씬에 직렬화된 값이 옛 임계값(예: 5)을 가지고 있어도, 시연 임계값(상수)을 항상 정답으로 사용.
+        requiredDecisions = UIManager3D.RequiredDecisionsForEnding;
     }
 
     private void Update()

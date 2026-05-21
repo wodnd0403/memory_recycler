@@ -1484,7 +1484,7 @@ public static class MemoryRecycler3DSceneBuilder
         CreateStoryTerminal(scene, root.transform, "Story Terminal_ArchiveGate", new Vector3(-7.6f, 1.15f, ArchiveCenterZ - 5.8f), new Vector3(0f, 18f, 0f),
             "아카이브 관문 릴레이",
             "중앙 아카이브는 단순 저장소가 아닙니다. 회수원이 내린 선택을 바탕으로 도시의 다음 상태를 계산하는 판단 장치입니다.",
-            "기억 5개 이상을 복원하고 처리해야 최종 접속이 열립니다.",
+            "기억 3개 이상을 복원하고 처리해야 최종 접속이 열립니다.",
             panelMat, glowMat);
 
         GameObject terminal = FindRoot(scene, "Central Archive Terminal");
@@ -1493,7 +1493,7 @@ public static class MemoryRecycler3DSceneBuilder
             ArchiveTerminal3D archive = terminal.GetComponent<ArchiveTerminal3D>();
             if (archive == null)
                 archive = terminal.AddComponent<ArchiveTerminal3D>();
-            archive.requiredDecisions = 5;
+            archive.requiredDecisions = UIManager3D.RequiredDecisionsForEnding;
             EditorUtility.SetDirty(terminal);
         }
 
@@ -2610,7 +2610,7 @@ public static class MemoryRecycler3DSceneBuilder
         terminal.transform.localScale = new Vector3(3.4f, 7.8f, 1.6f);
         terminal.GetComponent<Renderer>().sharedMaterial = terminalMat;
         ArchiveTerminal3D archive = terminal.AddComponent<ArchiveTerminal3D>();
-        archive.requiredDecisions = 5;
+        archive.requiredDecisions = UIManager3D.RequiredDecisionsForEnding;
 
         GameObject frame = GameObject.CreatePrimitive(PrimitiveType.Cube);
         frame.name = "Terminal Frame";

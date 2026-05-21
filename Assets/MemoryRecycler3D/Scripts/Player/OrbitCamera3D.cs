@@ -12,7 +12,10 @@ public class OrbitCamera3D : MonoBehaviour
     public float lookDownHeight = 1.05f;
     public float followSmooth = 12f;
     public float targetFollowSmooth = 18f;
+    public float verticalFollowSmooth = 4.2f;
     public float jumpVerticalFollowSmooth = 7.5f;
+    public float verticalDeadZone = 0.72f;
+    public float verticalSnapDistance = 3.0f;
     public float minCameraHeightAboveTarget = 0.8f;
     public float absoluteMinCameraY = 0.55f;
 
@@ -55,12 +58,9 @@ public class OrbitCamera3D : MonoBehaviour
         }
 
         Quaternion rotation = Quaternion.Euler(pitch, yaw, 0f);
-        // target.position에서 카메라까지의 광선을 기준으로 충돌 체크하기 위해 LookAt 기준점을 미리 계산한다.
-        float lookUpAmount = Mathf.InverseLerp(maxPitch, minPitch, pitch);
-        float lookHeight = Mathf.Lerp(lookDownHeight, lookUpHeight, lookUpAmount);
-        lookHeight = Mathf.Max(lookHeight, baseLookHeight);
-        float pivotLift = Mathf.Min(lookHeight * 0.5f, 1.6f);
-        Vector3 targetPivot = target.position + Vector3.up * pivotLift;
+        // 상체 높이의 고정 기준점을 중심으로 돌게 해서 벽 근처에서도 시점 높이가 튀지 않게 한다.
+        float aimHeight = Mathf.Max(0.1f, baseLookHeight);
+        Vector3 targetPivot = target.position + Vector3.up * aimHeight;
         if (!hasSmoothedPivot)
         {
             smoothedPivot = targetPivot;
@@ -70,7 +70,7 @@ public class OrbitCamera3D : MonoBehaviour
         {
             smoothedPivot.x = Mathf.Lerp(smoothedPivot.x, targetPivot.x, Damp(targetFollowSmooth));
             smoothedPivot.z = Mathf.Lerp(smoothedPivot.z, targetPivot.z, Damp(targetFollowSmooth));
-            smoothedPivot.y = Mathf.Lerp(smoothedPivot.y, targetPivot.y, Damp(jumpVerticalFollowSmooth));
+            smoothedPivot.y = SmoothVerticalPivot(smoothedPivot.y, targetPivot.y);
         }
 
         Vector3 pivot = smoothedPivot;
@@ -96,7 +96,7 @@ public class OrbitCamera3D : MonoBehaviour
             Damp(targetRatio < currentDistanceRatio ? 30f : collisionRecoverSmooth));
 
         Vector3 desiredPosition = pivot + direction * currentDistanceRatio;
-        float smoothedTargetY = pivot.y - pivotLift;
+        float smoothedTargetY = pivot.y - aimHeight;
         float minCameraY = Mathf.Max(absoluteMinCameraY, smoothedTargetY + minCameraHeightAboveTarget);
         desiredPosition.y = Mathf.Max(desiredPosition.y, minCameraY);
 
@@ -104,7 +104,19 @@ public class OrbitCamera3D : MonoBehaviour
         Vector3 clampedPosition = transform.position;
         clampedPosition.y = Mathf.Max(clampedPosition.y, minCameraY);
         transform.position = clampedPosition;
-        transform.LookAt(pivot + Vector3.up * Mathf.Max(0.15f, lookHeight - pivotLift));
+        transform.LookAt(pivot);
+    }
+
+    private float SmoothVerticalPivot(float currentY, float targetY)
+    {
+        float delta = targetY - currentY;
+        float deadZone = Mathf.Max(0f, verticalDeadZone);
+        if (Mathf.Abs(delta) <= deadZone)
+            return currentY;
+
+        float goalY = targetY - Mathf.Sign(delta) * deadZone;
+        float smooth = Mathf.Abs(delta) >= verticalSnapDistance ? jumpVerticalFollowSmooth : verticalFollowSmooth;
+        return Mathf.Lerp(currentY, goalY, Damp(smooth));
     }
 
     private bool TryGetNearestCameraHit(Vector3 origin, Vector3 direction, float distance, out float hitDistance)

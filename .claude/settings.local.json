@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\sdjsd\\\\Desktop\\\\OTT-Project\\\\memory_recycler\" -Recurse -Directory)",
+      "Bash(Select-Object FullName)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\sdjsd\\\\Desktop\\\\OTT-Project\\\\memory_recycler\" -Recurse -Include \"*.cs\", \"*.scene\", \"*.asset\")",
+      "Bash(Select-Object -First 20)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\sdjsd\\\\Desktop\\\\OTT-Project\\\\memory_recycler\" -Recurse -File | Where-Object { $_.Extension -in @\\('.cs', '.scene', '.asset'\\) } | Select-Object -First 30 | ForEach-Object { $_.FullName })"
+    ]
+  }
+}
