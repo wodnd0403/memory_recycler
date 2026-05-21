@@ -589,11 +589,18 @@ public class UIManager3D : MonoBehaviour
         if (currentRecord == null || currentRecord.memory == null)
             return;
 
-        if (currentRecord.memory.sentencePieces == null || currentRecord.memory.sentencePieces.Length == 0)
+        // 퍼즐 데이터가 비어 있으면 발표 중 의미 없는 자동 통과가 되므로 차단한다.
+        // 정상 자산은 sentencePieces/correctOrder 모두 채워져 있어야 한다.
+        string[] pieces = currentRecord.memory.sentencePieces;
+        string[] order = currentRecord.memory.correctOrder;
+        bool puzzleMissing =
+            pieces == null || pieces.Length == 0 ||
+            order == null || order.Length == 0 ||
+            pieces.Length != order.Length;
+        if (puzzleMissing)
         {
-            currentRecord.restored = true;
-            MemoryManager3D.Instance.SaveGame();
-            ShowMemoryEcho(currentRecord);
+            Debug.LogWarning("[MR3D] 퍼즐 데이터 누락/불일치 - 자동 복원을 차단합니다: " + currentRecord.memory.id, currentRecord.memory);
+            ShowToast("이 기억은 퍼즐 데이터가 누락되어 복원할 수 없습니다.");
             return;
         }
 

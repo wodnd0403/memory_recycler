@@ -72,8 +72,20 @@ public class MemoryManager3D : MonoBehaviour
 
     public void RegisterMemoryObject(MemoryObject3D memoryObject)
     {
-        if (memoryObject == null || memoryObject.memoryData == null || string.IsNullOrEmpty(memoryObject.memoryData.id))
+        if (memoryObject == null)
             return;
+
+        // 발표 중 데이터 누락으로 조용히 회수 불가가 되는 사고를 막기 위한 가드 경고.
+        if (memoryObject.memoryData == null)
+        {
+            Debug.LogWarning("[MR3D] MemoryObject3D에 MemoryData3D가 비어 있어 등록 불가: " + memoryObject.name, memoryObject);
+            return;
+        }
+        if (string.IsNullOrEmpty(memoryObject.memoryData.id))
+        {
+            Debug.LogWarning("[MR3D] MemoryData3D id가 비어 저장/복원에서 누락됩니다: " + memoryObject.memoryData.name, memoryObject);
+            return;
+        }
 
         string id = memoryObject.memoryData.id;
         knownMemories[id] = memoryObject.memoryData;
@@ -171,7 +183,9 @@ public class MemoryManager3D : MonoBehaviour
 
     public int CountKnownMemories()
     {
-        return Mathf.Max(knownMemories.Count, 8);
+        // HUD가 회수/처리 임계값과 일관되도록, 최소 표시 분모를 엔딩 임계값으로 맞춘다.
+        // 씬에 등록된 기억이 임계값보다 적으면 임계값으로, 많으면 실제 개수로 표시.
+        return Mathf.Max(knownMemories.Count, UIManager3D.RequiredDecisionsForEnding);
     }
 
     public void SaveGame()
