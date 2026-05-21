@@ -222,6 +222,36 @@ public class UIManager3D : MonoBehaviour
         UnlockCursor();
     }
 
+    // 회수된 기억 중 가장 빠른 미처리 항목을 카드로 다시 열어준다.
+    // 퍼즐을 닫거나 카드를 닫은 뒤 다시 진행할 동선이 없는 문제를 해결.
+    public void OpenNextPendingMemoryCard()
+    {
+        if (MemoryManager3D.Instance == null)
+            return;
+
+        List<MemoryRecord3D> records = MemoryManager3D.Instance.collectedMemories;
+
+        // 우선순위: 1) 복원 안 된 기억, 2) 복원됐지만 미선택 기억
+        for (int i = 0; i < records.Count; i++)
+        {
+            if (records[i] != null && records[i].memory != null && !records[i].restored)
+            {
+                ShowMemoryCard(records[i]);
+                return;
+            }
+        }
+        for (int i = 0; i < records.Count; i++)
+        {
+            if (records[i] != null && records[i].memory != null && records[i].decision == MemoryDecision3D.Unchosen)
+            {
+                ShowMemoryCard(records[i]);
+                return;
+            }
+        }
+
+        ShowToast("처리 대기 중인 기억이 없습니다.");
+    }
+
     public void ShowArchiveLocked(int decided, int required)
     {
         CloseAllMajorPanels();
@@ -541,6 +571,7 @@ public class UIManager3D : MonoBehaviour
         archivePanel = CreatePanel("ArchivePanel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(980f, 720f), Vector2.zero, new Color(0.04f, 0.04f, 0.055f, 0.96f));
         archiveText = CreateText(archivePanel.transform, "ArchiveText", "", 22, TextAnchor.UpperLeft, Color.white);
         SetRect(archiveText.rectTransform, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), new Vector2(44f, 92f), new Vector2(-44f, -42f));
+        CreateButton(archivePanel.transform, "ReopenMemoryButton", "다음 처리할 기억 열기", new Vector2(0f, -260f), OpenNextPendingMemoryCard);
         CreateButton(archivePanel.transform, "ClearSaveButton", "저장 초기화", new Vector2(-150f, -325f), () => MemoryManager3D.Instance.ClearSave());
         CreateButton(archivePanel.transform, "CloseArchiveButton", "닫기", new Vector2(150f, -325f), CloseAllAndLock);
         archivePanel.SetActive(false);
@@ -580,7 +611,10 @@ public class UIManager3D : MonoBehaviour
         SetRect(endingTitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(40f, -105f), new Vector2(-40f, -40f));
         endingBody = CreateText(endingPanel.transform, "EndingBody", "", 24, TextAnchor.UpperLeft, new Color(0.9f, 0.92f, 0.95f));
         SetRect(endingBody.rectTransform, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), new Vector2(44f, 115f), new Vector2(-44f, -125f));
-        CreateButton(endingPanel.transform, "CloseEndingButton", "닫기", new Vector2(0f, -260f), CloseAllAndLock);
+        // 엔딩 후 흐름 정리: 타이틀로 / 새 게임 / 종료. 닫기 버튼은 발표 중 실수로 게임이 무한 지속되는 상황을 만들어 제거.
+        CreateButton(endingPanel.transform, "EndingToTitleButton", "타이틀로", new Vector2(-260f, -240f), ReturnToTitleFromEnding);
+        CreateButton(endingPanel.transform, "EndingNewGameButton", "새 게임", new Vector2(0f, -240f), StartNewGameFromEnding);
+        CreateButton(endingPanel.transform, "EndingQuitButton", "종료", new Vector2(260f, -240f), QuitFromEnding);
         endingPanel.SetActive(false);
     }
 
@@ -760,6 +794,34 @@ public class UIManager3D : MonoBehaviour
     {
         CloseAllMajorPanels();
         LockCursor();
+    }
+
+    // 엔딩 후 타이틀(시작 메뉴)로 복귀. 저장은 유지하므로 이어하기 가능.
+    private void ReturnToTitleFromEnding()
+    {
+        CloseAllMajorPanels();
+        ShowStartMenu();
+    }
+
+    // 엔딩에서 즉시 새 게임 시작. 저장 데이터 삭제.
+    private void StartNewGameFromEnding()
+    {
+        if (MemoryManager3D.Instance != null)
+            MemoryManager3D.Instance.StartNewGame();
+        CloseAllMajorPanels();
+        Time.timeScale = 1f;
+        LockCursor();
+        ShowToast("새 탐사를 시작합니다.");
+    }
+
+    // 빌드에서는 Application.Quit, 에디터에서는 안내 토스트만 표시.
+    private void QuitFromEnding()
+    {
+#if UNITY_EDITOR
+        ShowToast("에디터에서는 종료할 수 없습니다. Play 버튼을 다시 누르세요.");
+#else
+        Application.Quit();
+#endif
     }
 
     private void UnlockCursor()

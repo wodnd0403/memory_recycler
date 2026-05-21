@@ -45,6 +45,15 @@ public static class MR_CollisionOverlapPass
         "EventSystem",
     };
 
+    private static readonly string[] DecorativeCollisionNameFragments =
+    {
+        "Cinematic ",
+        "Ref Hanging Cable",
+        "Ref Facade Pipe",
+        "Tripo Wall Pipes",
+        "Tripo Recycling Sign"
+    };
+
     [MenuItem("Tools/Memory Recycler 3D/Advanced/Apply Collision & Overlap Pass Only")]
     public static void ApplyPass()
     {
@@ -117,6 +126,8 @@ public static class MR_CollisionOverlapPass
 
             GameObject go = r.gameObject;
             if (IsProtected(go))
+                continue;
+            if (IsDecorativeCollisionOnly(go))
                 continue;
 
             // 부모/자신에 트리거 콜라이더가 있으면 절대 건드리지 않는다 — 상호작용용.
@@ -213,6 +224,22 @@ public static class MR_CollisionOverlapPass
         return false;
     }
 
+    private static bool IsDecorativeCollisionOnly(GameObject go)
+    {
+        Transform t = go.transform;
+        while (t != null)
+        {
+            string name = t.name;
+            for (int i = 0; i < DecorativeCollisionNameFragments.Length; i++)
+            {
+                if (name.Contains(DecorativeCollisionNameFragments[i]))
+                    return true;
+            }
+            t = t.parent;
+        }
+        return false;
+    }
+
     private static void AssignLayerIfDefault(GameObject go, int envLayer, ref int counter)
     {
         if (go.layer == 0)
@@ -275,6 +302,8 @@ public static class MR_CollisionOverlapPass
                 if (c == null || c.isTrigger)
                     continue;
                 if (IsProtected(c.gameObject))
+                    continue;
+                if (IsDecorativeCollisionOnly(c.gameObject))
                     continue;
                 if (c.gameObject.layer != envLayer)
                     continue;

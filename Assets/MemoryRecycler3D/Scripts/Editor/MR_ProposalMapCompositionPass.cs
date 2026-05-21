@@ -44,6 +44,7 @@ public static class MR_ProposalMapCompositionPass
         BuildDistrictLabels(root.transform, mats);
         BuildMemorySetPieces(root.transform, mats);
         BuildTraversalProps(root.transform, mats);
+        BuildWallAttachedUtilities(root.transform, mats);
         PlaceExistingAssetAnchors(scene, root.transform);
 
         EditorSceneManager.MarkSceneDirty(scene);
@@ -221,8 +222,6 @@ public static class MR_ProposalMapCompositionPass
         PlacePrefab(scene, root, "Proposal Hospital Concrete Ruin", "Assets/MemoryRecycler3D/ExternalAssets/Tripo/Buildings/RuinedConcreteBuilding/RuinedConcreteBuilding.fbx", new Vector3(24f, 0f, -9f), new Vector3(0f, -28f, 0f), 3.6f);
         PlacePrefab(scene, root, "Proposal Admin Tower", "Assets/MemoryRecycler3D/ExternalAssets/Tripo/Buildings/PostApocalypticTower/PostApocalypticTower.fbx", new Vector3(25f, 0f, 10f), new Vector3(0f, -36f, 0f), 3.4f);
         PlacePrefab(scene, root, "Proposal Outer City Block", "Assets/MemoryRecycler3D/ExternalAssets/Tripo/Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(0f, 0f, 33.5f), new Vector3(0f, 180f, 0f), 4.2f);
-        PlacePrefab(scene, root, "Proposal Rubble Residential", "Assets/MemoryRecycler3D/ExternalAssets/Tripo/Environment/ConcreteRubble/ConcreteRubble.fbx", new Vector3(-10.4f, 0f, -11.4f), new Vector3(0f, -20f, 0f), 1.6f);
-        PlacePrefab(scene, root, "Proposal Recycling Sign Gate", "Assets/MemoryRecycler3D/ExternalAssets/Tripo/Props/RecyclingSigns/RecyclingSigns.fbx", new Vector3(0f, 0f, -14.8f), new Vector3(0f, 0f, 0f), 1.2f);
     }
 
     private static void PlacePrefab(Scene scene, Transform parent, string name, string path, Vector3 position, Vector3 euler, float scale)
@@ -259,6 +258,27 @@ public static class MR_ProposalMapCompositionPass
         CreateGroundedBox(parent, prefix + " Low", basePosition + new Vector3(-0.55f, 0f, -0.15f), euler, new Vector3(1.25f, 0.32f, 0.9f), mats.debris, true);
         CreateGroundedBox(parent, prefix + " Mid", basePosition + new Vector3(0.32f, 0f, 0.18f), euler + new Vector3(0f, 13f, 0f), new Vector3(1.0f, 0.58f, 0.72f), mats.boards, true);
         CreateGroundedBox(parent, prefix + " High", basePosition + new Vector3(0.92f, 0f, 0.05f), euler + new Vector3(0f, -9f, 0f), new Vector3(0.74f, 0.82f, 0.64f), mats.darkPanel, true);
+    }
+
+    private static void BuildWallAttachedUtilities(Transform root, Materials mats)
+    {
+        Transform group = NewGroup(root, "Intentional Wall Attached Utilities");
+        CreateWallPipeSet(group, "Residential Wall Pipe", new Vector3(-22.2f, 1.55f, -8.0f), 24f, -1f, mats);
+        CreateWallPipeSet(group, "Hospital Wall Pipe", new Vector3(22.0f, 1.55f, -8.4f), -28f, 1f, mats);
+        CreateWallPipeSet(group, "Admin Wall Pipe", new Vector3(22.9f, 1.65f, 8.8f), -36f, 1f, mats);
+    }
+
+    private static void CreateWallPipeSet(Transform parent, string prefix, Vector3 position, float yaw, float side, Materials mats)
+    {
+        Quaternion rotation = Quaternion.Euler(0f, yaw, 0f);
+        Vector3 along = rotation * Vector3.right;
+        Vector3 outFromWall = rotation * Vector3.forward * side;
+        Vector3 basePosition = position + outFromWall * 0.18f;
+
+        CreateBox(parent, prefix + " Horizontal A", basePosition + along * 0.45f, new Vector3(0f, yaw, 0f), new Vector3(1.9f, 0.07f, 0.07f), mats.trim);
+        CreateBox(parent, prefix + " Horizontal B", basePosition + Vector3.up * 0.42f - along * 0.10f, new Vector3(0f, yaw, 0f), new Vector3(1.35f, 0.06f, 0.06f), mats.trim);
+        CreateBox(parent, prefix + " Vertical Drop", basePosition + Vector3.down * 0.42f - along * 0.52f, new Vector3(0f, yaw, 0f), new Vector3(0.08f, 0.95f, 0.08f), mats.trim);
+        CreateBox(parent, prefix + " Junction Box", basePosition + Vector3.down * 0.88f - along * 0.52f, new Vector3(0f, yaw, 0f), new Vector3(0.34f, 0.28f, 0.18f), mats.darkPanel);
     }
 
     private static GameObject CreateGroundedBox(Transform parent, string name, Vector3 basePosition, Vector3 euler, Vector3 scale, Material material, bool keepCollider)
@@ -339,16 +359,29 @@ public static class MR_ProposalMapCompositionPass
         string[] prefixes =
         {
             "Cinematic Foreground",
-            "Cinematic Background Block",
+            "Cinematic Background",
             "Cinematic Perimeter",
-            "Cinematic Outer Skyline",
+            "Cinematic Outer",
             "Cinematic Side Alley",
             "Cinematic Alley",
+            "Cinematic Ring Road",
+            "Cinematic Radial Road",
+            "Cinematic Ring Roof Unit",
+            "Cinematic Road Patch",
+            "Cinematic Street Cross Shadow",
+            "Cinematic Distant Gate",
+            "Cinematic Collapsed Lintel",
             "Cinematic Far Archive Signal",
             "Cinematic Rooftop Pipe Cluster",
             "Cinematic Sagging Cable",
             "Cinematic Loose Cable Drop",
-            "Cinematic Cable Clamp"
+            "Cinematic Cable Clamp",
+            "Ref Hanging Cable",
+            "Ref Facade Pipe",
+            "Tripo Wall Pipes",
+            "Tripo Recycling Sign",
+            "Proposal Rubble Residential",
+            "Proposal Recycling Sign Gate"
         };
 
         List<GameObject> targets = new List<GameObject>();
@@ -361,6 +394,8 @@ public static class MR_ProposalMapCompositionPass
             if (targets[i] != null)
                 Object.DestroyImmediate(targets[i]);
         }
+
+        StripDecorativeColliders(scene);
     }
 
     private static void CollectObjectsWithPrefixes(Transform root, string[] prefixes, List<GameObject> targets)
@@ -376,6 +411,48 @@ public static class MR_ProposalMapCompositionPass
 
         foreach (Transform child in root)
             CollectObjectsWithPrefixes(child, prefixes, targets);
+    }
+
+    private static void StripDecorativeColliders(Scene scene)
+    {
+        string[] fragments =
+        {
+            "Cinematic ",
+            "Ref Hanging Cable",
+            "Ref Facade Pipe",
+            "Tripo Wall Pipes",
+            "Tripo Recycling Sign"
+        };
+
+        GameObject[] roots = scene.GetRootGameObjects();
+        for (int i = 0; i < roots.Length; i++)
+            StripDecorativeCollidersRecursive(roots[i].transform, fragments);
+    }
+
+    private static void StripDecorativeCollidersRecursive(Transform root, string[] fragments)
+    {
+        bool match = false;
+        for (int i = 0; i < fragments.Length; i++)
+        {
+            if (root.name.Contains(fragments[i]))
+            {
+                match = true;
+                break;
+            }
+        }
+
+        if (match)
+        {
+            Collider[] colliders = root.GetComponents<Collider>();
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                if (colliders[i] != null && !colliders[i].isTrigger)
+                    Object.DestroyImmediate(colliders[i]);
+            }
+        }
+
+        foreach (Transform child in root)
+            StripDecorativeCollidersRecursive(child, fragments);
     }
 
     private static int ResolveEnvironmentLayer()
