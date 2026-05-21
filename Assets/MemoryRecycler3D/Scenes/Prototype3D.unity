@@ -1314,7 +1314,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -6081,7 +6081,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -6121,7 +6121,7 @@ Material:
     RenderType: Opaque
   disabledShaderPasses:
   - MOTIONVECTORS
-  m_LockedProperties:
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -6695,7 +6695,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 91f662758111e44438ef0f44f9b24e5b, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ThirdPersonPlayer3D
   walkSpeed: 4
   runSpeed: 7
@@ -9527,7 +9527,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 2c63c2c22d4c9304d8294dbca0c46d56, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: c5cdf6d240e900e4f88d462218c85852, type: 2}
     - target: {fileID: 919132149155446097, guid: 2c63c2c22d4c9304d8294dbca0c46d56, type: 3}
       propertyPath: m_Name
@@ -9912,7 +9912,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 63f92a310f37bcc4aadff3d932ba069f, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MemoryBillboard3D
 --- !u!1 &106341649
 GameObject:
@@ -11416,7 +11416,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -15943,7 +15943,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -16675,7 +16675,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1c18715b6d9cc814e91dc3f59e67ac49, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldToneController3D
   sunLight: {fileID: 512352084}
   preservedFog: {r: 0.35, g: 0.42, b: 0.55, a: 1}
@@ -17764,7 +17764,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 63f92a310f37bcc4aadff3d932ba069f, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MemoryBillboard3D
 --- !u!1 &217799653
 GameObject:
@@ -22121,7 +22121,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 3fb427c59f023824dbbdf3a8c0e7bfb9, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: 3abd4aa4b69692446a929461fd8db102, type: 2}
     - target: {fileID: 919132149155446097, guid: 3fb427c59f023824dbbdf3a8c0e7bfb9, type: 3}
       propertyPath: m_Name
@@ -22491,7 +22491,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7446057451aefee409c725569f095284, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CityLoreTerminal3D
   terminalTitle: "\uBC29\uC1A1\uAD6D \uC911\uACC4 \uB2E8\uB9D0"
   terminalBody: "\uB9C8\uC9C0\uB9C9 \uC7AC\uB09C \uBC29\uC1A1\uC740 \uC1A1\uCD9C\uB418\uC9C0
@@ -30730,7 +30730,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 81158d1587b71d64597118b1d1e448d5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MemoryObject3D
   memoryData: {fileID: 11400000, guid: 41c147b6d2fed734a9f4a4ce89e4c7cc, type: 2}
   rotateSpeed: 35
@@ -34758,7 +34758,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: e5cd7c88d25812b4fb94ed840e163fc3, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: c18b1d2103d3b9343827c923c4ceb636, type: 2}
     - target: {fileID: 919132149155446097, guid: e5cd7c88d25812b4fb94ed840e163fc3, type: 3}
       propertyPath: m_Name
@@ -37931,7 +37931,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 63f92a310f37bcc4aadff3d932ba069f, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MemoryBillboard3D
 --- !u!1 &463553593
 GameObject:
@@ -41718,7 +41718,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -42442,7 +42442,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -42688,7 +42688,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7446057451aefee409c725569f095284, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CityLoreTerminal3D
   terminalTitle: "\uBCD1\uC6D0 \uAE30\uB85D \uB2E8\uB9D0"
   terminalBody: "\uCD08\uAE30 \uAE30\uC5B5 \uC0AD\uC81C \uAE30\uC220\uC740 \uCE58\uB8CC
@@ -43154,7 +43154,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -43821,7 +43821,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -45654,7 +45654,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 52847c3377689ca43ac8e139385bc92b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: 934c8b556ccd5fa47b1d787309d4a020, type: 2}
     - target: {fileID: 919132149155446097, guid: 52847c3377689ca43ac8e139385bc92b, type: 3}
       propertyPath: m_Name
@@ -45728,7 +45728,7 @@ Material:
     RenderType: Opaque
   disabledShaderPasses:
   - MOTIONVECTORS
-  m_LockedProperties:
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -48533,7 +48533,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fd5c76a2b8599d947a5282f81bd450a8, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ArchiveTerminal3D
   requiredDecisions: 5
 --- !u!23 &585920198
@@ -49514,7 +49514,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 81158d1587b71d64597118b1d1e448d5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MemoryObject3D
   memoryData: {fileID: 11400000, guid: 682b8bedf86266748a666810b6df3621, type: 2}
   rotateSpeed: 35
@@ -50866,7 +50866,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 52847c3377689ca43ac8e139385bc92b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: 934c8b556ccd5fa47b1d787309d4a020, type: 2}
     - target: {fileID: 919132149155446097, guid: 52847c3377689ca43ac8e139385bc92b, type: 3}
       propertyPath: m_Name
@@ -52779,7 +52779,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: e5cd7c88d25812b4fb94ed840e163fc3, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: c18b1d2103d3b9343827c923c4ceb636, type: 2}
     - target: {fileID: 919132149155446097, guid: e5cd7c88d25812b4fb94ed840e163fc3, type: 3}
       propertyPath: m_Name
@@ -61141,7 +61141,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 8d40d1cddb9c17248bb8fe2f2eaf9e90, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: 99bfb0f1d353d2d459c68fb2920ea590, type: 2}
     - target: {fileID: 919132149155446097, guid: 8d40d1cddb9c17248bb8fe2f2eaf9e90, type: 3}
       propertyPath: m_Name
@@ -62806,7 +62806,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 64e192cbe50169241b7b0adedca5864b, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DismissOnEnter3D
   target: {fileID: 747658710}
 --- !u!102 &747658712
@@ -67124,7 +67124,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 0db5749fe95baaf429fb98ce5927bdc3, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: 5e3aa7284c6102f4f9cb0de544464270, type: 2}
     - target: {fileID: 919132149155446097, guid: 0db5749fe95baaf429fb98ce5927bdc3, type: 3}
       propertyPath: m_Name
@@ -67689,7 +67689,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -70512,7 +70512,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -74440,7 +74440,7 @@ Material:
     RenderType: Opaque
   disabledShaderPasses:
   - MOTIONVECTORS
-  m_LockedProperties:
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -79857,7 +79857,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 81158d1587b71d64597118b1d1e448d5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MemoryObject3D
   memoryData: {fileID: 11400000, guid: f395e7abfc908964f966a1b290ff3250, type: 2}
   rotateSpeed: 35
@@ -81170,7 +81170,7 @@ Material:
     RenderType: Opaque
   disabledShaderPasses:
   - MOTIONVECTORS
-  m_LockedProperties:
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -83717,7 +83717,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: c272ad18651a413419115ab43bc236c6, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: 38c59f42cb850ae4bb59b00235db3cb8, type: 2}
     - target: {fileID: 919132149155446097, guid: c272ad18651a413419115ab43bc236c6, type: 3}
       propertyPath: m_Name
@@ -84679,7 +84679,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 0657aab3cb6f4804ab18d925e8ff5ac2, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: 805d8fc4388c36b4d818676e26d40386, type: 2}
     - target: {fileID: 919132149155446097, guid: 0657aab3cb6f4804ab18d925e8ff5ac2, type: 3}
       propertyPath: m_Name
@@ -85368,7 +85368,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 81158d1587b71d64597118b1d1e448d5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MemoryObject3D
   memoryData: {fileID: 11400000, guid: 9107b46e3d68274439fc3dbd32040eeb, type: 2}
   rotateSpeed: 35
@@ -88864,7 +88864,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -91209,7 +91209,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7446057451aefee409c725569f095284, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CityLoreTerminal3D
   terminalTitle: "\uC544\uCE74\uC774\uBE0C \uAD00\uBB38 \uB9B4\uB808\uC774"
   terminalBody: "\uC911\uC559 \uC544\uCE74\uC774\uBE0C\uB294 \uB2E8\uC21C \uC800\uC7A5\uC18C\uAC00
@@ -92320,7 +92320,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 3fb427c59f023824dbbdf3a8c0e7bfb9, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: 3abd4aa4b69692446a929461fd8db102, type: 2}
     - target: {fileID: 919132149155446097, guid: 3fb427c59f023824dbbdf3a8c0e7bfb9, type: 3}
       propertyPath: m_Name
@@ -94921,7 +94921,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 7e989859cad384f4bb0837d5cec490c2, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: 34b1a1d2e1312e94f8342e842edaf71b, type: 2}
     - target: {fileID: 919132149155446097, guid: 7e989859cad384f4bb0837d5cec490c2, type: 3}
       propertyPath: m_Name
@@ -95644,7 +95644,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -96156,7 +96156,7 @@ Material:
     RenderType: Opaque
   disabledShaderPasses:
   - MOTIONVECTORS
-  m_LockedProperties:
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -97163,7 +97163,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 81158d1587b71d64597118b1d1e448d5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MemoryObject3D
   memoryData: {fileID: 11400000, guid: 9e2304d161cec184fb8c8e51bfdce38e, type: 2}
   rotateSpeed: 35
@@ -102629,7 +102629,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 3fb427c59f023824dbbdf3a8c0e7bfb9, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: 3abd4aa4b69692446a929461fd8db102, type: 2}
     - target: {fileID: 919132149155446097, guid: 3fb427c59f023824dbbdf3a8c0e7bfb9, type: 3}
       propertyPath: m_Name
@@ -104916,7 +104916,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -106746,7 +106746,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -106827,7 +106827,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 5cebf93ae1903cd4da2aa153c5d1dfa3, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: df44d1871cbd2a84b8a5ef91cb51fe96, type: 2}
     - target: {fileID: 919132149155446097, guid: 5cebf93ae1903cd4da2aa153c5d1dfa3, type: 3}
       propertyPath: m_Name
@@ -108865,7 +108865,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 3fb427c59f023824dbbdf3a8c0e7bfb9, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: 3abd4aa4b69692446a929461fd8db102, type: 2}
     - target: {fileID: 919132149155446097, guid: 3fb427c59f023824dbbdf3a8c0e7bfb9, type: 3}
       propertyPath: m_Name
@@ -116331,7 +116331,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 3fb427c59f023824dbbdf3a8c0e7bfb9, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: 3abd4aa4b69692446a929461fd8db102, type: 2}
     - target: {fileID: 919132149155446097, guid: 3fb427c59f023824dbbdf3a8c0e7bfb9, type: 3}
       propertyPath: m_Name
@@ -117548,7 +117548,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 0657aab3cb6f4804ab18d925e8ff5ac2, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: 805d8fc4388c36b4d818676e26d40386, type: 2}
     - target: {fileID: 919132149155446097, guid: 0657aab3cb6f4804ab18d925e8ff5ac2, type: 3}
       propertyPath: m_Name
@@ -121160,6 +121160,72 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1410234044}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1410338027
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1410338030}
+  - component: {fileID: 1410338029}
+  - component: {fileID: 1410338028}
+  m_Layer: 0
+  m_Name: Central Archive Music Zone
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1410338028
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1410338027}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c8c7b665f9ba004da5abf6c49e850f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CentralArchiveMusicZone
+--- !u!65 &1410338029
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1410338027}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 34, y: 10, z: 34}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!4 &1410338030
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1410338027}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 3, z: 8}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1411713272
 GameObject:
   m_ObjectHideFlags: 0
@@ -122100,7 +122166,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -124609,7 +124675,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -125230,7 +125296,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: a25f08610b6c87847a87a25130e0a99b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: d7824da8d704bac4b80b7e1e5cb7fafd, type: 2}
     - target: {fileID: 919132149155446097, guid: a25f08610b6c87847a87a25130e0a99b, type: 3}
       propertyPath: m_Name
@@ -130715,7 +130781,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 99f8f18facc2aa342952d9e442fd1ae7, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: ee072d8f250e74443a2b3cc083b0ec7d, type: 2}
     - target: {fileID: 919132149155446097, guid: 99f8f18facc2aa342952d9e442fd1ae7, type: 3}
       propertyPath: m_Name
@@ -133360,7 +133426,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 3fb427c59f023824dbbdf3a8c0e7bfb9, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: 3abd4aa4b69692446a929461fd8db102, type: 2}
     - target: {fileID: 919132149155446097, guid: 3fb427c59f023824dbbdf3a8c0e7bfb9, type: 3}
       propertyPath: m_Name
@@ -134584,7 +134650,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 63f92a310f37bcc4aadff3d932ba069f, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MemoryBillboard3D
 --- !u!1 &1597020385
 GameObject:
@@ -134960,6 +135026,8 @@ GameObject:
   - component: {fileID: 1604714201}
   - component: {fileID: 1604714200}
   - component: {fileID: 1604714199}
+  - component: {fileID: 1604714206}
+  - component: {fileID: 1604714205}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -134977,7 +135045,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 09fcae691beef904a87a3a9bf5fa7676, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UIManager3D
 --- !u!114 &1604714200
 MonoBehaviour:
@@ -134989,7 +135057,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d6149556444113441a5eb36a8a4633cd, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MemoryAudio3D
 --- !u!82 &1604714201
 AudioSource:
@@ -135003,10 +135071,10 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
-  m_PlayOnAwake: 1
-  m_Volume: 1
+  m_PlayOnAwake: 0
+  m_Volume: 0
   m_Pitch: 1
-  Loop: 0
+  Loop: 1
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
@@ -135098,7 +135166,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b4d5fe5e8b8f17d47856f3ea9ef49154, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MemoryManager3D
 --- !u!114 &1604714203
 MonoBehaviour:
@@ -135110,7 +135178,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e18ce28833e7295489eac87e621b1420, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameState3D
   preservedCount: 0
   deletedCount: 0
@@ -135131,6 +135199,122 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &1604714205
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1604714198}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 0
+  m_Pitch: 1
+  Loop: 1
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &1604714206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1604714198}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee4841b80b77be74e9e26ca5e0d35955, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MemoryRecyclerMusicManager
+  explorationLoop: {fileID: 8300000, guid: 057ddc606c007514abf7d80d27099c61, type: 3}
+  nightLoop: {fileID: 8300000, guid: 57756537fe3002e42a125d18d29c195d, type: 3}
+  archiveLoop: {fileID: 8300000, guid: 7e6056ab4b338e047bca2d0f4dcb5039, type: 3}
+  endingLoop: {fileID: 8300000, guid: 40e71cb0469cef346b51c69cbc274f9c, type: 3}
+  defaultVolume: 0.3
+  fadeDuration: 1.4
+  playOnStart: 1
 --- !u!1 &1605263055
 GameObject:
   m_ObjectHideFlags: 0
@@ -135777,7 +135961,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: e5cd7c88d25812b4fb94ed840e163fc3, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: c18b1d2103d3b9343827c923c4ceb636, type: 2}
     - target: {fileID: 919132149155446097, guid: e5cd7c88d25812b4fb94ed840e163fc3, type: 3}
       propertyPath: m_Name
@@ -136994,7 +137178,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -140569,7 +140753,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4523599276774581323, guid: 3b15bfeeed3970b478d4ef7cfd3213b7, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: 38c59f42cb850ae4bb59b00235db3cb8, type: 2}
     - target: {fileID: 4549111882529890269, guid: 3b15bfeeed3970b478d4ef7cfd3213b7, type: 3}
       propertyPath: m_Layer
@@ -140577,7 +140761,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: 3b15bfeeed3970b478d4ef7cfd3213b7, type: 3}
       propertyPath: m_Controller
-      value:
+      value: 
       objectReference: {fileID: 9100000, guid: b4937693313ad7244a1357a259c19d6c, type: 2}
     - target: {fileID: 5866666021909216657, guid: 3b15bfeeed3970b478d4ef7cfd3213b7, type: 3}
       propertyPath: m_ApplyRootMotion
@@ -140940,7 +141124,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -143028,7 +143212,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7446057451aefee409c725569f095284, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CityLoreTerminal3D
   terminalTitle: "\uD3D0\uAD50 \uCD9C\uC11D \uB2E8\uB9D0"
   terminalBody: "\uC878\uC5C5 \uC568\uBC94\uC5D0\uC11C \uC9C0\uC6CC\uC9C4 \uC774\uB984\uC740
@@ -148251,7 +148435,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -150846,7 +151030,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.Volume
   m_IsGlobal: 1
   priority: 32
@@ -151290,7 +151474,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
   m_UsePipelineSettings: 1
   m_AdditionalLightsShadowResolutionTier: 2
@@ -152177,7 +152361,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 81158d1587b71d64597118b1d1e448d5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MemoryObject3D
   memoryData: {fileID: 11400000, guid: 167edfc0ee90f3848a2975c4efec876e, type: 2}
   rotateSpeed: 35
@@ -163617,7 +163801,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 81158d1587b71d64597118b1d1e448d5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MemoryObject3D
   memoryData: {fileID: 11400000, guid: 3c8f0bb8e019e2946a189e839ff319d8, type: 2}
   rotateSpeed: 35
@@ -165507,7 +165691,7 @@ Material:
     RenderType: Opaque
   disabledShaderPasses:
   - MOTIONVECTORS
-  m_LockedProperties:
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -168425,7 +168609,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e2bdd82ee5d23d642a12332009426869, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MemoryCinematicCamera3D
   orbitCamera: {fileID: 1993041064}
   playerController: {fileID: 72352661}
@@ -168450,7 +168634,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalCameraData
   m_RenderShadows: 1
   m_RequiresDepthTextureOption: 2
@@ -168494,7 +168678,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a247b3bdbe9bad4c8da5e45b1b33ef0, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OrbitCamera3D
   target: {fileID: 72352660}
   offset: {x: 0, y: 2.95, z: -6.45}
@@ -169418,7 +169602,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 63f92a310f37bcc4aadff3d932ba069f, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MemoryBillboard3D
 --- !u!1 &2011705259
 GameObject:
@@ -171450,7 +171634,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 81158d1587b71d64597118b1d1e448d5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MemoryObject3D
   memoryData: {fileID: 11400000, guid: 33f74d930d6fd52478dc607c2bf0889d, type: 2}
   rotateSpeed: 35
@@ -171702,7 +171886,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: e5cd7c88d25812b4fb94ed840e163fc3, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: c18b1d2103d3b9343827c923c4ceb636, type: 2}
     - target: {fileID: 919132149155446097, guid: e5cd7c88d25812b4fb94ed840e163fc3, type: 3}
       propertyPath: m_Name
@@ -174386,7 +174570,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 138df9fcbe4623649b874f3de1ba1cd3, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
-      value:
+      value: 
       objectReference: {fileID: 2100000, guid: c83c800f1b0e3354e8821f354a4d336a, type: 2}
     - target: {fileID: 919132149155446097, guid: 138df9fcbe4623649b874f3de1ba1cd3, type: 3}
       propertyPath: m_Name
@@ -181541,3 +181725,4 @@ SceneRoots:
   - {fileID: 1082611837}
   - {fileID: 1057214554}
   - {fileID: 1061219581}
+  - {fileID: 1410338030}

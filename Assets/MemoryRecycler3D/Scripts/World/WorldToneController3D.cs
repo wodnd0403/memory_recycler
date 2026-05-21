@@ -46,6 +46,7 @@ public class WorldToneController3D : MonoBehaviour
     private bool cityDecorated;
 
     public float TimeOfDayNormalized => timeOfDayNormalized;
+    public bool IsNightTime => IsNightNormalized(timeOfDayNormalized);
 
     private void Awake()
     {
@@ -131,6 +132,14 @@ public class WorldToneController3D : MonoBehaviour
 
         if (enableNightSky)
             RefreshNightSky(night, memoryT);
+
+        if (MemoryRecyclerMusicManager.Instance != null)
+            MemoryRecyclerMusicManager.Instance.SetNightMode(IsNightTime);
+    }
+
+    private static bool IsNightNormalized(float normalizedTime)
+    {
+        return normalizedTime < 0.21f || normalizedTime >= 0.71f;
     }
 
     public string GetTimePeriodLabel()

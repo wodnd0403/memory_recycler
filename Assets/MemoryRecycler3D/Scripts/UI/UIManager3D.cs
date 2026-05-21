@@ -310,6 +310,8 @@ public class UIManager3D : MonoBehaviour
         CloseAllMajorPanels();
         if (MemoryAudio3D.Instance != null)
             MemoryAudio3D.Instance.PlayArchiveOpen();
+        if (MemoryRecyclerMusicManager.Instance != null)
+            MemoryRecyclerMusicManager.Instance.PlayEndingMusic();
 
         int preserved = GameState3D.Instance != null ? GameState3D.Instance.preservedCount : 0;
         int deleted = GameState3D.Instance != null ? GameState3D.Instance.deletedCount : 0;
@@ -799,6 +801,8 @@ public class UIManager3D : MonoBehaviour
     // 엔딩 후 타이틀(시작 메뉴)로 복귀. 저장은 유지하므로 이어하기 가능.
     private void ReturnToTitleFromEnding()
     {
+        if (MemoryRecyclerMusicManager.Instance != null)
+            MemoryRecyclerMusicManager.Instance.ReturnToGameplayMusic();
         CloseAllMajorPanels();
         ShowStartMenu();
     }
@@ -806,6 +810,8 @@ public class UIManager3D : MonoBehaviour
     // 엔딩에서 즉시 새 게임 시작. 저장 데이터 삭제.
     private void StartNewGameFromEnding()
     {
+        if (MemoryRecyclerMusicManager.Instance != null)
+            MemoryRecyclerMusicManager.Instance.ReturnToGameplayMusic();
         if (MemoryManager3D.Instance != null)
             MemoryManager3D.Instance.StartNewGame();
         CloseAllMajorPanels();
