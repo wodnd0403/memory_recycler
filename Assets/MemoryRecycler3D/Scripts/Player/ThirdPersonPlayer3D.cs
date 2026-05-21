@@ -45,7 +45,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     public float animatorParameterSmooth = 12f;
     public bool lockExternalVisualTransform = true;
     public bool autoGroundExternalVisual = true;
-    public float externalVisualGroundPadding = 0.02f;
+    public float externalVisualGroundPadding = 0.08f;
     public bool stabilizeExternalClipRootMotion = true;
     public Vector3 externalVisualLocalPosition = Vector3.zero;
     public Vector3 externalVisualLocalEuler = Vector3.zero;
@@ -119,6 +119,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     private Vector3 currentPlanarVelocity;
     private Transform externalHips;
     private Vector3 externalHipsDefaultLocalPosition;
+    private const float MinimumExternalVisualGroundPadding = 0.08f;
 
     public bool IsMoving { get; private set; }
     public bool IsRunning => isRunning && IsMoving;
@@ -166,6 +167,8 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     // 외부 휴머노이드 모델용 초기 설정. Animator/visualRoot 자동 탐색 + Root Motion 비활성화.
     private void ConfigureExternalHumanoid()
     {
+        externalVisualGroundPadding = Mathf.Max(externalVisualGroundPadding, MinimumExternalVisualGroundPadding);
+
         if (externalAnimator == null)
             externalAnimator = GetComponentInChildren<Animator>();
 

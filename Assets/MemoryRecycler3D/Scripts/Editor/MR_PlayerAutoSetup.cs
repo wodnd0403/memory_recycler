@@ -15,6 +15,7 @@ public static class MR_PlayerAutoSetup
     private const string ControllerPath = "Assets/MemoryRecycler3D/Animations/Player/MR_Player.controller";
     private const string ScenePath = "Assets/MemoryRecycler3D/Scenes/Prototype3D.unity";
     private const string MixamoVisualName = "MR_Player_Model";
+    private const string PlayerTextureMaterialPath = "Assets/MemoryRecycler3D/Materials/Tripo/PostApocalypticExplorer.mat";
 
     // 단독 메뉴는 디버깅용으로 유지. 일반 사용은 통합 메뉴(Apply Full Setup)를 권장.
     [MenuItem("Tools/Memory Recycler 3D/Advanced/Apply MR_Player Setup Only")]
@@ -129,6 +130,7 @@ public static class MR_PlayerAutoSetup
         mixamoVisual.localRotation = Quaternion.identity;
         mixamoVisual.localScale = Vector3.one;
         mixamoVisual.gameObject.SetActive(true);
+        ApplyPlayerTextureMaterial(mixamoVisual);
 
         // 기존 비주얼 비활성화
         Transform tripoVisual = FindDeepChild(player.transform, "Tripo Player Visual");
@@ -153,7 +155,7 @@ public static class MR_PlayerAutoSetup
             playerScript.animatorParameterSmooth = 12f;
             playerScript.lockExternalVisualTransform = true;
             playerScript.autoGroundExternalVisual = true;
-            playerScript.externalVisualGroundPadding = 0.02f;
+            playerScript.externalVisualGroundPadding = 0.08f;
             playerScript.stabilizeExternalClipRootMotion = true;
             playerScript.externalVisualLocalPosition = Vector3.zero;
             playerScript.externalVisualLocalEuler = Vector3.zero;
@@ -178,6 +180,37 @@ public static class MR_PlayerAutoSetup
         EditorSceneManager.MarkSceneDirty(targetScene);
         EditorSceneManager.SaveScene(targetScene);
         Debug.Log("[MR_PlayerAutoSetup] Player_Recycler 와이어링 + 씬 저장 완료");
+    }
+
+    private static void ApplyPlayerTextureMaterial(Transform visualRoot)
+    {
+        if (visualRoot == null)
+            return;
+
+        Material texturedMaterial = AssetDatabase.LoadAssetAtPath<Material>(PlayerTextureMaterialPath);
+        if (texturedMaterial == null)
+            return;
+
+        Renderer[] renderers = visualRoot.GetComponentsInChildren<Renderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            Renderer renderer = renderers[i];
+            if (renderer == null)
+                continue;
+
+            Material[] materials = renderer.sharedMaterials;
+            if (materials == null || materials.Length == 0)
+            {
+                renderer.sharedMaterial = texturedMaterial;
+                EditorUtility.SetDirty(renderer);
+                continue;
+            }
+
+            for (int m = 0; m < materials.Length; m++)
+                materials[m] = texturedMaterial;
+            renderer.sharedMaterials = materials;
+            EditorUtility.SetDirty(renderer);
+        }
     }
 
     private static GameObject FindRoot(Scene scene, string objectName)

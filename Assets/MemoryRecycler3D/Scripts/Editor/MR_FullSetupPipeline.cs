@@ -12,13 +12,14 @@ using UnityEngine.SceneManagement;
 //   2) MR_Player.controller 빌드
 //   3) Prototype3D 씬에 MR_Player_Model 부착 + 와이어링
 //   4) Collision & Overlap Pass (콜라이더 보강 + 겹침 해소 + 카메라 마스크)
-//   5) Prototype3D.unity 저장
+//   5) Proposal Map Composition Pass (기획서 기반 구역 배치/상징 프롭)
+//   6) Prototype3D.unity 저장
 // 적용 결과는 setup version 파일(SetupVersion.txt)에 기록하고, 버전이 다를 때만 재실행한다.
 [InitializeOnLoad]
 public static class MR_FullSetupPipeline
 {
     // 파이프라인 구성/순서가 바뀔 때마다 이 상수를 올려주면 팀 전체가 다음 pull 후 한 번 더 자동 실행한다.
-    public const string PipelineVersion = "2026.05.18.1";
+    public const string PipelineVersion = "2026.05.21.1";
 
     private const string SetupVersionAssetPath = "Assets/MemoryRecycler3D/SetupVersion.txt";
     private const string ScenePath = "Assets/MemoryRecycler3D/Scenes/Prototype3D.unity";
@@ -145,7 +146,10 @@ public static class MR_FullSetupPipeline
             // 4) Collision & Overlap Pass
             SafeStep("Collision Pass", () => MR_CollisionOverlapPass.ApplyPass());
 
-            // 5) 씬 저장
+            // 5) 제안서 맵 구성 패스 — 기존 연결은 유지하고 구역감/상징 프롭만 비파괴 적용.
+            SafeStep("Proposal Map Composition Pass", () => MR_ProposalMapCompositionPass.ApplyPass());
+
+            // 6) 씬 저장
             Scene scene = GetOrOpenPrototype();
             if (scene.IsValid())
             {

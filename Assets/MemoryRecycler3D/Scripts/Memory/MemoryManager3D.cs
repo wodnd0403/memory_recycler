@@ -9,7 +9,7 @@ public class MemoryManager3D : MonoBehaviour
     private const string SaveKey = "MR3D_Save_v2";
     private const string PlayerObjectName = "Player_Recycler";
     private const float AutoSaveInterval = 10f;
-    private static readonly Vector3 DefaultPlayerPosition = new Vector3(0f, 0f, -18f);
+    private static readonly Vector3 DefaultPlayerPosition = new Vector3(0f, 0f, -22f);
 
     public readonly List<MemoryRecord3D> collectedMemories = new List<MemoryRecord3D>();
 
