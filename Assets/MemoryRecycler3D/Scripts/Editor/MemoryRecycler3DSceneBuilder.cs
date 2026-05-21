@@ -1325,7 +1325,7 @@ public static class MemoryRecycler3DSceneBuilder
         playerScript.externalVisualRoot = mixamoVisual;
         playerScript.lockExternalVisualTransform = true;
         playerScript.autoGroundExternalVisual = true;
-        playerScript.externalVisualGroundPadding = 0.12f;
+        playerScript.externalVisualGroundPadding = 0.03f;
         playerScript.stabilizeExternalClipRootMotion = true;
         playerScript.externalVisualLocalPosition = Vector3.zero;
         playerScript.externalVisualLocalEuler = Vector3.zero;
@@ -1550,10 +1550,7 @@ public static class MemoryRecycler3DSceneBuilder
         if (instance == null || colliderParent == null || colliderParent.name != "Tripo Quality Pass")
             return;
 
-        bool blocksPlayer =
-            objectName.Contains("Building") ||
-            objectName.Contains("Background Block") ||
-            objectName.Contains("Archive Tower");
+        bool blocksPlayer = objectName.Contains("Archive Tower");
         if (!blocksPlayer)
             return;
 
@@ -1569,9 +1566,9 @@ public static class MemoryRecycler3DSceneBuilder
         BoxCollider collider = colliderObject.AddComponent<BoxCollider>();
         collider.isTrigger = false;
         Vector3 size = bounds.size;
-        size.x = Mathf.Max(1.2f, size.x * 0.88f);
+        size.x = Mathf.Max(1.2f, size.x * 0.62f);
         size.y = Mathf.Max(2.4f, size.y);
-        size.z = Mathf.Max(1.2f, size.z * 0.88f);
+        size.z = Mathf.Max(1.2f, size.z * 0.62f);
         collider.size = size;
         collider.center = Vector3.zero;
 

@@ -45,7 +45,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     public float animatorParameterSmooth = 12f;
     public bool lockExternalVisualTransform = true;
     public bool autoGroundExternalVisual = true;
-    public float externalVisualGroundPadding = 0.12f;
+    public float externalVisualGroundPadding = 0.03f;
     public bool stabilizeExternalClipRootMotion = true;
     public Vector3 externalVisualLocalPosition = Vector3.zero;
     public Vector3 externalVisualLocalEuler = Vector3.zero;
@@ -119,7 +119,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     private Vector3 currentPlanarVelocity;
     private Transform externalHips;
     private Vector3 externalHipsDefaultLocalPosition;
-    private const float MinimumExternalVisualGroundPadding = 0.12f;
+    private const float MinimumExternalVisualGroundPadding = 0.03f;
 
     public bool IsMoving { get; private set; }
     public bool IsRunning => isRunning && IsMoving;
@@ -128,6 +128,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
+        PruneTripoVisualCollidersAtRuntime();
 
         // 외부 모델을 쓰지만 인스펙터 연결이 비어 있으면 자식에서 Animator를 자동 탐색해 와이어링.
         // 에디터 자동 셋업이 실행되지 않은 환경에서도 Play만 눌러 동작하게 만든다.
@@ -205,6 +206,44 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
         GroundExternalVisualToController();
         StabilizeExternalMotionDrift();
+    }
+
+    private static void PruneTripoVisualCollidersAtRuntime()
+    {
+        GameObject tripoRoot = GameObject.Find("Tripo Quality Pass");
+        if (tripoRoot == null)
+            return;
+
+        Collider[] colliders = tripoRoot.GetComponentsInChildren<Collider>(true);
+        for (int i = colliders.Length - 1; i >= 0; i--)
+        {
+            Collider collider = colliders[i];
+            if (collider == null || collider.isTrigger)
+                continue;
+
+            GameObject colliderObject = collider.gameObject;
+            if (colliderObject.name.Contains("Archive Tower Gameplay Collider"))
+            {
+                if (collider is BoxCollider archiveBox)
+                    FitArchiveGameplayCollider(archiveBox);
+                continue;
+            }
+
+            Object target = colliderObject.name.Contains("Gameplay Collider") ? colliderObject : collider;
+            if (Application.isPlaying)
+                Object.Destroy(target);
+            else
+                Object.DestroyImmediate(target);
+        }
+    }
+
+    private static void FitArchiveGameplayCollider(BoxCollider box)
+    {
+        Vector3 size = box.size;
+        size.x = Mathf.Min(size.x, 9.8f);
+        size.z = Mathf.Min(size.z, 8.2f);
+        box.size = size;
+        box.center = Vector3.zero;
     }
 
     private void Update()
@@ -292,7 +331,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         Vector3 controllerCenterWorld = transform.TransformPoint(controller.center);
         float controllerBottomY = controllerCenterWorld.y - controller.height * 0.5f + externalVisualGroundPadding;
         float yDelta = controllerBottomY - visualBounds.min.y;
-        if (yDelta < 0.001f)
+        if (Mathf.Abs(yDelta) < 0.003f)
             return;
 
         Vector3 localDelta = externalVisualRoot.parent != null

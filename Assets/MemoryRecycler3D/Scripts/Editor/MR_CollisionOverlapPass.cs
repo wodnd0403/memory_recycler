@@ -18,7 +18,6 @@ public static class MR_CollisionOverlapPass
     private static readonly string[] StaticWorldRoots =
     {
         "Silent City",
-        "Tripo Quality Pass",
         "Cinematic Detail Root",
         "Main Avenue",
         "Abandoned City Ground",
@@ -72,6 +71,10 @@ public static class MR_CollisionOverlapPass
         int layerAssigned = 0;
         int overlapResolved = 0;
 
+        GameObject tripoRoot = FindRoot(scene, "Tripo Quality Pass");
+        if (tripoRoot != null)
+            PruneTripoVisualColliders(tripoRoot.transform, ref colliderUpdated);
+
         // 1) 정적 월드 콜라이더 보강
         for (int i = 0; i < StaticWorldRoots.Length; i++)
         {
@@ -111,6 +114,41 @@ public static class MR_CollisionOverlapPass
         if (!System.IO.File.Exists(ScenePath))
             return default;
         return EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+    }
+
+    private static void PruneTripoVisualColliders(Transform root, ref int removed)
+    {
+        Collider[] colliders = root.GetComponentsInChildren<Collider>(true);
+        for (int i = colliders.Length - 1; i >= 0; i--)
+        {
+            Collider collider = colliders[i];
+            if (collider == null || collider.isTrigger)
+                continue;
+
+            GameObject go = collider.gameObject;
+            if (go.name.Contains("Archive Tower Gameplay Collider"))
+            {
+                if (collider is BoxCollider box)
+                    FitArchiveGameplayCollider(box);
+                continue;
+            }
+
+            if (go.name.Contains("Gameplay Collider"))
+                Object.DestroyImmediate(go);
+            else
+                Object.DestroyImmediate(collider);
+            removed++;
+        }
+    }
+
+    private static void FitArchiveGameplayCollider(BoxCollider box)
+    {
+        Vector3 size = box.size;
+        size.x = Mathf.Min(size.x, 9.8f);
+        size.z = Mathf.Min(size.z, 8.2f);
+        box.size = size;
+        box.center = Vector3.zero;
+        EditorUtility.SetDirty(box);
     }
 
     // ─── 1) 정적 월드 콜라이더 보강 ──────────────────────────────────────
