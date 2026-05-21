@@ -24,6 +24,7 @@ public class OrbitCamera3D : MonoBehaviour
     public LayerMask collisionMask = ~0;
     public float collisionRadius = 0.32f;
     public float collisionPadding = 0.18f;
+    public float minimumCollisionDistance = 2.65f;
     public float collisionRecoverSmooth = 14f;
     public bool ignoreTargetCollision = true;
 
@@ -86,7 +87,7 @@ public class OrbitCamera3D : MonoBehaviour
             float hitDistance;
             if (TryGetNearestCameraHit(pivot, dirNorm, fullDistance + collisionPadding, out hitDistance))
             {
-                float safeDistance = Mathf.Max(0.1f, hitDistance - collisionPadding);
+                float safeDistance = Mathf.Max(minimumCollisionDistance, hitDistance - collisionPadding);
                 targetRatio = Mathf.Clamp01(safeDistance / fullDistance);
             }
         }
