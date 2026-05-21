@@ -1142,7 +1142,6 @@ public static class MemoryRecycler3DSceneBuilder
 
         PlaceTripoPrefab(scene, root.transform, "Tripo Building Ruined Concrete_L", "Buildings/RuinedConcreteBuilding/RuinedConcreteBuilding.fbx", new Vector3(-32.0f, 0f, -26.5f), new Vector3(0f, 98f, 0f), 13.6f, true);
         PlaceTripoPrefab(scene, root.transform, "Tripo Building Post Apocalyptic_R", "Buildings/PostApocalypticBuilding/PostApocalypticBuilding.fbx", new Vector3(32.5f, 0f, -23.0f), new Vector3(0f, -98f, 0f), 14.8f, true);
-        PlaceTripoPrefab(scene, root.transform, "Tripo Building Apartment_L", "Buildings/RuinedApartmentBuilding/RuinedApartmentBuilding.fbx", new Vector3(-33.5f, 0f, -8.0f), new Vector3(0f, 102f, 0f), 16.4f, true);
         PlaceTripoPrefab(scene, root.transform, "Tripo Building Ruined_R", "Buildings/RuinedBuilding/RuinedBuilding.fbx", new Vector3(33.2f, 0f, -2.5f), new Vector3(0f, -102f, 0f), 14.2f, true);
         PlaceTripoPrefab(scene, root.transform, "Tripo Building Korean_L", "Buildings/KoreanRuinedBuilding/KoreanRuinedBuilding.fbx", new Vector3(-34.0f, 0f, 18.6f), new Vector3(0f, 118f, 0f), 13.8f, true);
         PlaceTripoPrefab(scene, root.transform, "Tripo Building City Block_R", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(34.0f, 0f, 22.4f), new Vector3(0f, -118f, 0f), 11.4f, true);
