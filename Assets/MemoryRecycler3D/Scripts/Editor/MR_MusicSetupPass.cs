@@ -59,7 +59,7 @@ public static class MR_MusicSetupPass
 
         music.explorationLoop = LoadClip(ExplorationPath);
         music.nightLoop = LoadClip(NightPath);
-        music.archiveLoop = LoadClip(ArchivePath);
+        music.centralArchiveLoop = LoadClip(ArchivePath);
         music.endingLoop = LoadClip(EndingPath);
         music.defaultVolume = 0.3f;
         music.fadeDuration = 1.4f;

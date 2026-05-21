@@ -18,7 +18,7 @@ public class MemoryRecyclerMusicManager : MonoBehaviour
     [Header("BGM Clips")]
     public AudioClip explorationLoop;
     public AudioClip nightLoop;
-    public AudioClip archiveLoop;
+    public AudioClip centralArchiveLoop;
     public AudioClip endingLoop;
 
     [Header("Mix")]
@@ -138,7 +138,7 @@ public class MemoryRecyclerMusicManager : MonoBehaviour
             case MusicState.Night:
                 return nightLoop;
             case MusicState.Archive:
-                return archiveLoop;
+                return centralArchiveLoop;
             case MusicState.Ending:
                 return endingLoop;
             default:

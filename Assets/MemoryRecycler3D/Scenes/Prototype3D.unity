@@ -135310,7 +135310,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MemoryRecyclerMusicManager
   explorationLoop: {fileID: 8300000, guid: 057ddc606c007514abf7d80d27099c61, type: 3}
   nightLoop: {fileID: 8300000, guid: 57756537fe3002e42a125d18d29c195d, type: 3}
-  archiveLoop: {fileID: 8300000, guid: 7e6056ab4b338e047bca2d0f4dcb5039, type: 3}
+  centralArchiveLoop: {fileID: 8300000, guid: 7e6056ab4b338e047bca2d0f4dcb5039, type: 3}
   endingLoop: {fileID: 8300000, guid: 40e71cb0469cef346b51c69cbc274f9c, type: 3}
   defaultVolume: 0.3
   fadeDuration: 1.4
