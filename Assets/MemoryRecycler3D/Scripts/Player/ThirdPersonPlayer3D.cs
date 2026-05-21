@@ -45,7 +45,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     public float animatorParameterSmooth = 12f;
     public bool lockExternalVisualTransform = true;
     public bool autoGroundExternalVisual = true;
-    public float externalVisualGroundPadding = 0.08f;
+    public float externalVisualGroundPadding = 0.12f;
     public bool stabilizeExternalClipRootMotion = true;
     public Vector3 externalVisualLocalPosition = Vector3.zero;
     public Vector3 externalVisualLocalEuler = Vector3.zero;
@@ -119,7 +119,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     private Vector3 currentPlanarVelocity;
     private Transform externalHips;
     private Vector3 externalHipsDefaultLocalPosition;
-    private const float MinimumExternalVisualGroundPadding = 0.08f;
+    private const float MinimumExternalVisualGroundPadding = 0.12f;
 
     public bool IsMoving { get; private set; }
     public bool IsRunning => isRunning && IsMoving;
@@ -234,7 +234,10 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     private void LateUpdate()
     {
         if (useExternalHumanoidModel)
+        {
+            GroundExternalVisualToController();
             StabilizeExternalMotionDrift();
+        }
     }
 
     private void StabilizeExternalMotionDrift()
@@ -289,7 +292,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         Vector3 controllerCenterWorld = transform.TransformPoint(controller.center);
         float controllerBottomY = controllerCenterWorld.y - controller.height * 0.5f + externalVisualGroundPadding;
         float yDelta = controllerBottomY - visualBounds.min.y;
-        if (Mathf.Abs(yDelta) < 0.001f)
+        if (yDelta < 0.001f)
             return;
 
         Vector3 localDelta = externalVisualRoot.parent != null

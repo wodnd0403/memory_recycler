@@ -521,7 +521,8 @@ public static class MR_ProposalMapCompositionPass
         GameObject go = new GameObject(name);
         go.transform.SetParent(parent, true);
         go.transform.position = position;
-        go.transform.rotation = Quaternion.Euler(euler);
+        go.transform.rotation = Quaternion.Euler(0f, euler.y, 0f);
+        go.AddComponent<MemoryBillboard3D>();
         TextMesh mesh = go.AddComponent<TextMesh>();
         mesh.text = text;
         mesh.anchor = TextAnchor.MiddleCenter;

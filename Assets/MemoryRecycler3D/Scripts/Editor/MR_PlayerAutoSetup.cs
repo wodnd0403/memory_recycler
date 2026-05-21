@@ -155,7 +155,7 @@ public static class MR_PlayerAutoSetup
             playerScript.animatorParameterSmooth = 12f;
             playerScript.lockExternalVisualTransform = true;
             playerScript.autoGroundExternalVisual = true;
-            playerScript.externalVisualGroundPadding = 0.08f;
+            playerScript.externalVisualGroundPadding = 0.12f;
             playerScript.stabilizeExternalClipRootMotion = true;
             playerScript.externalVisualLocalPosition = Vector3.zero;
             playerScript.externalVisualLocalEuler = Vector3.zero;

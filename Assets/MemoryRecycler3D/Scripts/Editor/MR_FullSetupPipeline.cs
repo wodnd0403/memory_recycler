@@ -19,7 +19,7 @@ using UnityEngine.SceneManagement;
 public static class MR_FullSetupPipeline
 {
     // 파이프라인 구성/순서가 바뀔 때마다 이 상수를 올려주면 팀 전체가 다음 pull 후 한 번 더 자동 실행한다.
-    public const string PipelineVersion = "2026.05.21.3";
+    public const string PipelineVersion = "2026.05.21.4";
 
     private const string SetupVersionAssetPath = "Assets/MemoryRecycler3D/SetupVersion.txt";
     private const string ScenePath = "Assets/MemoryRecycler3D/Scenes/Prototype3D.unity";
