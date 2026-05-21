@@ -45,7 +45,8 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     public float animatorParameterSmooth = 12f;
     public bool lockExternalVisualTransform = true;
     public bool autoGroundExternalVisual = true;
-    public float externalVisualGroundPadding = 0.03f;
+    public float externalVisualGroundPadding = 0.005f;
+    public float externalFootGroundOffset = 0.075f;
     public bool stabilizeExternalClipRootMotion = true;
     public Vector3 externalVisualLocalPosition = Vector3.zero;
     public Vector3 externalVisualLocalEuler = Vector3.zero;
@@ -118,8 +119,13 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     private Vector3 lastPlanarMove;
     private Vector3 currentPlanarVelocity;
     private Transform externalHips;
+    private Transform externalLeftFoot;
+    private Transform externalRightFoot;
+    private Transform externalLeftToes;
+    private Transform externalRightToes;
     private Vector3 externalHipsDefaultLocalPosition;
-    private const float MinimumExternalVisualGroundPadding = 0.03f;
+    private const float MinimumExternalVisualGroundPadding = 0.005f;
+    private const float MaximumExternalVisualGroundPadding = 0.012f;
 
     public bool IsMoving { get; private set; }
     public bool IsRunning => isRunning && IsMoving;
@@ -168,7 +174,8 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     // 외부 휴머노이드 모델용 초기 설정. Animator/visualRoot 자동 탐색 + Root Motion 비활성화.
     private void ConfigureExternalHumanoid()
     {
-        externalVisualGroundPadding = Mathf.Max(externalVisualGroundPadding, MinimumExternalVisualGroundPadding);
+        externalVisualGroundPadding = Mathf.Clamp(externalVisualGroundPadding, MinimumExternalVisualGroundPadding, MaximumExternalVisualGroundPadding);
+        externalFootGroundOffset = Mathf.Clamp(externalFootGroundOffset, 0f, 0.18f);
 
         if (externalAnimator == null)
             externalAnimator = GetComponentInChildren<Animator>();
@@ -191,6 +198,10 @@ public class ThirdPersonPlayer3D : MonoBehaviour
             externalHips = externalAnimator.GetBoneTransform(HumanBodyBones.Hips);
             if (externalHips != null)
                 externalHipsDefaultLocalPosition = externalHips.localPosition;
+            externalLeftFoot = externalAnimator.GetBoneTransform(HumanBodyBones.LeftFoot);
+            externalRightFoot = externalAnimator.GetBoneTransform(HumanBodyBones.RightFoot);
+            externalLeftToes = externalAnimator.GetBoneTransform(HumanBodyBones.LeftToes);
+            externalRightToes = externalAnimator.GetBoneTransform(HumanBodyBones.RightToes);
         }
 
         if (externalVisualRoot != null)
@@ -222,18 +233,13 @@ public class ThirdPersonPlayer3D : MonoBehaviour
                 continue;
 
             GameObject colliderObject = collider.gameObject;
-            if (colliderObject.name.Contains("Archive Tower Gameplay Collider"))
-            {
-                if (collider is BoxCollider archiveBox)
-                    FitArchiveGameplayCollider(archiveBox);
+            if (!colliderObject.name.Contains("Gameplay Collider"))
                 continue;
-            }
 
-            Object target = colliderObject.name.Contains("Gameplay Collider") ? colliderObject : collider;
             if (Application.isPlaying)
-                Object.Destroy(target);
+                Object.Destroy(colliderObject);
             else
-                Object.DestroyImmediate(target);
+                Object.DestroyImmediate(colliderObject);
         }
     }
 
@@ -302,9 +308,54 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         if (!autoGroundExternalVisual || externalVisualRoot == null || controller == null)
             return;
 
+        float visualGroundY;
+        if (!TryGetExternalFootGroundY(out visualGroundY) && !TryGetExternalRendererGroundY(out visualGroundY))
+            return;
+
+        Vector3 controllerCenterWorld = transform.TransformPoint(controller.center);
+        float controllerBottomY = controllerCenterWorld.y - controller.height * 0.5f + externalVisualGroundPadding;
+        float yDelta = controllerBottomY - visualGroundY;
+        if (Mathf.Abs(yDelta) < 0.003f)
+            return;
+
+        Vector3 localDelta = externalVisualRoot.parent != null
+            ? externalVisualRoot.parent.InverseTransformVector(Vector3.up * yDelta)
+            : Vector3.up * yDelta;
+        externalVisualLocalPosition += new Vector3(0f, localDelta.y, 0f);
+        externalVisualRoot.localPosition = externalVisualLocalPosition;
+    }
+
+    private bool TryGetExternalFootGroundY(out float groundY)
+    {
+        groundY = float.PositiveInfinity;
+        bool found = false;
+        AddFootGroundCandidate(externalLeftFoot, ref groundY, ref found);
+        AddFootGroundCandidate(externalRightFoot, ref groundY, ref found);
+        AddFootGroundCandidate(externalLeftToes, ref groundY, ref found);
+        AddFootGroundCandidate(externalRightToes, ref groundY, ref found);
+
+        if (!found)
+            return false;
+
+        groundY -= externalFootGroundOffset;
+        return true;
+    }
+
+    private static void AddFootGroundCandidate(Transform bone, ref float groundY, ref bool found)
+    {
+        if (bone == null)
+            return;
+
+        groundY = Mathf.Min(groundY, bone.position.y);
+        found = true;
+    }
+
+    private bool TryGetExternalRendererGroundY(out float groundY)
+    {
+        groundY = 0f;
         Renderer[] renderers = externalVisualRoot.GetComponentsInChildren<Renderer>(true);
         if (renderers == null || renderers.Length == 0)
-            return;
+            return false;
 
         bool hasBounds = false;
         Bounds visualBounds = default;
@@ -326,19 +377,10 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         }
 
         if (!hasBounds)
-            return;
+            return false;
 
-        Vector3 controllerCenterWorld = transform.TransformPoint(controller.center);
-        float controllerBottomY = controllerCenterWorld.y - controller.height * 0.5f + externalVisualGroundPadding;
-        float yDelta = controllerBottomY - visualBounds.min.y;
-        if (Mathf.Abs(yDelta) < 0.003f)
-            return;
-
-        Vector3 localDelta = externalVisualRoot.parent != null
-            ? externalVisualRoot.parent.InverseTransformVector(Vector3.up * yDelta)
-            : Vector3.up * yDelta;
-        externalVisualLocalPosition += new Vector3(0f, localDelta.y, 0f);
-        externalVisualRoot.localPosition = externalVisualLocalPosition;
+        groundY = visualBounds.min.y;
+        return true;
     }
 
     private void ApplyIdleWhileBlocked()

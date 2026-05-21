@@ -1325,7 +1325,7 @@ public static class MemoryRecycler3DSceneBuilder
         playerScript.externalVisualRoot = mixamoVisual;
         playerScript.lockExternalVisualTransform = true;
         playerScript.autoGroundExternalVisual = true;
-        playerScript.externalVisualGroundPadding = 0.03f;
+        playerScript.externalVisualGroundPadding = 0.005f;
         playerScript.stabilizeExternalClipRootMotion = true;
         playerScript.externalVisualLocalPosition = Vector3.zero;
         playerScript.externalVisualLocalEuler = Vector3.zero;

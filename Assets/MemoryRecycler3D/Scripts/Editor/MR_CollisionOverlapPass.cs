@@ -19,6 +19,7 @@ public static class MR_CollisionOverlapPass
     {
         "Silent City",
         "Cinematic Detail Root",
+        "Tripo Quality Pass",
         "Main Avenue",
         "Abandoned City Ground",
     };
@@ -28,7 +29,6 @@ public static class MR_CollisionOverlapPass
     {
         "Memory Orb",
         "Central Archive Terminal",
-        "Archive Tower",
         "Terminal Beacon",
         "Story Progression",
         "Player_Recycler",
@@ -126,18 +126,11 @@ public static class MR_CollisionOverlapPass
                 continue;
 
             GameObject go = collider.gameObject;
-            if (go.name.Contains("Archive Tower Gameplay Collider"))
-            {
-                if (collider is BoxCollider box)
-                    FitArchiveGameplayCollider(box);
-                continue;
-            }
-
             if (go.name.Contains("Gameplay Collider"))
+            {
                 Object.DestroyImmediate(go);
-            else
-                Object.DestroyImmediate(collider);
-            removed++;
+                removed++;
+            }
         }
     }
 
@@ -175,13 +168,16 @@ public static class MR_CollisionOverlapPass
             // 너무 작은 장식은 충돌 추가 안 함. Renderer.bounds.size 합 < threshold 면 스킵.
             Bounds bounds = r.bounds;
             float maxExtent = Mathf.Max(bounds.size.x, Mathf.Max(bounds.size.y, bounds.size.z));
-            if (maxExtent < 0.35f)
+            if (maxExtent < 0.12f)
             {
                 AssignLayerIfDefault(go, envLayer, ref layerAssigned);
                 continue;
             }
 
             // 이미 BoxCollider/MeshCollider가 있고 isTrigger=false면 크기만 갱신, 없으면 추가.
+            if (TryApplyMeshCollider(go, envLayer, ref added, ref updated, ref layerAssigned))
+                continue;
+
             Collider existing = go.GetComponent<Collider>();
             if (existing == null)
             {
@@ -224,6 +220,43 @@ public static class MR_CollisionOverlapPass
         box.size = localSize;
         box.isTrigger = false;
         EditorUtility.SetDirty(box);
+    }
+
+    private static bool TryApplyMeshCollider(GameObject go, int envLayer, ref int added, ref int updated, ref int layerAssigned)
+    {
+        MeshFilter meshFilter = go.GetComponent<MeshFilter>();
+        if (meshFilter == null || meshFilter.sharedMesh == null)
+            return false;
+
+        Collider[] existingColliders = go.GetComponents<Collider>();
+        MeshCollider meshCollider = go.GetComponent<MeshCollider>();
+        if (meshCollider == null)
+        {
+            meshCollider = go.AddComponent<MeshCollider>();
+            added++;
+        }
+        else
+        {
+            updated++;
+        }
+
+        meshCollider.sharedMesh = meshFilter.sharedMesh;
+        meshCollider.convex = false;
+        meshCollider.isTrigger = false;
+        EditorUtility.SetDirty(meshCollider);
+
+        for (int i = 0; i < existingColliders.Length; i++)
+        {
+            Collider collider = existingColliders[i];
+            if (collider == null || collider == meshCollider || collider.isTrigger)
+                continue;
+
+            Object.DestroyImmediate(collider);
+            updated++;
+        }
+
+        AssignLayerIfDefault(go, envLayer, ref layerAssigned);
+        return true;
     }
 
     private static float SafeDivide(float a, float b)
