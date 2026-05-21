@@ -3,4 +3,4 @@
 # 이 파일은 팀 공용 자동화 파이프라인의 적용 버전을 기록합니다.
 # 수동으로 수정하지 마세요. 팀 전체에 새 자동화가 필요할 때는
 # MR_FullSetupPipeline.PipelineVersion 상수를 올리고 커밋하세요.
-# Last applied: 2026-05-21 14:23:26
+# Last applied: 2026-05-21 16:33:24
