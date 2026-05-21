@@ -527,6 +527,8 @@ public static class MemoryRecycler3DSceneBuilder
         float frontZ = scale.z * 0.5f + 0.075f;
         bool leftSide = building.position.x < 0f;
 
+        CreateReferenceFacadeBox(building, "Ref Wall Panel", new Vector3(0f, scale.y * 0.03f, frontZ), new Vector3(scale.x * 0.76f, scale.y * 0.46f, 0.045f), darkPanelMat, 0f);
+
         for (int i = 0; i < 3; i++)
         {
             float x = -scale.x * 0.35f + i * scale.x * 0.32f + ReferenceRange(index, i + 0.2f, -0.18f, 0.18f);
