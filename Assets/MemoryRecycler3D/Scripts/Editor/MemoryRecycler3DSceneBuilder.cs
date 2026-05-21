@@ -1148,8 +1148,7 @@ public static class MemoryRecycler3DSceneBuilder
         PlaceTripoPrefab(scene, root.transform, "Tripo Building City Block_R", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(34.0f, 0f, 22.4f), new Vector3(0f, -118f, 0f), 11.4f, true);
         PlaceTripoPrefab(scene, root.transform, "Tripo Background Block_L", "Buildings/RuinedCityBlock/RuinedCityBlock.fbx", new Vector3(-46.0f, 0f, 40.0f), new Vector3(0f, 38f, 0f), 15.6f, true);
         PlaceTripoPrefab(scene, root.transform, "Tripo Background Block_R", "Buildings/RuinedConcreteBuilding/RuinedConcreteBuilding.fbx", new Vector3(46.0f, 0f, 41.5f), new Vector3(0f, -34f, 0f), 17.2f, true);
-        // The generated archive tower mesh produced a large dark slab in front of the playable archive.
-        // Keep the authored archive glass/tower treatment instead of reintroducing that occluder.
+        PlaceTripoPrefab(scene, root.transform, "Tripo Archive Tower", "Buildings/PostApocalypticTower/PostApocalypticTower.fbx", new Vector3(0f, 0f, ArchiveCenterZ + 1.5f), new Vector3(0f, 270f, 0f), 26.0f, true);
 
         PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_L0", "Props/StreetLamps/StreetLamps.fbx", new Vector3(-7.5f, 0f, -17.0f), new Vector3(0f, 15f, 0f), 6.2f, true);
         PlaceTripoPrefab(scene, root.transform, "Tripo Street Lamp_R0", "Props/StreetLamps/StreetLamps.fbx", new Vector3(7.5f, 0f, -11.0f), new Vector3(0f, -165f, 0f), 6.2f, true);
@@ -1899,7 +1898,15 @@ public static class MemoryRecycler3DSceneBuilder
                 CreateCinematicWorldBox(root, "Cinematic Far Archive Signal", new Vector3(position.x - direction.x * 0.4f, height * 0.62f, position.z - direction.z * 0.4f), new Vector3(0.075f, 0.95f, 0.075f), cyanMat, new Vector3(0f, yaw, 0f));
         }
 
-        // Avoid giant flat haze slabs; atmospheric depth is handled by fog and distant skyline silhouettes.
+        for (int i = 0; i < 18; i++)
+        {
+            float angle = i * 20f + 8f;
+            Vector3 direction = DirectionFromAngle(angle);
+            Vector3 tangent = DirectionFromAngle(angle + 90f);
+            Vector3 position = center + direction * 48f;
+            GameObject haze = CreateCinematicWorldBox(root, "Cinematic Perimeter Haze Wall", new Vector3(position.x, 6.2f, position.z), new Vector3(14.0f, 12.0f, 0.08f), hazeMat, Vector3.zero);
+            haze.transform.rotation = Quaternion.FromToRotation(Vector3.right, tangent);
+        }
     }
 
     private static void AddCinematicOverheadCables(Transform root, Material trimMat)
@@ -1980,7 +1987,6 @@ public static class MemoryRecycler3DSceneBuilder
         CreateCinematicWorldBox(root, "Cinematic Archive Glass Panel_R", new Vector3(1.22f, 8.4f, ArchiveCenterZ - 1.72f), new Vector3(0.48f, 15.6f, 0.11f), glassMat, new Vector3(0f, 8f, 0f));
         CreateCinematicWorldBox(root, "Cinematic Archive Upper Glass", new Vector3(0f, 16.4f, ArchiveCenterZ - 1.90f), new Vector3(2.15f, 1.4f, 0.10f), glassMat, Vector3.zero);
         CreateCinematicWorldBox(root, "Cinematic Archive Low Glass", new Vector3(0f, 2.6f, ArchiveCenterZ - 1.98f), new Vector3(1.65f, 2.2f, 0.10f), glassMat, Vector3.zero);
-        CreateCinematicWorldBox(root, "Cinematic Archive Glass Halo", new Vector3(0f, 9.0f, ArchiveCenterZ - 2.24f), new Vector3(3.8f, 19.0f, 0.07f), veilMat, Vector3.zero);
         CreateCinematicWorldBox(root, "Cinematic Archive Mist Reflection", new Vector3(0f, 0.10f, ArchiveCenterZ - 3.3f), new Vector3(7.4f, 0.012f, 1.8f), veilMat, new Vector3(0f, 3f, 0f));
 
         for (int i = 0; i < 9; i++)
