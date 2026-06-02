@@ -271,8 +271,6 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Tab) && UIManager3D.Instance != null)
             UIManager3D.Instance.ToggleArchive();
 
-        if (Input.GetKeyDown(KeyCode.Escape))
-            Cursor.lockState = Cursor.lockState == CursorLockMode.Locked ? CursorLockMode.None : CursorLockMode.Locked;
     }
 
     // UI 차단 중에도 중력은 계속 작용시켜 캐릭터가 공중에 멈춰 있지 않도록 한다.

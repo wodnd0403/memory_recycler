@@ -26,6 +26,10 @@ public class UIManager3D : MonoBehaviour
     private GameObject startMenuPanel;
     private Button continueButton;
     private Text startMenuSaveStatusText;
+    private GameObject pauseMenuPanel;
+    private GameObject optionsPanel;
+    private Slider bgmVolumeSlider;
+    private Text bgmVolumeValueText;
 
     private GameObject cardPanel;
     private Text cardTitle;
@@ -82,6 +86,9 @@ public class UIManager3D : MonoBehaviour
         if (toastPanel != null && toastPanel.activeSelf && Time.time > toastUntil)
             toastPanel.SetActive(false);
 
+        if (Input.GetKeyDown(KeyCode.Escape))
+            HandleEscapeInput();
+
         UpdateTimeDisplay();
         UpdateObjectiveDisplay();
 
@@ -98,6 +105,10 @@ public class UIManager3D : MonoBehaviour
     private bool IsAnyUiPanelOpen()
     {
         if (startMenuPanel != null && startMenuPanel.activeSelf)
+            return true;
+        if (pauseMenuPanel != null && pauseMenuPanel.activeSelf)
+            return true;
+        if (optionsPanel != null && optionsPanel.activeSelf)
             return true;
         return IsAnyMajorPanelOpen();
     }
@@ -131,6 +142,10 @@ public class UIManager3D : MonoBehaviour
     public bool IsGameplayInputBlocked()
     {
         if (startMenuPanel != null && startMenuPanel.activeSelf)
+            return true;
+        if (pauseMenuPanel != null && pauseMenuPanel.activeSelf)
+            return true;
+        if (optionsPanel != null && optionsPanel.activeSelf)
             return true;
 
         return IsAnyMajorPanelOpen();
@@ -391,6 +406,8 @@ public class UIManager3D : MonoBehaviour
         BuildEchoPanel();
         BuildEndingPanel();
         BuildStartMenu();
+        BuildPauseMenu();
+        BuildOptionsPanel();
     }
 
     private void BuildStartMenu()
@@ -424,6 +441,62 @@ public class UIManager3D : MonoBehaviour
         SetRect(hint.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-520f, -130f), new Vector2(520f, -80f));
 
         startMenuPanel.SetActive(false);
+    }
+
+    private void BuildPauseMenu()
+    {
+        pauseMenuPanel = CreatePanel("PauseMenuPanel", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero, new Color(0.005f, 0.011f, 0.018f, 0.76f));
+        RectTransform panelRect = pauseMenuPanel.GetComponent<RectTransform>();
+        panelRect.offsetMin = Vector2.zero;
+        panelRect.offsetMax = Vector2.zero;
+
+        GameObject menuBox = CreatePanel("PauseMenuBox", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(420f, 430f), Vector2.zero, new Color(0.035f, 0.045f, 0.060f, 0.96f));
+        menuBox.transform.SetParent(pauseMenuPanel.transform, false);
+
+        Text title = CreateText(menuBox.transform, "PauseTitle", "일시정지", 38, TextAnchor.MiddleCenter, Color.white);
+        SetRect(title.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(32f, -86f), new Vector2(-32f, -24f));
+
+        Button resumeButton = CreateButton(menuBox.transform, "ResumeButton", "계속하기", new Vector2(0f, 92f), HidePauseMenu);
+        Button saveButton = CreateButton(menuBox.transform, "SaveGameButton", "게임 저장", new Vector2(0f, 18f), SaveGameFromPauseMenu);
+        Button optionsButton = CreateButton(menuBox.transform, "OptionsButton", "옵션", new Vector2(0f, -56f), ShowOptionsPanel);
+        Button closeButton = CreateButton(menuBox.transform, "ClosePauseButton", "닫기", new Vector2(0f, -130f), HidePauseMenu);
+
+        SetButtonSize(resumeButton, new Vector2(280f, 58f));
+        SetButtonSize(saveButton, new Vector2(280f, 58f));
+        SetButtonSize(optionsButton, new Vector2(280f, 58f));
+        SetButtonSize(closeButton, new Vector2(280f, 58f));
+
+        pauseMenuPanel.SetActive(false);
+    }
+
+    private void BuildOptionsPanel()
+    {
+        optionsPanel = CreatePanel("OptionsPanel", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero, new Color(0.005f, 0.011f, 0.018f, 0.78f));
+        RectTransform panelRect = optionsPanel.GetComponent<RectTransform>();
+        panelRect.offsetMin = Vector2.zero;
+        panelRect.offsetMax = Vector2.zero;
+
+        GameObject box = CreatePanel("OptionsBox", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(560f, 350f), Vector2.zero, new Color(0.035f, 0.045f, 0.060f, 0.97f));
+        box.transform.SetParent(optionsPanel.transform, false);
+
+        Text title = CreateText(box.transform, "OptionsTitle", "옵션", 36, TextAnchor.MiddleCenter, Color.white);
+        SetRect(title.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(32f, -80f), new Vector2(-32f, -24f));
+
+        Text label = CreateText(box.transform, "BgmVolumeLabel", "배경음악", 24, TextAnchor.MiddleLeft, new Color(0.92f, 0.96f, 1f));
+        SetRect(label.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(58f, 22f), new Vector2(220f, 76f));
+
+        bgmVolumeValueText = CreateText(box.transform, "BgmVolumeValue", "", 22, TextAnchor.MiddleRight, new Color(0.72f, 0.92f, 1f));
+        SetRect(bgmVolumeValueText.rectTransform, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-180f, 22f), new Vector2(-58f, 76f));
+
+        bgmVolumeSlider = CreateSlider(box.transform, "BgmVolumeSlider", new Vector2(0f, -14f), GetCurrentBgmVolume(), OnBgmVolumeChanged);
+
+        Button backButton = CreateButton(box.transform, "OptionsBackButton", "뒤로", new Vector2(-145f, -118f), BackToPauseMenuFromOptions);
+        Button closeButton = CreateButton(box.transform, "OptionsCloseButton", "게임으로 돌아가기", new Vector2(145f, -118f), HidePauseMenu);
+        SetButtonSize(backButton, new Vector2(230f, 56f));
+        SetButtonSize(closeButton, new Vector2(230f, 56f));
+
+        RefreshBgmVolumeText(GetCurrentBgmVolume());
+        optionsPanel.SetActive(false);
     }
 
     private void ShowStartMenu()
@@ -484,6 +557,116 @@ public class UIManager3D : MonoBehaviour
 
         HideStartMenu();
         ShowToast("저장된 시점부터 이어합니다.");
+    }
+
+    private void HandleEscapeInput()
+    {
+        if (startMenuPanel != null && startMenuPanel.activeSelf)
+            return;
+
+        if (optionsPanel != null && optionsPanel.activeSelf)
+        {
+            BackToPauseMenuFromOptions();
+            return;
+        }
+
+        if (pauseMenuPanel != null && pauseMenuPanel.activeSelf)
+        {
+            HidePauseMenu();
+            return;
+        }
+
+        if (IsAnyMajorPanelOpen())
+            return;
+
+        ShowPauseMenu();
+    }
+
+    private void ShowPauseMenu()
+    {
+        if (pauseMenuPanel == null)
+            return;
+
+        CloseAllMajorPanels();
+        if (optionsPanel != null)
+            optionsPanel.SetActive(false);
+
+        pauseMenuPanel.SetActive(true);
+        Time.timeScale = 0f;
+        UnlockCursor();
+    }
+
+    private void HidePauseMenu()
+    {
+        if (pauseMenuPanel != null)
+            pauseMenuPanel.SetActive(false);
+        if (optionsPanel != null)
+            optionsPanel.SetActive(false);
+
+        Time.timeScale = 1f;
+        LockCursor();
+    }
+
+    private void ShowOptionsPanel()
+    {
+        if (optionsPanel == null)
+            return;
+
+        if (pauseMenuPanel != null)
+            pauseMenuPanel.SetActive(false);
+
+        if (bgmVolumeSlider != null)
+            bgmVolumeSlider.SetValueWithoutNotify(GetCurrentBgmVolume());
+        RefreshBgmVolumeText(GetCurrentBgmVolume());
+
+        optionsPanel.SetActive(true);
+        Time.timeScale = 0f;
+        UnlockCursor();
+    }
+
+    private void BackToPauseMenuFromOptions()
+    {
+        if (optionsPanel != null)
+            optionsPanel.SetActive(false);
+        if (pauseMenuPanel != null)
+            pauseMenuPanel.SetActive(true);
+
+        Time.timeScale = 0f;
+        UnlockCursor();
+    }
+
+    private void SaveGameFromPauseMenu()
+    {
+        if (MemoryManager3D.Instance == null)
+        {
+            ShowToast("저장 시스템을 찾을 수 없습니다.");
+            return;
+        }
+
+        MemoryManager3D.Instance.SaveGame();
+        ShowToast("게임을 저장했습니다.");
+    }
+
+    private void OnBgmVolumeChanged(float value)
+    {
+        if (MemoryRecyclerMusicManager.Instance != null)
+            MemoryRecyclerMusicManager.Instance.SetBgmVolume(value);
+
+        RefreshBgmVolumeText(value);
+    }
+
+    private float GetCurrentBgmVolume()
+    {
+        if (MemoryRecyclerMusicManager.Instance != null)
+            return MemoryRecyclerMusicManager.Instance.BgmVolume;
+
+        return 0.3f;
+    }
+
+    private void RefreshBgmVolumeText(float value)
+    {
+        if (bgmVolumeValueText != null)
+            bgmVolumeValueText.text = Mathf.RoundToInt(Mathf.Clamp01(value) * 100f) + "%";
     }
 
     private void UpdateTimeDisplay()
@@ -894,6 +1077,67 @@ public class UIManager3D : MonoBehaviour
         Stretch(text.rectTransform);
 
         return button;
+    }
+
+    private Slider CreateSlider(Transform parent, string name, Vector2 anchoredPosition, float value, UnityEngine.Events.UnityAction<float> action)
+    {
+        GameObject go = new GameObject(name);
+        go.transform.SetParent(parent, false);
+        RectTransform rect = go.AddComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(430f, 36f);
+        rect.anchoredPosition = anchoredPosition;
+
+        Slider slider = go.AddComponent<Slider>();
+        slider.minValue = 0f;
+        slider.maxValue = 1f;
+        slider.value = Mathf.Clamp01(value);
+
+        GameObject background = new GameObject("Background");
+        background.transform.SetParent(go.transform, false);
+        Image backgroundImage = background.AddComponent<Image>();
+        backgroundImage.color = new Color(0.08f, 0.11f, 0.15f, 0.95f);
+        RectTransform backgroundRect = background.GetComponent<RectTransform>();
+        SetRect(backgroundRect, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), new Vector2(0f, 12f), new Vector2(0f, -12f));
+
+        GameObject fillArea = new GameObject("Fill Area");
+        fillArea.transform.SetParent(go.transform, false);
+        RectTransform fillAreaRect = fillArea.AddComponent<RectTransform>();
+        SetRect(fillAreaRect, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), new Vector2(8f, 12f), new Vector2(-8f, -12f));
+
+        GameObject fill = new GameObject("Fill");
+        fill.transform.SetParent(fillArea.transform, false);
+        Image fillImage = fill.AddComponent<Image>();
+        fillImage.color = new Color(0.14f, 0.72f, 0.92f, 0.95f);
+        RectTransform fillRect = fill.GetComponent<RectTransform>();
+        Stretch(fillRect);
+
+        GameObject handleArea = new GameObject("Handle Slide Area");
+        handleArea.transform.SetParent(go.transform, false);
+        RectTransform handleAreaRect = handleArea.AddComponent<RectTransform>();
+        SetRect(handleAreaRect, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), new Vector2(8f, 0f), new Vector2(-8f, 0f));
+
+        GameObject handle = new GameObject("Handle");
+        handle.transform.SetParent(handleArea.transform, false);
+        Image handleImage = handle.AddComponent<Image>();
+        handleImage.color = new Color(0.82f, 0.96f, 1f, 1f);
+        RectTransform handleRect = handle.GetComponent<RectTransform>();
+        handleRect.sizeDelta = new Vector2(28f, 28f);
+
+        slider.fillRect = fillRect;
+        slider.handleRect = handleRect;
+        slider.targetGraphic = handleImage;
+        slider.onValueChanged.AddListener(action);
+        return slider;
+    }
+
+    private void SetButtonSize(Button button, Vector2 size)
+    {
+        if (button == null)
+            return;
+
+        RectTransform rect = button.GetComponent<RectTransform>();
+        if (rect != null)
+            rect.sizeDelta = size;
     }
 
     private void Stretch(RectTransform rect)

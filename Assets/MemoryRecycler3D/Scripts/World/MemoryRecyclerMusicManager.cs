@@ -4,6 +4,8 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class MemoryRecyclerMusicManager : MonoBehaviour
 {
+    private const string BgmVolumePrefsKey = "MR3D_BgmVolume";
+
     public enum MusicState
     {
         None,
@@ -38,6 +40,7 @@ public class MemoryRecyclerMusicManager : MonoBehaviour
     public bool IsNightMode => isNight;
     public bool IsInArchiveZone => inArchiveZone;
     public bool IsEndingActive => endingActive;
+    public float BgmVolume => defaultVolume;
 
     private void Awake()
     {
@@ -48,6 +51,7 @@ public class MemoryRecyclerMusicManager : MonoBehaviour
         }
 
         Instance = this;
+        defaultVolume = PlayerPrefs.GetFloat(BgmVolumePrefsKey, defaultVolume);
         EnsureSources();
     }
 
@@ -100,6 +104,18 @@ public class MemoryRecyclerMusicManager : MonoBehaviour
 
         endingActive = false;
         RefreshTargetMusic();
+    }
+
+    public void SetBgmVolume(float volume)
+    {
+        defaultVolume = Mathf.Clamp01(volume);
+        PlayerPrefs.SetFloat(BgmVolumePrefsKey, defaultVolume);
+        PlayerPrefs.Save();
+
+        if (activeSource != null && activeSource.isPlaying)
+            activeSource.volume = defaultVolume;
+        if (standbySource != null && standbySource.isPlaying)
+            standbySource.volume = Mathf.Min(standbySource.volume, defaultVolume);
     }
 
     private void RefreshTargetMusic(bool instant = false)
