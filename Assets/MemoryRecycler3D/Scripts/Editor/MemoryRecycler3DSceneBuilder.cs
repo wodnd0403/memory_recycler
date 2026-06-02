@@ -114,8 +114,19 @@ public static class MemoryRecycler3DSceneBuilder
     [MenuItem("Tools/Memory Recycler 3D/Open Prototype Scene")]
     public static void OpenPrototypeScene()
     {
-        EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+        Scene scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
         EnsurePrototypeSceneInBuildSettings();
+        FocusPrototypeSceneView(scene);
+    }
+
+    [MenuItem("Tools/Memory Recycler 3D/Focus Prototype Scene View")]
+    public static void FocusPrototypeSceneViewMenu()
+    {
+        Scene scene = SceneManager.GetActiveScene();
+        if (!scene.IsValid() || scene.path != ScenePath)
+            scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+
+        FocusPrototypeSceneView(scene);
     }
 
     [MenuItem("Tools/Memory Recycler 3D/Advanced/Clean Prototype Scene")]
@@ -181,6 +192,40 @@ public static class MemoryRecycler3DSceneBuilder
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
         Debug.Log("Memory Recycler 3D scene cleanup complete. Removed objects: " + removed);
+    }
+
+    private static void FocusPrototypeSceneView(Scene scene)
+    {
+        if (!scene.IsValid())
+            return;
+
+        GameObject player = FindRoot(scene, "Player_Recycler");
+        GameObject archive = FindRoot(scene, "Central Archive Terminal");
+        Vector3 pivot = new Vector3(0f, 2.4f, 8f);
+
+        if (player != null && archive != null)
+            pivot = Vector3.Lerp(player.transform.position, archive.transform.position, 0.35f) + Vector3.up * 2.4f;
+        else if (player != null)
+            pivot = player.transform.position + Vector3.up * 2.2f;
+        else if (archive != null)
+            pivot = archive.transform.position + Vector3.up * 4.0f;
+
+        Object selected = player != null ? player : archive;
+        if (selected != null)
+            Selection.activeObject = selected;
+
+        SceneView sceneView = SceneView.lastActiveSceneView;
+        if (sceneView == null)
+            sceneView = EditorWindow.GetWindow<SceneView>();
+
+        if (sceneView == null)
+            return;
+
+        sceneView.Show();
+        sceneView.in2DMode = false;
+        sceneView.orthographic = false;
+        sceneView.LookAt(pivot, Quaternion.Euler(28f, 138f, 0f), 32f, false, true);
+        sceneView.Repaint();
     }
 
     private static int RemoveDuplicateRootObjects(Scene scene, string objectName)
