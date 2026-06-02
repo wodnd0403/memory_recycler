@@ -450,7 +450,7 @@ public class UIManager3D : MonoBehaviour
         panelRect.offsetMin = Vector2.zero;
         panelRect.offsetMax = Vector2.zero;
 
-        GameObject menuBox = CreatePanel("PauseMenuBox", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(420f, 430f), Vector2.zero, new Color(0.035f, 0.045f, 0.060f, 0.96f));
+        GameObject menuBox = CreatePanel("PauseMenuBox", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(420f, 500f), Vector2.zero, new Color(0.035f, 0.045f, 0.060f, 0.96f));
         menuBox.transform.SetParent(pauseMenuPanel.transform, false);
 
         Text title = CreateText(menuBox.transform, "PauseTitle", "일시정지", 38, TextAnchor.MiddleCenter, Color.white);
@@ -460,11 +460,13 @@ public class UIManager3D : MonoBehaviour
         Button saveButton = CreateButton(menuBox.transform, "SaveGameButton", "게임 저장", new Vector2(0f, 18f), SaveGameFromPauseMenu);
         Button optionsButton = CreateButton(menuBox.transform, "OptionsButton", "옵션", new Vector2(0f, -56f), ShowOptionsPanel);
         Button closeButton = CreateButton(menuBox.transform, "ClosePauseButton", "닫기", new Vector2(0f, -130f), HidePauseMenu);
+        Button quitButton = CreateButton(menuBox.transform, "QuitGameButton", "게임 종료", new Vector2(0f, -204f), QuitFromPauseMenu);
 
         SetButtonSize(resumeButton, new Vector2(280f, 58f));
         SetButtonSize(saveButton, new Vector2(280f, 58f));
         SetButtonSize(optionsButton, new Vector2(280f, 58f));
         SetButtonSize(closeButton, new Vector2(280f, 58f));
+        SetButtonSize(quitButton, new Vector2(280f, 58f));
 
         pauseMenuPanel.SetActive(false);
     }
@@ -645,6 +647,19 @@ public class UIManager3D : MonoBehaviour
 
         MemoryManager3D.Instance.SaveGame();
         ShowToast("게임을 저장했습니다.");
+    }
+
+    private void QuitFromPauseMenu()
+    {
+        if (MemoryManager3D.Instance != null)
+            MemoryManager3D.Instance.SaveGame();
+
+        Time.timeScale = 1f;
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 
     private void OnBgmVolumeChanged(float value)
