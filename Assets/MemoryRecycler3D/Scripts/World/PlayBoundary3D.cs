@@ -7,12 +7,12 @@ public class PlayBoundary3D : MonoBehaviour
 {
     [Header("Boundary")]
     public Vector3 center = Vector3.zero;
-    // 도시 외곽 반경. 인스펙터에서 조정 가능. 기본값은 현 도시 규모를 충분히 감싸도록 보수적.
-    public float radius = 320f;
-    // 낙하 사고 방지용 바닥 한계. 이보다 더 내려가면 강제 복귀.
-    public float floorY = -25f;
+    // 발표 맵의 기본 평면 크기(약 240m)를 기준으로, 외곽 이탈을 너무 늦게 잡지 않도록 설정.
+    public float radius = 125f;
+    // 낙하 사고 방지용 바닥 한계. 발표 중 공허로 떨어지면 빠르게 복귀시킨다.
+    public float floorY = -8f;
     // 천장 한계(점프 + 외부 도구로 떠밀려 올라간 경우 대비).
-    public float ceilingY = 220f;
+    public float ceilingY = 120f;
 
     [Header("Failsafe")]
     public Vector3 safeRespawnPosition = new Vector3(0f, 0f, -22f);
