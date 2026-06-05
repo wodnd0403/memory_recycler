@@ -56,7 +56,8 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     [Header("Controller / Visual Alignment")]
     public bool autoFitControllerToExternalVisual = true;
     public bool preferHumanoidBoneControllerFit = true;
-    public bool useRendererBottomForHumanoidControllerFit = true;
+    public bool preserveControllerBottomOnFit = true;
+    public bool useRendererBottomForHumanoidControllerFit = false;
     public float controllerFitHeightPadding = 0.04f;
     public float controllerFitHeadPadding = 0.18f;
     public float controllerFitBottomPadding = 0.015f;
@@ -79,9 +80,10 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     public float groundProbeSlopeLimit = 50f;
     public float groundStickVelocity = -3.5f;
     public float jumpGroundProbeGraceTime = 0.16f;
-    public float visualGroundClampRange = 0.35f;
+    public float visualGroundClampRange = 0.85f;
 
     private CharacterController controller;
+    private float initialControllerBottomLocalY;
     private float verticalVelocity;
 
     // Animator 파라미터 해시 — 매 프레임 string lookup을 피한다.
@@ -172,6 +174,9 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
+        if (controller != null)
+            initialControllerBottomLocalY = controller.center.y - controller.height * 0.5f;
+
         PruneTripoVisualCollidersAtRuntime();
 
         // 외부 모델을 쓰지만 인스펙터 연결이 비어 있으면 자식에서 Animator를 자동 탐색해 와이어링.
@@ -257,7 +262,6 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
         FitControllerToExternalVisual();
         GroundExternalVisualToController();
-        FitControllerToExternalVisual();
         StabilizeExternalMotionDrift();
     }
 
@@ -484,7 +488,9 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         radius = Mathf.Clamp(radius, Mathf.Max(0.05f, controllerFitMinRadius), Mathf.Max(controllerFitMinRadius, controllerFitMaxRadius));
         radius = Mathf.Min(radius, height * 0.48f);
 
-        float bottom = localBounds.min.y - Mathf.Max(0f, controllerFitBottomPadding);
+        float bottom = preserveControllerBottomOnFit
+            ? initialControllerBottomLocalY
+            : localBounds.min.y - Mathf.Max(0f, controllerFitBottomPadding);
         Vector3 center = new Vector3(localBounds.center.x, bottom + height * 0.5f, localBounds.center.z);
 
         controller.height = height;
