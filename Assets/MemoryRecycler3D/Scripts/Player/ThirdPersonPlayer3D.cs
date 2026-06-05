@@ -54,14 +54,16 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
     [Header("Controller / Visual Alignment")]
     public bool autoFitControllerToExternalVisual = true;
-    public float controllerFitHeightPadding = 0.08f;
+    public bool preferHumanoidBoneControllerFit = true;
+    public float controllerFitHeightPadding = 0.04f;
+    public float controllerFitHeadPadding = 0.18f;
     public float controllerFitBottomPadding = 0.015f;
-    public float controllerFitRadiusScale = 0.70f;
-    public float controllerFitRadiusPadding = 0.025f;
+    public float controllerFitRadiusScale = 0.55f;
+    public float controllerFitRadiusPadding = 0.02f;
     public float controllerFitMinHeight = 1.10f;
-    public float controllerFitMaxHeight = 2.05f;
-    public float controllerFitMinRadius = 0.18f;
-    public float controllerFitMaxRadius = 0.34f;
+    public float controllerFitMaxHeight = 1.78f;
+    public float controllerFitMinRadius = 0.16f;
+    public float controllerFitMaxRadius = 0.27f;
     public bool logControllerFitDebug = false;
     public bool drawControllerFitDebugGizmos = true;
 
@@ -442,7 +444,8 @@ public class ThirdPersonPlayer3D : MonoBehaviour
             return;
 
         Bounds localBounds;
-        if (!TryGetExternalVisualLocalBounds(out localBounds))
+        string fitSource;
+        if (!TryGetControllerFitLocalBounds(out localBounds, out fitSource))
             return;
 
         float height = Mathf.Clamp(
@@ -475,7 +478,8 @@ public class ThirdPersonPlayer3D : MonoBehaviour
                 " center=" + center.ToString("F3") +
                 " controllerBottom=" + controllerBottom.ToString("0.###") +
                 " visualMinY=" + localBounds.min.y.ToString("0.###") +
-                " visualHeight=" + localBounds.size.y.ToString("0.###"),
+                " visualHeight=" + localBounds.size.y.ToString("0.###") +
+                " source=" + fitSource,
                 this);
         }
     }
@@ -483,11 +487,112 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     private void RefreshExternalVisualLocalBounds()
     {
         Bounds localBounds;
-        if (TryGetExternalVisualLocalBounds(out localBounds))
+        string fitSource;
+        if (TryGetControllerFitLocalBounds(out localBounds, out fitSource))
         {
             lastExternalVisualLocalBounds = localBounds;
             hasExternalVisualLocalBounds = true;
         }
+    }
+
+    private bool TryGetControllerFitLocalBounds(out Bounds localBounds, out string source)
+    {
+        if (preferHumanoidBoneControllerFit && TryGetHumanoidControllerLocalBounds(out localBounds))
+        {
+            source = "humanoid bones";
+            return true;
+        }
+
+        source = "renderer bounds";
+        return TryGetExternalVisualLocalBounds(out localBounds);
+    }
+
+    private bool TryGetHumanoidControllerLocalBounds(out Bounds localBounds)
+    {
+        localBounds = default;
+        if (externalAnimator == null || !externalAnimator.isHuman)
+            return false;
+
+        Transform head = externalAnimator.GetBoneTransform(HumanBodyBones.Head);
+        Transform leftFoot = externalLeftFoot != null ? externalLeftFoot : externalAnimator.GetBoneTransform(HumanBodyBones.LeftFoot);
+        Transform rightFoot = externalRightFoot != null ? externalRightFoot : externalAnimator.GetBoneTransform(HumanBodyBones.RightFoot);
+        Transform leftToes = externalLeftToes != null ? externalLeftToes : externalAnimator.GetBoneTransform(HumanBodyBones.LeftToes);
+        Transform rightToes = externalRightToes != null ? externalRightToes : externalAnimator.GetBoneTransform(HumanBodyBones.RightToes);
+        if (head == null || (leftFoot == null && rightFoot == null && leftToes == null && rightToes == null))
+            return false;
+
+        bool found = false;
+        Bounds boneBounds = default;
+        HumanBodyBones[] fitBones =
+        {
+            HumanBodyBones.Hips,
+            HumanBodyBones.Spine,
+            HumanBodyBones.Chest,
+            HumanBodyBones.UpperChest,
+            HumanBodyBones.Neck,
+            HumanBodyBones.Head,
+            HumanBodyBones.LeftShoulder,
+            HumanBodyBones.RightShoulder,
+            HumanBodyBones.LeftUpperLeg,
+            HumanBodyBones.RightUpperLeg,
+            HumanBodyBones.LeftLowerLeg,
+            HumanBodyBones.RightLowerLeg,
+            HumanBodyBones.LeftFoot,
+            HumanBodyBones.RightFoot,
+            HumanBodyBones.LeftToes,
+            HumanBodyBones.RightToes
+        };
+
+        for (int i = 0; i < fitBones.Length; i++)
+        {
+            Transform bone = externalAnimator.GetBoneTransform(fitBones[i]);
+            if (bone == null)
+                continue;
+
+            Vector3 local = transform.InverseTransformPoint(bone.position);
+            if (!found)
+            {
+                boneBounds = new Bounds(local, Vector3.zero);
+                found = true;
+            }
+            else
+            {
+                boneBounds.Encapsulate(local);
+            }
+        }
+
+        if (!found)
+            return false;
+
+        float bottom = float.PositiveInfinity;
+        AddBoneBottomCandidate(leftFoot, ref bottom);
+        AddBoneBottomCandidate(rightFoot, ref bottom);
+        AddBoneBottomCandidate(leftToes, ref bottom);
+        AddBoneBottomCandidate(rightToes, ref bottom);
+        if (float.IsPositiveInfinity(bottom))
+            return false;
+
+        float top = transform.InverseTransformPoint(head.position).y + Mathf.Max(0f, controllerFitHeadPadding);
+        if (top <= bottom + 0.2f)
+            return false;
+
+        Vector3 center = boneBounds.center;
+        float halfWidth = Mathf.Max(Mathf.Abs(boneBounds.min.x - center.x), Mathf.Abs(boneBounds.max.x - center.x));
+        float halfDepth = Mathf.Max(Mathf.Abs(boneBounds.min.z - center.z), Mathf.Abs(boneBounds.max.z - center.z));
+        float horizontalExtent = Mathf.Max(halfWidth, halfDepth, 0.22f);
+
+        Vector3 size = new Vector3(horizontalExtent * 2f, top - bottom, horizontalExtent * 2f);
+        localBounds = new Bounds(new Vector3(center.x, (top + bottom) * 0.5f, center.z), size);
+        return true;
+    }
+
+    private void AddBoneBottomCandidate(Transform bone, ref float bottom)
+    {
+        if (bone == null)
+            return;
+
+        float y = transform.InverseTransformPoint(bone.position).y - Mathf.Max(0f, externalFootGroundOffset);
+        bottom = Mathf.Min(bottom, y);
     }
 
     private bool TryGetExternalVisualLocalBounds(out Bounds localBounds)
