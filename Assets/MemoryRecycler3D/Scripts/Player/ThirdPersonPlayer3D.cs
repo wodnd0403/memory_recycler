@@ -44,7 +44,12 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     public float runAnimationPlaybackSpeed = 1f;
     public float animatorParameterSmooth = 12f;
     public bool lockExternalVisualTransform = true;
-    public bool autoGroundExternalVisual = true;
+    public bool preserveSceneVisualTransformOnStart = true;
+    public bool autoGroundExternalVisual = false;
+    public bool useRuntimeVisualAutoGrounding = false;
+    public bool useManualVisualYOffset = true;
+    public float manualVisualYOffset = 0f;
+    public bool debugPlayerAlignment = true;
     public bool preferRendererGroundForExternalVisual = true;
     public float externalVisualGroundPadding = 0.005f;
     public float externalFootGroundOffset = 0.075f;
@@ -54,7 +59,8 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     public Vector3 externalVisualLocalScale = Vector3.one;
 
     [Header("Controller / Visual Alignment")]
-    public bool autoFitControllerToExternalVisual = true;
+    public bool autoFitControllerToExternalVisual = false;
+    public bool useRuntimeCapsuleAutoFit = false;
     public bool preferHumanoidBoneControllerFit = true;
     public bool preserveControllerBottomOnFit = true;
     public bool useRendererBottomForHumanoidControllerFit = false;
@@ -164,6 +170,9 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     private float skipGroundSnapUntil;
     private Bounds lastExternalVisualLocalBounds;
     private bool hasExternalVisualLocalBounds;
+    private float playerAlignmentDebugStartTime;
+    private bool playerAlignmentLoggedStart;
+    private bool playerAlignmentLoggedDelayed;
     private const float MinimumExternalVisualGroundPadding = 0.005f;
     private const float MaximumExternalVisualGroundPadding = 0.012f;
 
@@ -250,7 +259,13 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         if (externalVisualRoot != null)
         {
             externalVisualRoot.gameObject.SetActive(true);
-            if (lockExternalVisualTransform)
+            if (preserveSceneVisualTransformOnStart)
+            {
+                externalVisualLocalPosition = externalVisualRoot.localPosition;
+                externalVisualLocalEuler = externalVisualRoot.localEulerAngles;
+                externalVisualLocalScale = externalVisualRoot.localScale;
+            }
+            else if (lockExternalVisualTransform)
             {
                 externalVisualRoot.localPosition = externalVisualLocalPosition;
                 externalVisualRoot.localEulerAngles = externalVisualLocalEuler;
@@ -262,7 +277,10 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
         FitControllerToExternalVisual();
         GroundExternalVisualToController();
+        ApplyManualExternalVisualOffset();
         StabilizeExternalMotionDrift();
+        ResetPlayerAlignmentDebug();
+        LogPlayerAlignmentSnapshot("start");
     }
 
     private static void PruneTripoVisualCollidersAtRuntime()
@@ -325,7 +343,9 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         if (useExternalHumanoidModel)
         {
             GroundExternalVisualToController();
+            ApplyManualExternalVisualOffset();
             StabilizeExternalMotionDrift();
+            UpdatePlayerAlignmentDebug();
         }
     }
 
@@ -333,7 +353,10 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     {
         if (lockExternalVisualTransform && externalVisualRoot != null)
         {
-            externalVisualRoot.localPosition = externalVisualLocalPosition;
+            Vector3 targetPosition = useManualVisualYOffset
+                ? externalVisualBaseLocalPosition + Vector3.up * manualVisualYOffset
+                : externalVisualLocalPosition;
+            externalVisualRoot.localPosition = targetPosition;
             externalVisualRoot.localEulerAngles = externalVisualLocalEuler;
             externalVisualRoot.localScale = externalVisualLocalScale;
         }
@@ -349,7 +372,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
     private void GroundExternalVisualToController()
     {
-        if (!autoGroundExternalVisual || externalVisualRoot == null || controller == null)
+        if (!useRuntimeVisualAutoGrounding || !autoGroundExternalVisual || externalVisualRoot == null || controller == null)
             return;
 
         CaptureExternalVisualBasePosition();
@@ -384,6 +407,17 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
         externalVisualBaseLocalPosition = externalVisualLocalPosition;
         hasExternalVisualBaseLocalPosition = true;
+    }
+
+    private void ApplyManualExternalVisualOffset()
+    {
+        if (!useManualVisualYOffset || externalVisualRoot == null)
+            return;
+
+        CaptureExternalVisualBasePosition();
+        Vector3 targetPosition = externalVisualBaseLocalPosition + Vector3.up * manualVisualYOffset;
+        externalVisualRoot.localPosition = targetPosition;
+        externalVisualLocalPosition = targetPosition;
     }
 
     private bool TryGetExternalFootGroundY(out float groundY)
@@ -471,7 +505,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
     private void FitControllerToExternalVisual()
     {
-        if (!autoFitControllerToExternalVisual || controller == null || externalVisualRoot == null)
+        if (!useRuntimeCapsuleAutoFit || !autoFitControllerToExternalVisual || controller == null || externalVisualRoot == null)
             return;
 
         Bounds localBounds;
@@ -912,6 +946,98 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
         int playerVisualLayer = LayerMask.NameToLayer("MR3D_PlayerVisual");
         return playerVisualLayer >= 0 && hitTransform.gameObject.layer == playerVisualLayer;
+    }
+
+    private void ResetPlayerAlignmentDebug()
+    {
+        playerAlignmentDebugStartTime = Time.time;
+        playerAlignmentLoggedStart = false;
+        playerAlignmentLoggedDelayed = false;
+    }
+
+    private void UpdatePlayerAlignmentDebug()
+    {
+        if (!debugPlayerAlignment || playerAlignmentLoggedDelayed)
+            return;
+
+        if (Time.time - playerAlignmentDebugStartTime >= 1f)
+            LogPlayerAlignmentSnapshot("1s");
+    }
+
+    private void LogPlayerAlignmentSnapshot(string label)
+    {
+        if (!debugPlayerAlignment || controller == null)
+            return;
+
+        if (label == "start" && playerAlignmentLoggedStart)
+            return;
+        if (label != "start" && playerAlignmentLoggedDelayed)
+            return;
+
+        Vector3 controllerCenterWorld = transform.TransformPoint(controller.center);
+        float controllerBottomWorldY = controllerCenterWorld.y - controller.height * 0.5f;
+        float rendererMinY;
+        bool hasRendererMin = TryGetExternalRendererGroundY(out rendererMinY);
+        float groundHitY;
+        bool hasGroundHit = TryGetAlignmentGroundY(out groundHitY);
+
+        Debug.Log(
+            "[MR3D] Player alignment " + label +
+            " | controller height=" + controller.height.ToString("0.###") +
+            " center=" + controller.center.ToString("F3") +
+            " radius=" + controller.radius.ToString("0.###") +
+            " bottomWorldY=" + controllerBottomWorldY.ToString("0.###") +
+            " | rootY=" + transform.position.y.ToString("0.###") +
+            " | visualLocalY=" + (externalVisualRoot != null ? externalVisualRoot.localPosition.y.ToString("0.###") : "n/a") +
+            " visualWorldY=" + (externalVisualRoot != null ? externalVisualRoot.position.y.ToString("0.###") : "n/a") +
+            " | rendererMinY=" + (hasRendererMin ? rendererMinY.ToString("0.###") : "n/a") +
+            " | groundHitY=" + (hasGroundHit ? groundHitY.ToString("0.###") : "n/a") +
+            " | manualVisualYOffset=" + manualVisualYOffset.ToString("0.###"),
+            this);
+
+        if (label == "start")
+            playerAlignmentLoggedStart = true;
+        else
+            playerAlignmentLoggedDelayed = true;
+    }
+
+    private bool TryGetAlignmentGroundY(out float groundY)
+    {
+        groundY = 0f;
+        if (controller == null)
+            return false;
+
+        Vector3 centerWorld = transform.TransformPoint(controller.center);
+        Vector3 origin = new Vector3(centerWorld.x, centerWorld.y + controller.height, centerWorld.z);
+        float maxDistance = Mathf.Max(2f, controller.height * 3f);
+        int hitCount = Physics.RaycastNonAlloc(
+            origin,
+            Vector3.down,
+            groundProbeHits,
+            maxDistance,
+            groundProbeMask,
+            QueryTriggerInteraction.Ignore);
+
+        float bestDistance = float.PositiveInfinity;
+        float bestY = 0f;
+        for (int i = 0; i < hitCount; i++)
+        {
+            RaycastHit hit = groundProbeHits[i];
+            if (hit.collider == null || ShouldIgnoreGroundProbeHit(hit.collider.transform))
+                continue;
+
+            if (hit.distance < bestDistance)
+            {
+                bestDistance = hit.distance;
+                bestY = hit.point.y;
+            }
+        }
+
+        if (float.IsPositiveInfinity(bestDistance))
+            return false;
+
+        groundY = bestY;
+        return true;
     }
 
 #if UNITY_EDITOR
