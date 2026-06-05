@@ -52,6 +52,19 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     public Vector3 externalVisualLocalEuler = Vector3.zero;
     public Vector3 externalVisualLocalScale = Vector3.one;
 
+    [Header("Controller / Visual Alignment")]
+    public bool autoFitControllerToExternalVisual = true;
+    public float controllerFitHeightPadding = 0.08f;
+    public float controllerFitBottomPadding = 0.015f;
+    public float controllerFitRadiusScale = 0.70f;
+    public float controllerFitRadiusPadding = 0.025f;
+    public float controllerFitMinHeight = 1.10f;
+    public float controllerFitMaxHeight = 2.05f;
+    public float controllerFitMinRadius = 0.18f;
+    public float controllerFitMaxRadius = 0.34f;
+    public bool logControllerFitDebug = false;
+    public bool drawControllerFitDebugGizmos = true;
+
     [Header("Ground Probe")]
     public bool enableGroundProbe = true;
     public LayerMask groundProbeMask = ~0;
@@ -62,7 +75,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     public float groundProbeSlopeLimit = 50f;
     public float groundStickVelocity = -3.5f;
     public float jumpGroundProbeGraceTime = 0.16f;
-    public float visualGroundClampRange = 0.09f;
+    public float visualGroundClampRange = 0.35f;
 
     private CharacterController controller;
     private float verticalVelocity;
@@ -143,6 +156,8 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     private float groundProbeGap;
     private Vector3 groundProbeNormal = Vector3.up;
     private float skipGroundSnapUntil;
+    private Bounds lastExternalVisualLocalBounds;
+    private bool hasExternalVisualLocalBounds;
     private const float MinimumExternalVisualGroundPadding = 0.005f;
     private const float MaximumExternalVisualGroundPadding = 0.012f;
 
@@ -236,7 +251,9 @@ public class ThirdPersonPlayer3D : MonoBehaviour
             CaptureExternalVisualBasePosition();
         }
 
+        FitControllerToExternalVisual();
         GroundExternalVisualToController();
+        FitControllerToExternalVisual();
         StabilizeExternalMotionDrift();
     }
 
@@ -349,6 +366,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
         externalVisualLocalPosition = new Vector3(externalVisualLocalPosition.x, targetY, externalVisualLocalPosition.z);
         externalVisualRoot.localPosition = externalVisualLocalPosition;
+        RefreshExternalVisualLocalBounds();
     }
 
     private void CaptureExternalVisualBasePosition()
@@ -416,6 +434,110 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
         groundY = visualBounds.min.y;
         return true;
+    }
+
+    private void FitControllerToExternalVisual()
+    {
+        if (!autoFitControllerToExternalVisual || controller == null || externalVisualRoot == null)
+            return;
+
+        Bounds localBounds;
+        if (!TryGetExternalVisualLocalBounds(out localBounds))
+            return;
+
+        float height = Mathf.Clamp(
+            localBounds.size.y + Mathf.Max(0f, controllerFitHeightPadding),
+            Mathf.Max(0.2f, controllerFitMinHeight),
+            Mathf.Max(controllerFitMinHeight, controllerFitMaxHeight));
+        float horizontalExtent = Mathf.Max(localBounds.extents.x, localBounds.extents.z);
+        float radius = horizontalExtent * Mathf.Max(0.1f, controllerFitRadiusScale) + Mathf.Max(0f, controllerFitRadiusPadding);
+        radius = Mathf.Clamp(radius, Mathf.Max(0.05f, controllerFitMinRadius), Mathf.Max(controllerFitMinRadius, controllerFitMaxRadius));
+        radius = Mathf.Min(radius, height * 0.48f);
+
+        float bottom = localBounds.min.y - Mathf.Max(0f, controllerFitBottomPadding);
+        Vector3 center = new Vector3(localBounds.center.x, bottom + height * 0.5f, localBounds.center.z);
+
+        controller.height = height;
+        controller.radius = radius;
+        controller.center = center;
+
+        lastExternalVisualLocalBounds = localBounds;
+        hasExternalVisualLocalBounds = true;
+
+        groundProbeRadius = Mathf.Min(groundProbeRadius, Mathf.Max(0.05f, radius * 0.82f));
+
+        if (logControllerFitDebug)
+        {
+            float controllerBottom = center.y - height * 0.5f;
+            Debug.Log(
+                "[MR3D] Controller fit: height=" + height.ToString("0.###") +
+                " radius=" + radius.ToString("0.###") +
+                " center=" + center.ToString("F3") +
+                " controllerBottom=" + controllerBottom.ToString("0.###") +
+                " visualMinY=" + localBounds.min.y.ToString("0.###") +
+                " visualHeight=" + localBounds.size.y.ToString("0.###"),
+                this);
+        }
+    }
+
+    private void RefreshExternalVisualLocalBounds()
+    {
+        Bounds localBounds;
+        if (TryGetExternalVisualLocalBounds(out localBounds))
+        {
+            lastExternalVisualLocalBounds = localBounds;
+            hasExternalVisualLocalBounds = true;
+        }
+    }
+
+    private bool TryGetExternalVisualLocalBounds(out Bounds localBounds)
+    {
+        localBounds = default;
+        if (externalVisualRoot == null)
+            return false;
+
+        Renderer[] renderers = externalVisualRoot.GetComponentsInChildren<Renderer>(true);
+        bool found = false;
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            Renderer renderer = renderers[i];
+            if (renderer == null || !renderer.enabled)
+                continue;
+
+            Bounds worldBounds = renderer.bounds;
+            EncapsulateWorldBoundsInPlayerLocal(worldBounds, ref localBounds, ref found);
+        }
+
+        return found;
+    }
+
+    private void EncapsulateWorldBoundsInPlayerLocal(Bounds worldBounds, ref Bounds localBounds, ref bool found)
+    {
+        Vector3 min = worldBounds.min;
+        Vector3 max = worldBounds.max;
+        for (int x = 0; x <= 1; x++)
+        {
+            for (int y = 0; y <= 1; y++)
+            {
+                for (int z = 0; z <= 1; z++)
+                {
+                    Vector3 corner = new Vector3(
+                        x == 0 ? min.x : max.x,
+                        y == 0 ? min.y : max.y,
+                        z == 0 ? min.z : max.z);
+                    Vector3 local = transform.InverseTransformPoint(corner);
+                    if (!found)
+                    {
+                        localBounds = new Bounds(local, Vector3.zero);
+                        found = true;
+                    }
+                    else
+                    {
+                        localBounds.Encapsulate(local);
+                    }
+                }
+            }
+        }
     }
 
     private void ApplyIdleWhileBlocked()
@@ -649,6 +771,36 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         int playerVisualLayer = LayerMask.NameToLayer("MR3D_PlayerVisual");
         return playerVisualLayer >= 0 && hitTransform.gameObject.layer == playerVisualLayer;
     }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        if (!drawControllerFitDebugGizmos)
+            return;
+
+        CharacterController gizmoController = controller != null ? controller : GetComponent<CharacterController>();
+        if (gizmoController != null)
+        {
+            Vector3 centerWorld = transform.TransformPoint(gizmoController.center);
+            float bottomY = centerWorld.y - gizmoController.height * 0.5f;
+            float topY = centerWorld.y + gizmoController.height * 0.5f;
+
+            Gizmos.color = new Color(0.2f, 1f, 0.35f, 0.85f);
+            Gizmos.DrawLine(new Vector3(centerWorld.x - 0.45f, bottomY, centerWorld.z), new Vector3(centerWorld.x + 0.45f, bottomY, centerWorld.z));
+            Gizmos.DrawLine(new Vector3(centerWorld.x, bottomY, centerWorld.z - 0.45f), new Vector3(centerWorld.x, bottomY, centerWorld.z + 0.45f));
+            Gizmos.color = new Color(0.2f, 0.7f, 1f, 0.55f);
+            Gizmos.DrawLine(new Vector3(centerWorld.x, bottomY, centerWorld.z), new Vector3(centerWorld.x, topY, centerWorld.z));
+        }
+
+        if (hasExternalVisualLocalBounds)
+        {
+            Gizmos.color = new Color(1f, 0.78f, 0.18f, 0.55f);
+            Vector3 boundsCenter = transform.TransformPoint(lastExternalVisualLocalBounds.center);
+            Vector3 boundsSize = Vector3.Scale(lastExternalVisualLocalBounds.size, transform.lossyScale);
+            Gizmos.DrawWireCube(boundsCenter, boundsSize);
+        }
+    }
+#endif
 
     private void CacheAnimationRig()
     {
