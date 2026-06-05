@@ -52,6 +52,18 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     public Vector3 externalVisualLocalEuler = Vector3.zero;
     public Vector3 externalVisualLocalScale = Vector3.one;
 
+    [Header("Ground Probe")]
+    public bool enableGroundProbe = true;
+    public LayerMask groundProbeMask = ~0;
+    public float groundProbeRadius = 0.24f;
+    public float groundProbeDistance = 0.55f;
+    public float groundSnapMaxDistance = 0.32f;
+    public float groundSnapSpeed = 18f;
+    public float groundProbeSlopeLimit = 50f;
+    public float groundStickVelocity = -3.5f;
+    public float jumpGroundProbeGraceTime = 0.16f;
+    public float visualGroundClampRange = 0.09f;
+
     private CharacterController controller;
     private float verticalVelocity;
 
@@ -124,6 +136,13 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     private Transform externalLeftToes;
     private Transform externalRightToes;
     private Vector3 externalHipsDefaultLocalPosition;
+    private Vector3 externalVisualBaseLocalPosition;
+    private bool hasExternalVisualBaseLocalPosition;
+    private readonly RaycastHit[] groundProbeHits = new RaycastHit[12];
+    private bool groundProbeHasGround;
+    private float groundProbeGap;
+    private Vector3 groundProbeNormal = Vector3.up;
+    private float skipGroundSnapUntil;
     private const float MinimumExternalVisualGroundPadding = 0.005f;
     private const float MaximumExternalVisualGroundPadding = 0.012f;
 
@@ -213,6 +232,8 @@ public class ThirdPersonPlayer3D : MonoBehaviour
                 externalVisualRoot.localEulerAngles = externalVisualLocalEuler;
                 externalVisualRoot.localScale = externalVisualLocalScale;
             }
+
+            CaptureExternalVisualBasePosition();
         }
 
         GroundExternalVisualToController();
@@ -306,6 +327,8 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         if (!autoGroundExternalVisual || externalVisualRoot == null || controller == null)
             return;
 
+        CaptureExternalVisualBasePosition();
+
         float visualGroundY;
         if (!TryGetExternalFootGroundY(out visualGroundY) && !TryGetExternalRendererGroundY(out visualGroundY))
             return;
@@ -319,8 +342,22 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         Vector3 localDelta = externalVisualRoot.parent != null
             ? externalVisualRoot.parent.InverseTransformVector(Vector3.up * yDelta)
             : Vector3.up * yDelta;
-        externalVisualLocalPosition += new Vector3(0f, localDelta.y, 0f);
+        float clampRange = Mathf.Max(0f, visualGroundClampRange);
+        float targetY = externalVisualLocalPosition.y + localDelta.y;
+        if (clampRange > 0f)
+            targetY = Mathf.Clamp(targetY, externalVisualBaseLocalPosition.y - clampRange, externalVisualBaseLocalPosition.y + clampRange);
+
+        externalVisualLocalPosition = new Vector3(externalVisualLocalPosition.x, targetY, externalVisualLocalPosition.z);
         externalVisualRoot.localPosition = externalVisualLocalPosition;
+    }
+
+    private void CaptureExternalVisualBasePosition()
+    {
+        if (hasExternalVisualBaseLocalPosition)
+            return;
+
+        externalVisualBaseLocalPosition = externalVisualLocalPosition;
+        hasExternalVisualBaseLocalPosition = true;
     }
 
     private bool TryGetExternalFootGroundY(out float groundY)
@@ -386,11 +423,14 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         if (controller == null)
             return;
 
-        if (controller.isGrounded && verticalVelocity < 0f)
-            verticalVelocity = -2f;
+        UpdateGroundProbe();
+        if (IsStableGrounded() && verticalVelocity < 0f)
+            verticalVelocity = groundStickVelocity;
 
         verticalVelocity += gravity * Time.deltaTime;
-        controller.Move(new Vector3(0f, verticalVelocity, 0f) * Time.deltaTime);
+        CollisionFlags collisionFlags = controller.Move(new Vector3(0f, verticalVelocity, 0f) * Time.deltaTime);
+        UpdateGroundProbe();
+        ApplyGroundSnap(collisionFlags);
 
         IsMoving = false;
         isRunning = false;
@@ -437,6 +477,9 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         if (controller == null)
             return;
 
+        UpdateGroundProbe();
+        bool stableGrounded = IsStableGrounded();
+
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
 
@@ -464,21 +507,22 @@ public class ThirdPersonPlayer3D : MonoBehaviour
             }
         }
 
-        if (controller.isGrounded && verticalVelocity < 0f)
-            verticalVelocity = -2f;
+        if (stableGrounded && verticalVelocity < 0f)
+            verticalVelocity = groundStickVelocity;
 
         bool wantsMove = moveDirection.sqrMagnitude > 0.001f;
         isRunning = Input.GetKey(KeyCode.LeftShift) && wantsMove;
         float targetSpeed = (isRunning ? runSpeed : walkSpeed) * inputMagnitude;
         Vector3 targetPlanarVelocity = wantsMove ? moveDirection * targetSpeed : Vector3.zero;
         float velocityChangeRate = targetPlanarVelocity.sqrMagnitude > currentPlanarVelocity.sqrMagnitude ? acceleration : deceleration;
-        if (!controller.isGrounded)
+        if (!stableGrounded)
             velocityChangeRate *= airControl;
         currentPlanarVelocity = Vector3.MoveTowards(currentPlanarVelocity, targetPlanarVelocity, velocityChangeRate * Time.deltaTime);
 
-        if (controller.isGrounded && Input.GetKeyDown(KeyCode.Space))
+        if (stableGrounded && Input.GetKeyDown(KeyCode.Space))
         {
             verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            skipGroundSnapUntil = Time.time + Mathf.Max(0f, jumpGroundProbeGraceTime);
             TriggerJump();
         }
 
@@ -489,7 +533,9 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
         CollisionFlags collisionFlags = controller.Move(finalMove * Time.deltaTime);
         if ((collisionFlags & CollisionFlags.Below) != 0 && verticalVelocity < 0f)
-            verticalVelocity = -2f;
+            verticalVelocity = groundStickVelocity;
+        UpdateGroundProbe();
+        ApplyGroundSnap(collisionFlags);
 
         float planarSpeed = new Vector3(currentPlanarVelocity.x, 0f, currentPlanarVelocity.z).magnitude;
         float targetMoveBlend = runSpeed > 0.001f ? Mathf.Clamp01(planarSpeed / runSpeed) : 0f;
@@ -502,6 +548,106 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
         lastPlanarMove = currentPlanarVelocity;
         IsMoving = planarSpeed > 0.05f;
+    }
+
+    private void UpdateGroundProbe()
+    {
+        groundProbeHasGround = false;
+        groundProbeGap = float.PositiveInfinity;
+        groundProbeNormal = Vector3.up;
+
+        if (!enableGroundProbe || controller == null)
+            return;
+
+        float radius = Mathf.Clamp(groundProbeRadius, 0.04f, Mathf.Max(0.05f, controller.radius * 0.95f));
+        float lift = Mathf.Max(0.04f, controller.skinWidth + 0.025f);
+        float probeDistance = Mathf.Max(0.05f, groundProbeDistance);
+        Vector3 centerWorld = transform.TransformPoint(controller.center);
+        Vector3 bottomSphereCenter = centerWorld - Vector3.up * Mathf.Max(0f, controller.height * 0.5f - controller.radius);
+        Vector3 origin = bottomSphereCenter + Vector3.up * lift;
+
+        int hitCount = Physics.SphereCastNonAlloc(
+            origin,
+            radius,
+            Vector3.down,
+            groundProbeHits,
+            probeDistance + lift,
+            groundProbeMask,
+            QueryTriggerInteraction.Ignore);
+
+        float bestDistance = float.PositiveInfinity;
+        Vector3 bestNormal = Vector3.up;
+        float maxSlope = Mathf.Min(Mathf.Max(1f, groundProbeSlopeLimit), controller.slopeLimit + 1.5f);
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            RaycastHit hit = groundProbeHits[i];
+            if (hit.collider == null || ShouldIgnoreGroundProbeHit(hit.collider.transform))
+                continue;
+
+            float slope = Vector3.Angle(hit.normal, Vector3.up);
+            if (slope > maxSlope)
+                continue;
+
+            float gap = Mathf.Max(0f, hit.distance - lift);
+            if (gap < bestDistance)
+            {
+                bestDistance = gap;
+                bestNormal = hit.normal;
+            }
+        }
+
+        if (float.IsPositiveInfinity(bestDistance))
+            return;
+
+        groundProbeHasGround = true;
+        groundProbeGap = bestDistance;
+        groundProbeNormal = bestNormal;
+    }
+
+    private bool IsStableGrounded()
+    {
+        if (controller != null && controller.isGrounded)
+            return true;
+
+        if (!enableGroundProbe || !groundProbeHasGround || Time.time < skipGroundSnapUntil)
+            return false;
+
+        return groundProbeGap <= Mathf.Min(groundSnapMaxDistance, 0.08f) && Vector3.Dot(groundProbeNormal, Vector3.up) > 0.45f;
+    }
+
+    private void ApplyGroundSnap(CollisionFlags collisionFlags)
+    {
+        if (!enableGroundProbe || controller == null || Time.time < skipGroundSnapUntil)
+            return;
+        if ((collisionFlags & CollisionFlags.Below) != 0)
+            return;
+        if (!groundProbeHasGround || verticalVelocity > 0f)
+            return;
+
+        float maxDistance = Mathf.Max(0f, groundSnapMaxDistance);
+        if (groundProbeGap <= 0.002f || groundProbeGap > maxDistance)
+            return;
+
+        float snapDistance = Mathf.Min(groundProbeGap, Mathf.Max(0f, groundSnapSpeed) * Time.deltaTime);
+        if (snapDistance <= 0f)
+            return;
+
+        CollisionFlags snapFlags = controller.Move(Vector3.down * snapDistance);
+        if ((snapFlags & CollisionFlags.Below) != 0 && verticalVelocity < 0f)
+            verticalVelocity = groundStickVelocity;
+    }
+
+    private bool ShouldIgnoreGroundProbeHit(Transform hitTransform)
+    {
+        if (hitTransform == null)
+            return true;
+
+        if (hitTransform == transform || hitTransform.IsChildOf(transform) || transform.IsChildOf(hitTransform))
+            return true;
+
+        int playerVisualLayer = LayerMask.NameToLayer("MR3D_PlayerVisual");
+        return playerVisualLayer >= 0 && hitTransform.gameObject.layer == playerVisualLayer;
     }
 
     private void CacheAnimationRig()
