@@ -10,12 +10,14 @@ public static class MR3D_Bootstrap
     private static void OnAfterSceneLoad()
     {
         EnsurePlayBoundary();
+        PlayerMemoryLog3D.Ensure();
         SceneManager.sceneLoaded += HandleSceneLoaded;
     }
 
     private static void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         EnsurePlayBoundary();
+        PlayerMemoryLog3D.Ensure();
     }
 
     private static void EnsurePlayBoundary()

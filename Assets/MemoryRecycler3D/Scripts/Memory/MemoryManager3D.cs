@@ -131,6 +131,7 @@ public class MemoryManager3D : MonoBehaviour
         {
             record.decision = decision;
             GameState3D.Instance.RecordDecision(decision);
+            PlayerMemoryLog3D.Ensure().RecordDecision(memory, decision);
             WorldToneController3D.Instance.RefreshWorldTone();
             SaveGame();
         }
@@ -230,12 +231,15 @@ public class MemoryManager3D : MonoBehaviour
             loadedSave = new SaveData();
             if (GameState3D.Instance != null)
                 GameState3D.Instance.ResetState();
+            PlayerMemoryLog3D.Ensure().ResetLog();
             return;
         }
 
         loadedSave = JsonUtility.FromJson<SaveData>(PlayerPrefs.GetString(SaveKey));
         if (loadedSave == null)
             loadedSave = new SaveData();
+
+        PlayerMemoryLog3D.Ensure().LoadLog();
 
         if (GameState3D.Instance != null)
             GameState3D.Instance.SetDecisionCounts(loadedSave.preservedCount, loadedSave.deletedCount, loadedSave.editedCount);
@@ -261,6 +265,7 @@ public class MemoryManager3D : MonoBehaviour
         collectedMemories.Clear();
         if (GameState3D.Instance != null)
             GameState3D.Instance.ResetState();
+        PlayerMemoryLog3D.Ensure().ResetLog();
 
         foreach (KeyValuePair<string, MemoryObject3D> pair in memoryObjects)
             pair.Value.SetCollectedFromSave(false);

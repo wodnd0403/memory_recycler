@@ -1,0 +1,308 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
+
+public class PlayerMemoryLog3D : MonoBehaviour
+{
+    public static PlayerMemoryLog3D Instance { get; private set; }
+
+    private const string SaveKey = "MR3D_PlayerMemoryLog_v1";
+
+    public MemoryDecision3D firstDecision = MemoryDecision3D.Unchosen;
+    public string firstDecisionMemoryId = "";
+    public string firstDecisionMemoryTitle = "";
+    public int preservedCount;
+    public int deletedCount;
+    public int editedCount;
+    public int puzzleMistakeCount;
+    public float playTimeSeconds;
+    public float archiveStaySeconds;
+    public bool endingReached;
+
+    private bool archiveStayActive;
+    private float lastSaveTime;
+
+    [Serializable]
+    private class LogSaveData
+    {
+        public MemoryDecision3D firstDecision;
+        public string firstDecisionMemoryId;
+        public string firstDecisionMemoryTitle;
+        public int preservedCount;
+        public int deletedCount;
+        public int editedCount;
+        public int puzzleMistakeCount;
+        public float playTimeSeconds;
+        public float archiveStaySeconds;
+        public bool endingReached;
+        public List<PuzzleMistakeEntry> puzzleMistakes = new List<PuzzleMistakeEntry>();
+    }
+
+    [Serializable]
+    private class PuzzleMistakeEntry
+    {
+        public string memoryId;
+        public string memoryTitle;
+        public int count;
+    }
+
+    private readonly List<PuzzleMistakeEntry> puzzleMistakes = new List<PuzzleMistakeEntry>();
+
+    public static PlayerMemoryLog3D Ensure()
+    {
+        if (Instance != null)
+            return Instance;
+
+        PlayerMemoryLog3D existing = FindFirstObjectByType<PlayerMemoryLog3D>();
+        if (existing != null)
+        {
+            Instance = existing;
+            return Instance;
+        }
+
+        GameObject host = new GameObject("MR3D_PlayerMemoryLog");
+        return host.AddComponent<PlayerMemoryLog3D>();
+    }
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+        LoadLog();
+    }
+
+    private void Update()
+    {
+        if (endingReached)
+            return;
+
+        playTimeSeconds += Time.unscaledDeltaTime;
+        if (archiveStayActive)
+            archiveStaySeconds += Time.unscaledDeltaTime;
+
+        if (Time.unscaledTime - lastSaveTime > 10f)
+            SaveLog();
+    }
+
+    public void ResetLog()
+    {
+        firstDecision = MemoryDecision3D.Unchosen;
+        firstDecisionMemoryId = "";
+        firstDecisionMemoryTitle = "";
+        preservedCount = 0;
+        deletedCount = 0;
+        editedCount = 0;
+        puzzleMistakeCount = 0;
+        playTimeSeconds = 0f;
+        archiveStaySeconds = 0f;
+        endingReached = false;
+        archiveStayActive = false;
+        puzzleMistakes.Clear();
+        PlayerPrefs.DeleteKey(SaveKey);
+        PlayerPrefs.Save();
+    }
+
+    public void RecordDecision(MemoryData3D memory, MemoryDecision3D decision)
+    {
+        if (decision == MemoryDecision3D.Unchosen)
+            return;
+
+        if (firstDecision == MemoryDecision3D.Unchosen)
+        {
+            firstDecision = decision;
+            firstDecisionMemoryId = memory != null ? memory.id : "";
+            firstDecisionMemoryTitle = memory != null ? memory.memoryTitle : "";
+        }
+
+        switch (decision)
+        {
+            case MemoryDecision3D.Preserve:
+                preservedCount++;
+                break;
+            case MemoryDecision3D.Delete:
+                deletedCount++;
+                break;
+            case MemoryDecision3D.Edit:
+                editedCount++;
+                break;
+        }
+
+        SaveLog();
+    }
+
+    public void RecordPuzzleMistake(MemoryData3D memory)
+    {
+        puzzleMistakeCount++;
+
+        string id = memory != null ? memory.id : "";
+        PuzzleMistakeEntry entry = FindPuzzleMistakeEntry(id);
+        if (entry == null)
+        {
+            entry = new PuzzleMistakeEntry
+            {
+                memoryId = id,
+                memoryTitle = memory != null ? memory.memoryTitle : "이름 없는 기억",
+                count = 0
+            };
+            puzzleMistakes.Add(entry);
+        }
+
+        entry.count++;
+        SaveLog();
+    }
+
+    public void SetArchivePresence(bool inside)
+    {
+        archiveStayActive = inside;
+        if (!inside)
+            SaveLog();
+    }
+
+    public void MarkEndingReached()
+    {
+        endingReached = true;
+        archiveStayActive = false;
+        SaveLog();
+    }
+
+    public int GetPuzzleMistakesFor(MemoryData3D memory)
+    {
+        PuzzleMistakeEntry entry = FindPuzzleMistakeEntry(memory != null ? memory.id : "");
+        return entry != null ? entry.count : 0;
+    }
+
+    public string BuildBehaviorReport(List<MemoryRecord3D> records)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine("[수거원 행동 기록]");
+
+        if (firstDecision == MemoryDecision3D.Unchosen)
+        {
+            sb.AppendLine("- 첫 번째 선택은 아직 기록되지 않았다.");
+        }
+        else
+        {
+            string title = string.IsNullOrEmpty(firstDecisionMemoryTitle) ? "첫 번째 기억" : firstDecisionMemoryTitle;
+            sb.AppendLine("- 수거원은 첫 번째 기억 \"" + title + "\"을 " + MemoryManager3D.DecisionToKorean(firstDecision) + "했다.");
+        }
+
+        sb.AppendLine("- 보존 " + preservedCount + "회 / 삭제 " + deletedCount + "회 / 재가공 " + editedCount + "회");
+
+        if (puzzleMistakeCount <= 0)
+            sb.AppendLine("- 그는 모든 문장을 한 번에 복원했다.");
+        else if (puzzleMistakeCount == 1)
+            sb.AppendLine("- 그는 한 번 문장을 잘못 복원했다.");
+        else
+            sb.AppendLine("- 그는 같은 폐도시 안에서 문장을 " + puzzleMistakeCount + "번이나 잘못 복원했다.");
+
+        if (archiveStaySeconds >= 20f)
+            sb.AppendLine("- 아카이브는 그의 망설임까지 보존했다. 체류 시간 " + FormatDuration(archiveStaySeconds) + ".");
+        else if (archiveStaySeconds > 0f)
+            sb.AppendLine("- 그는 중앙 아카이브 곁에 " + FormatDuration(archiveStaySeconds) + " 머물렀다.");
+
+        sb.AppendLine("- 엔딩 도달 시간: " + FormatDuration(playTimeSeconds));
+
+        MemoryRecord3D painfulPreserved = FindPainfulPreservedMemory(records);
+        if (painfulPreserved != null && painfulPreserved.memory != null)
+            sb.AppendLine("- 그는 아픈 기억 \"" + painfulPreserved.memory.memoryTitle + "\"을 남기는 쪽을 택했다.");
+
+        if (deletedCount > 0)
+            sb.AppendLine("- 삭제된 기억은 증언대에서 침묵으로 남았다.");
+        if (editedCount > 0)
+            sb.AppendLine("- 재가공된 기억은 부드러워졌지만, 원본과 어긋난 흔적을 남겼다.");
+
+        return sb.ToString();
+    }
+
+    public static string FormatDuration(float seconds)
+    {
+        int total = Mathf.Max(0, Mathf.RoundToInt(seconds));
+        int minutes = total / 60;
+        int remainder = total % 60;
+        return minutes + "분 " + remainder + "초";
+    }
+
+    public void SaveLog()
+    {
+        LogSaveData save = new LogSaveData
+        {
+            firstDecision = firstDecision,
+            firstDecisionMemoryId = firstDecisionMemoryId,
+            firstDecisionMemoryTitle = firstDecisionMemoryTitle,
+            preservedCount = preservedCount,
+            deletedCount = deletedCount,
+            editedCount = editedCount,
+            puzzleMistakeCount = puzzleMistakeCount,
+            playTimeSeconds = playTimeSeconds,
+            archiveStaySeconds = archiveStaySeconds,
+            endingReached = endingReached,
+            puzzleMistakes = new List<PuzzleMistakeEntry>(puzzleMistakes)
+        };
+
+        PlayerPrefs.SetString(SaveKey, JsonUtility.ToJson(save));
+        PlayerPrefs.Save();
+        lastSaveTime = Time.unscaledTime;
+    }
+
+    public void LoadLog()
+    {
+        if (!PlayerPrefs.HasKey(SaveKey))
+            return;
+
+        LogSaveData save = JsonUtility.FromJson<LogSaveData>(PlayerPrefs.GetString(SaveKey));
+        if (save == null)
+            return;
+
+        firstDecision = save.firstDecision;
+        firstDecisionMemoryId = save.firstDecisionMemoryId ?? "";
+        firstDecisionMemoryTitle = save.firstDecisionMemoryTitle ?? "";
+        preservedCount = Mathf.Max(0, save.preservedCount);
+        deletedCount = Mathf.Max(0, save.deletedCount);
+        editedCount = Mathf.Max(0, save.editedCount);
+        puzzleMistakeCount = Mathf.Max(0, save.puzzleMistakeCount);
+        playTimeSeconds = Mathf.Max(0f, save.playTimeSeconds);
+        archiveStaySeconds = Mathf.Max(0f, save.archiveStaySeconds);
+        endingReached = save.endingReached;
+        archiveStayActive = false;
+
+        puzzleMistakes.Clear();
+        if (save.puzzleMistakes != null)
+            puzzleMistakes.AddRange(save.puzzleMistakes);
+    }
+
+    private PuzzleMistakeEntry FindPuzzleMistakeEntry(string memoryId)
+    {
+        for (int i = 0; i < puzzleMistakes.Count; i++)
+        {
+            if (puzzleMistakes[i].memoryId == memoryId)
+                return puzzleMistakes[i];
+        }
+
+        return null;
+    }
+
+    private MemoryRecord3D FindPainfulPreservedMemory(List<MemoryRecord3D> records)
+    {
+        if (records == null)
+            return null;
+
+        for (int i = 0; i < records.Count; i++)
+        {
+            MemoryRecord3D record = records[i];
+            if (record == null || record.memory == null || record.decision != MemoryDecision3D.Preserve)
+                continue;
+
+            if (record.memory.emotion == EmotionType3D.Loss || record.memory.emotion == EmotionType3D.Fear)
+                return record;
+        }
+
+        return null;
+    }
+}

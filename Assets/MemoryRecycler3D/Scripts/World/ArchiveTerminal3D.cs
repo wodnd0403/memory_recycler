@@ -31,6 +31,7 @@ public class ArchiveTerminal3D : MonoBehaviour
             return;
 
         playerInside = true;
+        PlayerMemoryLog3D.Ensure().SetArchivePresence(true);
         if (UIManager3D.Instance != null)
             UIManager3D.Instance.ShowPrompt("E : 중앙 아카이브 접속 / Tab : 수집 기록");
     }
@@ -41,6 +42,7 @@ public class ArchiveTerminal3D : MonoBehaviour
             return;
 
         playerInside = false;
+        PlayerMemoryLog3D.Ensure().SetArchivePresence(false);
         if (UIManager3D.Instance != null)
             UIManager3D.Instance.HidePrompt();
     }
@@ -60,6 +62,7 @@ public class ArchiveTerminal3D : MonoBehaviour
 
         if (MemoryCinematicCamera3D.Instance != null)
             MemoryCinematicCamera3D.Instance.PlayArchiveReveal(transform, false);
+        PlayerMemoryLog3D.Ensure().MarkEndingReached();
         if (UIManager3D.Instance != null)
             UIManager3D.Instance.ShowEnding();
     }

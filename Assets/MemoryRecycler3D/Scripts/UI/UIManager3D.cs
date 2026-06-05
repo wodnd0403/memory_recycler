@@ -172,7 +172,7 @@ public class UIManager3D : MonoBehaviour
         string location = string.IsNullOrEmpty(record.memory.locationName) ? "위치 미상" : record.memory.locationName;
         string clue = string.IsNullOrEmpty(record.memory.archiveClue) ? "" : "\n\n[아카이브 단서]\n" + record.memory.archiveClue;
 
-        cardTitle.text = record.memory.memoryTitle;
+        cardTitle.text = GetMemoryDisplayTitle(record);
         cardBody.text =
             "위치: " + location + "\n" +
             "감정 태그: " + record.memory.emotion + "\n" +
@@ -180,6 +180,9 @@ public class UIManager3D : MonoBehaviour
             "처리 상태: " + decision + "\n\n" +
             record.memory.description +
             (record.restored ? "\n\n[복원된 기억]\n" + record.memory.restoredText + clue + GetDecisionGuideText(record) : "\n\n아직 복원되지 않은 기억입니다. 문장 조각을 맞춰 원문을 복구하세요.");
+
+        if (record.restored && (record.decision == MemoryDecision3D.Delete || record.decision == MemoryDecision3D.Edit))
+            cardBody.text += "\n\n[아카이브 재표시]\n" + GetMemoryDisplayText(record);
 
         restoreButton.gameObject.SetActive(!record.restored);
         preserveButton.gameObject.SetActive(record.restored && record.decision == MemoryDecision3D.Unchosen);
@@ -223,7 +226,7 @@ public class UIManager3D : MonoBehaviour
             {
                 MemoryRecord3D record = records[i];
                 string location = string.IsNullOrEmpty(record.memory.locationName) ? "위치 미상" : record.memory.locationName;
-                sb.AppendLine((i + 1) + ". " + record.memory.memoryTitle);
+                sb.AppendLine((i + 1) + ". " + GetMemoryDisplayTitle(record));
                 sb.AppendLine("   위치: " + location);
                 sb.AppendLine("   감정: " + record.memory.emotion + " / 복원: " + (record.restored ? "완료" : "미완료") + " / 처리: " + MemoryManager3D.DecisionToKorean(record.decision));
             }
@@ -306,11 +309,11 @@ public class UIManager3D : MonoBehaviour
 
         string location = string.IsNullOrEmpty(record.memory.locationName) ? "위치 미상" : record.memory.locationName;
         string clue = string.IsNullOrEmpty(record.memory.archiveClue) ? "아카이브 단서가 아직 안정화되지 않았습니다." : record.memory.archiveClue;
-        echoTitle.text = "기억 동기화: " + record.memory.memoryTitle;
+        echoTitle.text = "기억 동기화: " + GetMemoryDisplayTitle(record);
         echoBody.text =
             "위치 신호: " + location + "\n" +
             "감정 잔향: " + record.memory.emotion + "\n\n" +
-            record.memory.restoredText + "\n\n" +
+            GetMemoryDisplayText(record) + "\n\n" +
             "[아카이브 반응]\n" + clue;
 
         if (MemoryAudio3D.Instance != null)
@@ -357,8 +360,18 @@ public class UIManager3D : MonoBehaviour
             body = "당신은 기억을 있는 그대로 남기지 않고 새 질서로 편집했습니다. 도시는 움직이기 시작하지만, 그 안의 진실이 누구의 것인지는 불분명합니다.";
         }
 
+        PlayerMemoryLog3D log = PlayerMemoryLog3D.Ensure();
+        log.MarkEndingReached();
+        List<MemoryRecord3D> records = MemoryManager3D.Instance != null
+            ? MemoryManager3D.Instance.collectedMemories
+            : new List<MemoryRecord3D>();
+
         endingTitle.text = title;
-        endingBody.text = body + "\n\n[선택 통계]\n보존: " + preserved + " / 삭제: " + deleted + " / 재가공: " + edited;
+        endingBody.text =
+            body +
+            "\n\n[선택 통계]\n보존: " + preserved + " / 삭제: " + deleted + " / 재가공: " + edited +
+            "\n\n" + log.BuildBehaviorReport(records) +
+            "\n" + BuildArchiveTestimony(records);
         endingPanel.SetActive(true);
         UnlockCursor();
     }
@@ -954,6 +967,7 @@ public class UIManager3D : MonoBehaviour
         }
         else
         {
+            PlayerMemoryLog3D.Ensure().RecordPuzzleMistake(currentPuzzleRecord.memory);
             ShowToast("순서가 맞지 않습니다. 다시 조합해 보세요.");
         }
     }
@@ -965,6 +979,90 @@ public class UIManager3D : MonoBehaviour
 
         MemoryManager3D.Instance.ApplyDecision(currentRecord.memory, decision);
         ShowMemoryCard(currentRecord);
+    }
+
+    private string GetMemoryDisplayTitle(MemoryRecord3D record)
+    {
+        if (record == null || record.memory == null)
+            return "이름 없는 기억";
+
+        if (record.decision == MemoryDecision3D.Delete)
+            return ObscureTitle(record.memory.memoryTitle);
+
+        return record.memory.memoryTitle;
+    }
+
+    private string GetMemoryDisplayText(MemoryRecord3D record)
+    {
+        if (record == null || record.memory == null)
+            return "";
+
+        switch (record.decision)
+        {
+            case MemoryDecision3D.Delete:
+                return "□□□\n\n증언 없음. 삭제된 기억은 중앙 아카이브의 표면에 빈칸으로만 남았다.";
+            case MemoryDecision3D.Edit:
+                return BuildReworkedMemoryText(record.memory) + "\n\n[기록 불일치]\n문장은 더 아름다워졌지만, 원본과 완전히 일치하지 않습니다.";
+            default:
+                return record.memory.restoredText;
+        }
+    }
+
+    private string BuildArchiveTestimony(List<MemoryRecord3D> records)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine("[아카이브 증언]");
+
+        if (records == null || records.Count == 0)
+        {
+            sb.AppendLine("- 증언 없음.");
+            return sb.ToString();
+        }
+
+        for (int i = 0; i < records.Count; i++)
+        {
+            MemoryRecord3D record = records[i];
+            if (record == null || record.memory == null || record.decision == MemoryDecision3D.Unchosen)
+                continue;
+
+            sb.AppendLine("- " + GetMemoryDisplayTitle(record) + ": " + GetMemoryTestimony(record));
+        }
+
+        return sb.ToString();
+    }
+
+    private string GetMemoryTestimony(MemoryRecord3D record)
+    {
+        switch (record.decision)
+        {
+            case MemoryDecision3D.Preserve:
+                return string.IsNullOrEmpty(record.memory.restoredText) ? "원문 그대로 보존됨." : record.memory.restoredText;
+            case MemoryDecision3D.Delete:
+                return "증언 없음.";
+            case MemoryDecision3D.Edit:
+                return BuildReworkedMemoryText(record.memory) + " (기록 불일치)";
+            default:
+                return "미분류 기록.";
+        }
+    }
+
+    private string BuildReworkedMemoryText(MemoryData3D memory)
+    {
+        string source = memory != null ? memory.restoredText : "";
+        if (string.IsNullOrEmpty(source))
+            return "기억은 부드러운 빛으로 다시 쓰였다.";
+
+        return "기억은 조금 덜 아픈 문장으로 재가공되었다. " + source;
+    }
+
+    private string ObscureTitle(string title)
+    {
+        if (string.IsNullOrEmpty(title))
+            return "□□□";
+        if (title.Length <= 2)
+            return "□□□";
+
+        return title.Substring(0, 1) + "□□□" + title.Substring(title.Length - 1, 1);
     }
 
     private string GetDecisionGuideText(MemoryRecord3D record)
