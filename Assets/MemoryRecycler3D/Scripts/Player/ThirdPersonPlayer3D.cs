@@ -44,12 +44,18 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     public float runAnimationPlaybackSpeed = 1f;
     public float animatorParameterSmooth = 12f;
     public bool lockExternalVisualTransform = true;
+    public bool lockVisualLocalPosition = true;
+    public bool disableAnimatorRootMotion = true;
+    public bool lockExternalHipsLocalPosition = true;
     public bool preserveSceneVisualTransformOnStart = true;
     public bool autoGroundExternalVisual = false;
     public bool useRuntimeVisualAutoGrounding = false;
     public bool useManualVisualYOffset = true;
-    public float manualVisualYOffset = 0f;
+    public float manualVisualYOffset = 0.6f;
     public bool debugPlayerAlignment = true;
+    public bool debugAlignmentTrace = true;
+    public float alignmentTraceChangeThreshold = 0.03f;
+    public Vector3 lockedVisualBaseLocalPosition = Vector3.zero;
     public bool preferRendererGroundForExternalVisual = true;
     public float externalVisualGroundPadding = 0.005f;
     public float externalFootGroundOffset = 0.075f;
@@ -173,6 +179,14 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     private float playerAlignmentDebugStartTime;
     private bool playerAlignmentLoggedStart;
     private bool playerAlignmentLoggedDelayed;
+    private bool alignmentTraceLoggedAwake;
+    private bool alignmentTraceLoggedStart;
+    private bool alignmentTraceLoggedFirstUpdate;
+    private bool alignmentTraceLoggedFirstLateUpdate;
+    private Vector3 lastTracedVisualLocalPosition;
+    private Vector3 lastTracedHipsLocalPosition;
+    private bool hasLastTracedVisualLocalPosition;
+    private bool hasLastTracedHipsLocalPosition;
     private const float MinimumExternalVisualGroundPadding = 0.005f;
     private const float MaximumExternalVisualGroundPadding = 0.012f;
 
@@ -198,11 +212,14 @@ public class ThirdPersonPlayer3D : MonoBehaviour
             {
                 if (externalVisualRoot == null)
                     externalVisualRoot = externalAnimator.transform;
-                externalAnimator.applyRootMotion = false;
+                if (disableAnimatorRootMotion)
+                    externalAnimator.applyRootMotion = false;
                 if (!externalAnimator.gameObject.activeSelf)
                     externalAnimator.gameObject.SetActive(true);
             }
         }
+
+        TraceAlignment("Awake");
     }
 
     private void Start()
@@ -237,7 +254,8 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
         if (externalAnimator != null)
         {
-            externalAnimator.applyRootMotion = false;
+            if (disableAnimatorRootMotion)
+                externalAnimator.applyRootMotion = false;
             externalAnimator.updateMode = AnimatorUpdateMode.Normal;
             externalAnimator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
             externalAnimator.speed = 1f;
@@ -273,13 +291,15 @@ public class ThirdPersonPlayer3D : MonoBehaviour
             }
 
             CaptureExternalVisualBasePosition();
+            lockedVisualBaseLocalPosition = externalVisualBaseLocalPosition;
         }
 
         FitControllerToExternalVisual();
         GroundExternalVisualToController();
-        ApplyManualExternalVisualOffset();
         StabilizeExternalMotionDrift();
+        LockRuntimeVisualAlignment();
         ResetPlayerAlignmentDebug();
+        TraceAlignment("Start");
         LogPlayerAlignmentSnapshot("start");
     }
 
@@ -331,6 +351,9 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         else
             UpdateAnimation();
 
+        if (useExternalHumanoidModel && !alignmentTraceLoggedFirstUpdate)
+            TraceAlignment("First Update");
+
         // Tab은 아카이브 열기 전용. 아카이브가 이미 열려 있으면 ToggleArchive가 닫아준다.
         if (Input.GetKeyDown(KeyCode.Tab) && UIManager3D.Instance != null)
             UIManager3D.Instance.ToggleArchive();
@@ -343,8 +366,11 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         if (useExternalHumanoidModel)
         {
             GroundExternalVisualToController();
-            ApplyManualExternalVisualOffset();
             StabilizeExternalMotionDrift();
+            TraceAlignmentChange();
+            LockRuntimeVisualAlignment();
+            if (!alignmentTraceLoggedFirstLateUpdate)
+                TraceAlignment("First LateUpdate");
             UpdatePlayerAlignmentDebug();
         }
     }
@@ -353,9 +379,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     {
         if (lockExternalVisualTransform && externalVisualRoot != null)
         {
-            Vector3 targetPosition = useManualVisualYOffset
-                ? externalVisualBaseLocalPosition + Vector3.up * manualVisualYOffset
-                : externalVisualLocalPosition;
+            Vector3 targetPosition = lockVisualLocalPosition ? GetLockedVisualTargetLocalPosition() : externalVisualLocalPosition;
             externalVisualRoot.localPosition = targetPosition;
             externalVisualRoot.localEulerAngles = externalVisualLocalEuler;
             externalVisualRoot.localScale = externalVisualLocalScale;
@@ -415,9 +439,41 @@ public class ThirdPersonPlayer3D : MonoBehaviour
             return;
 
         CaptureExternalVisualBasePosition();
-        Vector3 targetPosition = externalVisualBaseLocalPosition + Vector3.up * manualVisualYOffset;
+        Vector3 targetPosition = GetLockedVisualTargetLocalPosition();
         externalVisualRoot.localPosition = targetPosition;
         externalVisualLocalPosition = targetPosition;
+    }
+
+    private Vector3 GetLockedVisualTargetLocalPosition()
+    {
+        Vector3 basePosition = lockVisualLocalPosition ? lockedVisualBaseLocalPosition : externalVisualBaseLocalPosition;
+        return useManualVisualYOffset ? basePosition + Vector3.up * manualVisualYOffset : basePosition;
+    }
+
+    private void LockRuntimeVisualAlignment()
+    {
+        if (externalAnimator != null && disableAnimatorRootMotion)
+            externalAnimator.applyRootMotion = false;
+
+        if (externalVisualRoot != null)
+        {
+            CaptureExternalVisualBasePosition();
+            if (lockVisualLocalPosition)
+            {
+                Vector3 targetPosition = GetLockedVisualTargetLocalPosition();
+                externalVisualRoot.localPosition = targetPosition;
+                externalVisualLocalPosition = targetPosition;
+            }
+
+            if (lockExternalVisualTransform)
+            {
+                externalVisualRoot.localEulerAngles = externalVisualLocalEuler;
+                externalVisualRoot.localScale = externalVisualLocalScale;
+            }
+        }
+
+        if (lockExternalHipsLocalPosition && externalHips != null)
+            externalHips.localPosition = externalHipsDefaultLocalPosition;
     }
 
     private bool TryGetExternalFootGroundY(out float groundY)
@@ -750,6 +806,9 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         if (externalAnimator == null)
             return;
 
+        if (disableAnimatorRootMotion)
+            externalAnimator.applyRootMotion = false;
+
         float targetSpeed = IsMoving ? moveBlend : 0f;
         float dampTime = 1f / Mathf.Max(1f, animatorParameterSmooth);
         externalAnimator.speed = 1f;
@@ -953,6 +1012,12 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         playerAlignmentDebugStartTime = Time.time;
         playerAlignmentLoggedStart = false;
         playerAlignmentLoggedDelayed = false;
+        hasLastTracedVisualLocalPosition = externalVisualRoot != null;
+        if (hasLastTracedVisualLocalPosition)
+            lastTracedVisualLocalPosition = externalVisualRoot.localPosition;
+        hasLastTracedHipsLocalPosition = externalHips != null;
+        if (hasLastTracedHipsLocalPosition)
+            lastTracedHipsLocalPosition = externalHips.localPosition;
     }
 
     private void UpdatePlayerAlignmentDebug()
@@ -982,7 +1047,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         bool hasGroundHit = TryGetAlignmentGroundY(out groundHitY);
 
         Debug.Log(
-            "[MR3D] Player alignment " + label +
+            "[MR3D Alignment Trace] Snapshot " + label +
             " | controller height=" + controller.height.ToString("0.###") +
             " center=" + controller.center.ToString("F3") +
             " radius=" + controller.radius.ToString("0.###") +
@@ -990,6 +1055,10 @@ public class ThirdPersonPlayer3D : MonoBehaviour
             " | rootY=" + transform.position.y.ToString("0.###") +
             " | visualLocalY=" + (externalVisualRoot != null ? externalVisualRoot.localPosition.y.ToString("0.###") : "n/a") +
             " visualWorldY=" + (externalVisualRoot != null ? externalVisualRoot.position.y.ToString("0.###") : "n/a") +
+            " | animatorLocalY=" + (externalAnimator != null ? externalAnimator.transform.localPosition.y.ToString("0.###") : "n/a") +
+            " animatorWorldY=" + (externalAnimator != null ? externalAnimator.transform.position.y.ToString("0.###") : "n/a") +
+            " | hipsLocalY=" + (externalHips != null ? externalHips.localPosition.y.ToString("0.###") : "n/a") +
+            " hipsWorldY=" + (externalHips != null ? externalHips.position.y.ToString("0.###") : "n/a") +
             " | rendererMinY=" + (hasRendererMin ? rendererMinY.ToString("0.###") : "n/a") +
             " | groundHitY=" + (hasGroundHit ? groundHitY.ToString("0.###") : "n/a") +
             " | manualVisualYOffset=" + manualVisualYOffset.ToString("0.###"),
@@ -999,6 +1068,100 @@ public class ThirdPersonPlayer3D : MonoBehaviour
             playerAlignmentLoggedStart = true;
         else
             playerAlignmentLoggedDelayed = true;
+    }
+
+    private void TraceAlignment(string label)
+    {
+        if (!debugAlignmentTrace)
+            return;
+
+        if (label == "Awake" && alignmentTraceLoggedAwake)
+            return;
+        if (label == "Start" && alignmentTraceLoggedStart)
+            return;
+        if (label == "First Update" && alignmentTraceLoggedFirstUpdate)
+            return;
+        if (label == "First LateUpdate" && alignmentTraceLoggedFirstLateUpdate)
+            return;
+
+        float controllerBottomWorldY = 0f;
+        if (controller != null)
+        {
+            Vector3 controllerCenterWorld = transform.TransformPoint(controller.center);
+            controllerBottomWorldY = controllerCenterWorld.y - controller.height * 0.5f;
+        }
+
+        float rendererMinY;
+        bool hasRendererMin = TryGetExternalRendererGroundY(out rendererMinY);
+        float groundHitY;
+        bool hasGroundHit = TryGetAlignmentGroundY(out groundHitY);
+
+        Debug.Log(
+            "[MR3D Alignment Trace] " + label +
+            " | controllerBottomWorldY=" + (controller != null ? controllerBottomWorldY.ToString("0.###") : "n/a") +
+            " | playerRootY=" + transform.position.y.ToString("0.###") +
+            " | visualLocal=" + (externalVisualRoot != null ? externalVisualRoot.localPosition.ToString("F3") : "n/a") +
+            " visualWorldY=" + (externalVisualRoot != null ? externalVisualRoot.position.y.ToString("0.###") : "n/a") +
+            " | animatorLocal=" + (externalAnimator != null ? externalAnimator.transform.localPosition.ToString("F3") : "n/a") +
+            " animatorWorldY=" + (externalAnimator != null ? externalAnimator.transform.position.y.ToString("0.###") : "n/a") +
+            " applyRootMotion=" + (externalAnimator != null ? externalAnimator.applyRootMotion.ToString() : "n/a") +
+            " | hipsLocal=" + (externalHips != null ? externalHips.localPosition.ToString("F3") : "n/a") +
+            " hipsWorldY=" + (externalHips != null ? externalHips.position.y.ToString("0.###") : "n/a") +
+            " | rendererMinY=" + (hasRendererMin ? rendererMinY.ToString("0.###") : "n/a") +
+            " | groundHitY=" + (hasGroundHit ? groundHitY.ToString("0.###") : "n/a") +
+            " | manualVisualYOffset=" + manualVisualYOffset.ToString("0.###") +
+            " | lockedBase=" + lockedVisualBaseLocalPosition.ToString("F3"),
+            this);
+
+        if (label == "Awake")
+            alignmentTraceLoggedAwake = true;
+        else if (label == "Start")
+            alignmentTraceLoggedStart = true;
+        else if (label == "First Update")
+            alignmentTraceLoggedFirstUpdate = true;
+        else if (label == "First LateUpdate")
+            alignmentTraceLoggedFirstLateUpdate = true;
+    }
+
+    private void TraceAlignmentChange()
+    {
+        if (!debugAlignmentTrace)
+            return;
+
+        float threshold = Mathf.Max(0.001f, alignmentTraceChangeThreshold);
+        if (externalVisualRoot != null)
+        {
+            Vector3 current = externalVisualRoot.localPosition;
+            if (hasLastTracedVisualLocalPosition && Mathf.Abs(current.y - lastTracedVisualLocalPosition.y) >= threshold)
+            {
+                Debug.Log(
+                    "[MR3D Alignment Trace] visual localPosition changed | prev=" +
+                    lastTracedVisualLocalPosition.ToString("F3") +
+                    " current=" + current.ToString("F3") +
+                    " | manualVisualYOffset=" + manualVisualYOffset.ToString("0.###"),
+                    this);
+            }
+
+            lastTracedVisualLocalPosition = current;
+            hasLastTracedVisualLocalPosition = true;
+        }
+
+        if (externalHips != null)
+        {
+            Vector3 current = externalHips.localPosition;
+            if (hasLastTracedHipsLocalPosition && Mathf.Abs(current.y - lastTracedHipsLocalPosition.y) >= threshold)
+            {
+                Debug.Log(
+                    "[MR3D Alignment Trace] hips localPosition changed | prev=" +
+                    lastTracedHipsLocalPosition.ToString("F3") +
+                    " current=" + current.ToString("F3") +
+                    " default=" + externalHipsDefaultLocalPosition.ToString("F3"),
+                    this);
+            }
+
+            lastTracedHipsLocalPosition = current;
+            hasLastTracedHipsLocalPosition = true;
+        }
     }
 
     private bool TryGetAlignmentGroundY(out float groundY)
