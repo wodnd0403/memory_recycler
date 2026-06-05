@@ -6796,13 +6796,26 @@ MonoBehaviour:
   runAnimationPlaybackSpeed: 1
   animatorParameterSmooth: 12
   lockExternalVisualTransform: 1
+  lockVisualLocalPosition: 1
+  disableAnimatorRootMotion: 1
+  lockExternalHipsLocalPosition: 1
+  preserveSceneVisualTransformOnStart: 1
   autoGroundExternalVisual: 1
+  useRuntimeVisualAutoGrounding: 0
+  useManualVisualYOffset: 1
+  manualVisualYOffset: 0.43
+  debugPlayerAlignment: 1
+  debugAlignmentTrace: 0
+  alignmentTraceChangeThreshold: 0.03
+  lockedVisualBaseLocalPosition: {x: 0, y: 0, z: 0}
   externalVisualGroundPadding: 0.005
   externalFootGroundOffset: 0.075
   stabilizeExternalClipRootMotion: 1
   externalVisualLocalPosition: {x: 0, y: 0, z: 0}
   externalVisualLocalEuler: {x: 0, y: 0, z: 0}
   externalVisualLocalScale: {x: 1, y: 1, z: 1}
+  autoFitControllerToExternalVisual: 0
+  useRuntimeCapsuleAutoFit: 0
 --- !u!143 &72352662
 CharacterController:
   m_ObjectHideFlags: 0

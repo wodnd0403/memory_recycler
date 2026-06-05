@@ -51,9 +51,9 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     public bool autoGroundExternalVisual = false;
     public bool useRuntimeVisualAutoGrounding = false;
     public bool useManualVisualYOffset = true;
-    public float manualVisualYOffset = 0.6f;
+    public float manualVisualYOffset = 0.43f;
     public bool debugPlayerAlignment = true;
-    public bool debugAlignmentTrace = true;
+    public bool debugAlignmentTrace = false;
     public float alignmentTraceChangeThreshold = 0.03f;
     public Vector3 lockedVisualBaseLocalPosition = Vector3.zero;
     public bool preferRendererGroundForExternalVisual = true;
