@@ -45,6 +45,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     public float animatorParameterSmooth = 12f;
     public bool lockExternalVisualTransform = true;
     public bool autoGroundExternalVisual = true;
+    public bool preferRendererGroundForExternalVisual = true;
     public float externalVisualGroundPadding = 0.005f;
     public float externalFootGroundOffset = 0.075f;
     public bool stabilizeExternalClipRootMotion = true;
@@ -55,6 +56,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
     [Header("Controller / Visual Alignment")]
     public bool autoFitControllerToExternalVisual = true;
     public bool preferHumanoidBoneControllerFit = true;
+    public bool useRendererBottomForHumanoidControllerFit = true;
     public float controllerFitHeightPadding = 0.04f;
     public float controllerFitHeadPadding = 0.18f;
     public float controllerFitBottomPadding = 0.015f;
@@ -349,7 +351,7 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         CaptureExternalVisualBasePosition();
 
         float visualGroundY;
-        if (!TryGetExternalFootGroundY(out visualGroundY) && !TryGetExternalRendererGroundY(out visualGroundY))
+        if (!TryGetExternalVisibleGroundY(out visualGroundY))
             return;
 
         Vector3 controllerCenterWorld = transform.TransformPoint(controller.center);
@@ -394,6 +396,31 @@ public class ThirdPersonPlayer3D : MonoBehaviour
 
         groundY -= externalFootGroundOffset;
         return true;
+    }
+
+    private bool TryGetExternalVisibleGroundY(out float groundY)
+    {
+        float rendererGroundY;
+        float footGroundY;
+
+        if (preferRendererGroundForExternalVisual)
+        {
+            if (TryGetExternalRendererGroundY(out rendererGroundY))
+            {
+                groundY = rendererGroundY;
+                return true;
+            }
+
+            return TryGetExternalFootGroundY(out groundY);
+        }
+
+        if (TryGetExternalFootGroundY(out footGroundY))
+        {
+            groundY = footGroundY;
+            return true;
+        }
+
+        return TryGetExternalRendererGroundY(out groundY);
     }
 
     private static void AddFootGroundCandidate(Transform bone, ref float groundY, ref bool found)
@@ -571,6 +598,10 @@ public class ThirdPersonPlayer3D : MonoBehaviour
         AddBoneBottomCandidate(rightToes, ref bottom);
         if (float.IsPositiveInfinity(bottom))
             return false;
+
+        Bounds rendererBounds;
+        if (useRendererBottomForHumanoidControllerFit && TryGetExternalVisualLocalBounds(out rendererBounds))
+            bottom = rendererBounds.min.y;
 
         float top = transform.InverseTransformPoint(head.position).y + Mathf.Max(0f, controllerFitHeadPadding);
         if (top <= bottom + 0.2f)
