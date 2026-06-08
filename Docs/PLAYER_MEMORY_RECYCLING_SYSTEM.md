@@ -10,8 +10,21 @@ Memory Recycler 3D now treats the player as another record source. The game begi
 - Total preserve/delete/reprocess counts.
 - Puzzle mistake count.
 - Per-memory puzzle mistake count.
+- Per-memory restore abandonment count.
+- Per-memory restoration time, measured while the restore puzzle is open.
+- Total memory instability, derived from mistakes and abandoned restores.
 - Time spent before reaching the ending.
 - Time spent near the central archive terminal.
+
+## Memory State Rules
+
+The core loop separates memory state into three levels:
+
+- Collected: the player interacted with a blue memory orb and added it to the logbook.
+- Restored: the player solved the sentence puzzle successfully.
+- Processed: the player chose preserve, delete, or reprocess.
+
+Closing UI does not restore or process a memory. The central archive ending condition counts only processed memories, which means a memory must be restored and then explicitly decided.
 
 ## Ending Use
 
@@ -50,8 +63,25 @@ The ending also appends per-memory archive testimony. Each memory can now provid
 - The puzzle panel shows the hint in the existing selected-sentence text area, so the teammate puzzle UI overlap fix is not disturbed.
 - Memory assets store `sentencePieces` in correct narrative order, while the runtime puzzle displays those pieces in a stable shuffled order per memory.
 - Wrong answers are recorded through `PlayerMemoryLog3D`.
-- The first wrong answer gives the memory hint.
-- Repeated wrong answers produce archive-style feedback that makes the game feel like it is watching the player struggle.
+- The puzzle panel shows memory stability: `안정`, `흔들림`, or `붕괴 직전`.
+- Wrong answers increase memory instability and change feedback from unstable sentence text to archive classification text.
+- Closing an unfinished puzzle leaves the memory collected but unrestored, records one restore abandonment, and shows an interruption toast.
+
+## Unfinished Memory Flow
+
+- HUD displays `복원 대기 기억 N개` when collected memories have not been restored.
+- The archive logbook marks memories as `[복원 대기]`, `[선택 대기]`, or `[처리 완료]`.
+- The central archive terminal warns when unrestored memories are still making noise near the archive.
+- `다음 처리할 기억 열기` prioritizes unrestored memories, then restored but undecided memories.
+- When there is nothing actionable, the button changes to `처리할 기억 없음` and becomes disabled.
+
+## Decision Preview
+
+The restored memory card includes a short preview before the player chooses:
+
+- Preserve keeps original testimony and preserves the wound.
+- Delete turns testimony into a blank and prevents the memory from speaking in the ending.
+- Reprocess makes the sentence easier to endure but leaves a record mismatch.
 
 ## Archive Progress Reactions
 
@@ -75,6 +105,8 @@ The final line of `[수거원 행동 기록]` is selected from the current playe
 - balanced choices,
 - default common line when no stronger pattern exists.
 
+The ending body is displayed inside a scroll area, with fixed footer buttons for title, new game, and quit. The behavior report uses the short summary version so it stays readable during a presentation.
+
 ## Memory Data Fields
 
 `MemoryData3D` now includes:
@@ -95,12 +127,18 @@ The final line of `[수거원 행동 기록]` is selected from the current playe
 ## QA Checklist
 
 - Start a new game and confirm the player memory log resets.
+- Collect a memory, open its puzzle, close it without solving, and confirm processed count does not increase.
+- Reopen the same memory from the archive logbook and confirm it is still restorable.
 - Solve one puzzle incorrectly, then correctly, and verify the ending mentions the mistake count.
 - Confirm wrong-answer toast changes after repeated mistakes.
 - Confirm puzzle hints appear without overlapping puzzle buttons.
+- Confirm memory stability changes after wrong answers or abandoned restores.
 - Choose preserve/delete/reprocess at least once each and verify the ending behavior report.
+- Confirm the restored card shows preserve/delete/reprocess result previews before choosing.
 - Delete one memory and confirm its title is partially masked in archive-style views.
 - Reprocess one memory and confirm the ending testimony includes `기록 불일치`.
 - Open the archive before the ending and confirm the progress reaction reflects current decision count.
+- Confirm unfinished memories appear as `[복원 대기]` and do not unlock the ending.
+- Confirm the ending body scrolls and does not overlap the footer buttons.
 - Stand near the central archive for at least 20 seconds and confirm hesitation text appears.
 - Confirm `Manual Visual Y Offset` remains `0.43` in the player script/scene.
