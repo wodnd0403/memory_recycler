@@ -13,34 +13,25 @@ MonoBehaviour:
   m_Name: MR3D_003
   m_EditorClassIdentifier: Assembly-CSharp::MemoryData3D
   id: MR3D_003
-  memoryTitle: "\uCCAB \uBC88\uC9F8 \uCE58\uB8CC \uB3D9\uC758\uC11C"
-  description: "\uAE30\uC5B5 \uC0AD\uC81C \uAE30\uC220\uC774 \uCC98\uC74C \uB3C4\uC785\uB41C
-    \uBCD1\uC6D0 \uAE30\uB85D\uC785\uB2C8\uB2E4. \uBB38\uC11C\uC5D0\uB294 \uCE58\uB8CC\uB77C\uB294
-    \uB9D0\uACFC \uD68C\uD53C\uB77C\uB294 \uB9D0\uC774 \uD568\uAED8 \uB0A8\uC544
-    \uC788\uC2B5\uB2C8\uB2E4."
-  emotion: 4
-  corruptionLevel: 31
-  locationName: "\uAE30\uC5B5 \uCE58\uB8CC \uBCD1\uB3D9"
-  archiveClue: "\uCE58\uB8CC\uB77C\uB294 \uC774\uB984\uC758 \uC0AD\uC81C\uAC00 \uB3C4\uC2DC
-    \uC804\uCCB4\uC758 \uD45C\uC900 \uC808\uCC28\uAC00 \uB41C \uCCAB \uD754\uC801\uC785\uB2C8\uB2E4."
+  memoryTitle: "지워진 안내 방송"
+  description: "관리자 시스템이 남긴 공공 안내 기록입니다. 안전하다는 말은 반복되지만, 그 말 속에서 사라진 사람들은 호출되지 않습니다."
+  emotion: 6
+  corruptionLevel: 58
+  locationName: "재난 방송국"
+  archiveClue: "공공 안내 기록에 누락된 이름이 감지되었습니다."
   sentencePieces:
-  - "\uCC98\uC74C \uBAA9\uC801\uC740 \uC0C1\uCC98\uB97C \uB35C\uC5B4\uC8FC\uB294
-    \uAC83\uC774\uC5C8\uB2E4"
-  - "\uC0AC\uB78C\uB4E4\uC740 \uACE0\uD1B5\uC744 \uC904\uC774\uB294 \uBC95\uC744
-    \uBC30\uC6E0\uB2E4"
-  - "\uACE7 \uB204\uAD6C\uB3C4 \uACE0\uD1B5\uC758 \uC774\uC720\uB97C \uBB3B\uC9C0
-    \uC54A\uC558\uB2E4"
+  - "방송은 매일"
+  - "시민의 안전을 말했지만,"
+  - "사라진 이름들은"
+  - "안내문에 적히지 않았다."
   correctOrder:
-  - "\uCC98\uC74C \uBAA9\uC801\uC740 \uC0C1\uCC98\uB97C \uB35C\uC5B4\uC8FC\uB294
-    \uAC83\uC774\uC5C8\uB2E4"
-  - "\uC0AC\uB78C\uB4E4\uC740 \uACE0\uD1B5\uC744 \uC904\uC774\uB294 \uBC95\uC744
-    \uBC30\uC6E0\uB2E4"
-  - "\uACE7 \uB204\uAD6C\uB3C4 \uACE0\uD1B5\uC758 \uC774\uC720\uB97C \uBB3B\uC9C0
-    \uC54A\uC558\uB2E4"
-  restoredText: "\uCE58\uB8CC\uB294 \uD544\uC694\uD588\uC9C0\uB9CC, \uB3C4\uC2DC\uB294
-    \uC5B4\uB290 \uC21C\uAC04 \uC9C8\uBB38\uAE4C\uC9C0 \uC0AD\uC81C\uD558\uAE30 \uC2DC\uC791\uD588\uC2B5\uB2C8\uB2E4."
-  puzzleHint: "동의서의 순서는 요청, 서명, 그리고 시스템이 넘은 선으로 이어집니다."
-  preserveTestimony: "첫 번째 치료 동의서는 삭제 기술의 시작점으로 보존되었습니다. 필요했던 치료와 남용된 명령 사이의 선이 그대로 남았습니다."
-  deleteTestimony: "동의서 원본이 폐기되었습니다. 치료라는 단어만 남고, 누가 선을 넘었는지는 확인할 수 없습니다."
-  reprocessedText: "치료 기록은 환자를 덜 아프게 한 선택으로 다시 정리되었습니다. 도시의 시스템은 선을 넘지 않은 것처럼 표시됩니다."
-  reprocessWarning: "기록 불일치: 실제 로그에는 동의 이후 강제 삭제 명령이 이어져 있습니다."
+  - "방송은 매일"
+  - "시민의 안전을 말했지만,"
+  - "사라진 이름들은"
+  - "안내문에 적히지 않았다."
+  restoredText: "방송은 매일 시민의 안전을 말했지만, 사라진 이름들은 안내문에 적히지 않았다."
+  puzzleHint: "안전하다는 말은 너무 자주 반복되었다."
+  preserveTestimony: "지워진 안내 방송이 보존되었습니다. 안전이라는 말 뒤에 누가 사라졌는지 기록됩니다."
+  deleteTestimony: "지워진 안내 방송이 삭제되었습니다. 도시는 여전히 안전했다고 주장할 수 있습니다."
+  reprocessedText: "지워진 안내 방송이 재가공되었습니다. 모든 시민은 질서 있게 대피한 것으로 정리됩니다."
+  reprocessWarning: "원본 기록과 일치하지 않습니다."

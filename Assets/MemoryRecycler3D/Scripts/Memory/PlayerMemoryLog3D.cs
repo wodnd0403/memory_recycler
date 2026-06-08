@@ -219,6 +219,7 @@ public class PlayerMemoryLog3D : MonoBehaviour
             sb.AppendLine("- 재가공된 기억은 부드러워졌지만, 원본과 어긋난 흔적을 남겼다.");
         if (preservedCount > 0 && deletedCount > 0 && editedCount > 0)
             sb.AppendLine("- 아카이브는 그가 한 가지 원칙이 아니라, 매번 다른 죄책감으로 판단했다는 사실을 보존했다.");
+        sb.AppendLine("- " + BuildEndingBehaviorSentence());
 
         return sb.ToString();
     }
@@ -288,6 +289,30 @@ public class PlayerMemoryLog3D : MonoBehaviour
         }
 
         return null;
+    }
+
+    private string BuildEndingBehaviorSentence()
+    {
+        if (archiveStaySeconds >= 20f)
+            return "그는 아카이브 앞에서 오래 멈춰 있었다. 그 망설임은 어떤 기억보다 선명하게 남았다.";
+        if (puzzleMistakeCount >= 3)
+            return "그는 문장을 여러 번 잘못 놓았다. 아카이브는 그 실수마저 복원 과정으로 보관했다.";
+
+        bool preserveWins = preservedCount > deletedCount && preservedCount > editedCount;
+        bool deleteWins = deletedCount > preservedCount && deletedCount > editedCount;
+        bool editWins = editedCount > preservedCount && editedCount > deletedCount;
+
+        if (preserveWins)
+            return "아카이브는 도시의 상처를 닫지 않았다. 대신 수거원이 그것을 남겼다는 사실을 보존했다.";
+        if (deleteWins)
+            return "도시는 조용해졌다. 그러나 아카이브는 지워진 기억보다 지우려던 손길을 먼저 기록했다.";
+        if (editWins)
+            return "도시는 견딜 수 있는 이야기로 바뀌었다. 다만 아카이브는 그 이야기가 원본이 아니었음을 기억한다.";
+
+        if (preservedCount + deletedCount + editedCount > 0)
+            return "수거원은 어느 하나의 답도 선택하지 않았다. 그래서 아카이브는 그의 망설임까지 분류했다.";
+
+        return "그는 기억을 처리하러 왔지만, 마지막으로 재활용된 것은 그의 선택이었다.";
     }
 
     private MemoryRecord3D FindPainfulPreservedMemory(List<MemoryRecord3D> records)

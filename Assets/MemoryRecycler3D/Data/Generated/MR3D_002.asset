@@ -13,29 +13,25 @@ MonoBehaviour:
   m_Name: MR3D_002
   m_EditorClassIdentifier: Assembly-CSharp::MemoryData3D
   id: MR3D_002
-  memoryTitle: "\uC878\uC5C5 \uC568\uBC94\uC758 \uBE48\uCE78"
-  description: "\uD3D0\uAD50 \uBCF5\uB3C4\uC5D0 \uD769\uC5B4\uC9C4 \uC878\uC5C5 \uC568\uBC94\uC785\uB2C8\uB2E4.
-    \uD55C \uD559\uC0DD\uC758 \uC774\uB984\uB9CC \uBC18\uBCF5\uD574\uC11C \uC9C0\uC6CC\uC838
-    \uC788\uC2B5\uB2C8\uB2E4."
-  emotion: 1
-  corruptionLevel: 48
-  locationName: "\uD3D0\uAD50 \uBCF5\uB3C4"
-  archiveClue: "\uAC1C\uC778\uC758 \uC774\uB984\uC744 \uC9C0\uC6B0\uBA74 \uC0AC\uAC74\uB3C4
-    \uC0AC\uB77C\uC9C4\uB2E4\uACE0 \uBBFF\uC5C8\uB358 \uC2DC\uAE30\uC758 \uAE30\uB85D\uC785\uB2C8\uB2E4."
+  memoryTitle: "파란 우산"
+  description: "미아가 남긴 개인적 상실의 기억입니다. 버려진 물건처럼 보이는 우산은 돌아오지 않은 사람을 기다리고 있습니다."
+  emotion: 3
+  corruptionLevel: 42
+  locationName: "지하철 대피 통로"
+  archiveClue: "작은 기다림 하나가 도시 기록에 복원되었습니다."
   sentencePieces:
-  - "\uC6B0\uB9AC\uB294 \uBAA8\uB978 \uCC99\uD588\uB2E4"
-  - "\uADF8 \uC544\uC774\uC758 \uCC45\uC0C1\uC740 \uB9E4\uC77C \uBE44\uC5B4 \uC788\uC5C8\uB2E4"
-  - "\uC568\uBC94\uC5D0\uC11C \uC774\uB984\uC744 \uC9C0\uC6B0\uBA74 \uC8C4\uCC45\uAC10\uB3C4
-    \uC0AC\uB77C\uC9C8 \uC904 \uC54C\uC558\uB2E4"
+  - "비가 오던 날,"
+  - "나는 파란 우산을"
+  - "버린 것이 아니라"
+  - "돌아올 사람에게 맡겼다."
   correctOrder:
-  - "\uADF8 \uC544\uC774\uC758 \uCC45\uC0C1\uC740 \uB9E4\uC77C \uBE44\uC5B4 \uC788\uC5C8\uB2E4"
-  - "\uC6B0\uB9AC\uB294 \uBAA8\uB978 \uCC99\uD588\uB2E4"
-  - "\uC568\uBC94\uC5D0\uC11C \uC774\uB984\uC744 \uC9C0\uC6B0\uBA74 \uC8C4\uCC45\uAC10\uB3C4
-    \uC0AC\uB77C\uC9C8 \uC904 \uC54C\uC558\uB2E4"
-  restoredText: "\uC9D1\uB2E8\uC758 \uCE68\uBB35\uC740 \uD55C \uC0AC\uB78C\uC758
-    \uBD80\uC7AC\uBCF4\uB2E4 \uC624\uB798 \uB0A8\uC558\uC2B5\uB2C8\uB2E4."
-  puzzleHint: "먼저 사라진 이름을 찾고, 그 이름이 무엇으로 바뀌었는지 확인하세요."
-  preserveTestimony: "졸업 앨범의 빈칸은 원문 그대로 보존되었습니다. 누군가의 이름을 지운 교실은 이제 침묵의 책임까지 함께 증언합니다."
-  deleteTestimony: "졸업 앨범의 빈칸은 다시 빈칸으로 처리되었습니다. 해당 학생의 이름과 침묵한 사람들의 표정은 증언대에 오르지 않습니다."
-  reprocessedText: "앨범의 빈칸에는 늦게 도착한 꽃잎이 붙었습니다. 사라진 이름은 상처 대신 작별 인사로 다시 분류되었습니다."
-  reprocessWarning: "기록 불일치: 이름은 아름답게 사라진 것이 아니라, 집단의 침묵으로 교체되었습니다."
+  - "비가 오던 날,"
+  - "나는 파란 우산을"
+  - "버린 것이 아니라"
+  - "돌아올 사람에게 맡겼다."
+  restoredText: "비가 오던 날, 나는 파란 우산을 버린 것이 아니라 돌아올 사람에게 맡겼다."
+  puzzleHint: "버려진 물건은 때때로 가장 오래 기다린다."
+  preserveTestimony: "파란 우산의 기억이 보존되었습니다. 미아는 누군가를 기다렸고, 그 기다림은 버려진 것이 아니었습니다."
+  deleteTestimony: "파란 우산의 기억이 삭제되었습니다. 우산은 남았지만, 누구를 기다렸는지는 기록되지 않습니다."
+  reprocessedText: "파란 우산의 기억이 재가공되었습니다. 미아는 비를 피했고, 아무도 돌아오지 않았다는 사실은 남지 않았습니다."
+  reprocessWarning: "원본 기록과 일치하지 않습니다."

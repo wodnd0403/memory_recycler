@@ -13,32 +13,25 @@ MonoBehaviour:
   m_Name: MR3D_004
   m_EditorClassIdentifier: Assembly-CSharp::MemoryData3D
   id: MR3D_004
-  memoryTitle: "\uD589\uC815 \uAD6C\uC5ED\uC758 \uC57C\uAC04 \uBA85\uB839"
-  description: "\uC911\uC559 \uD589\uC815 \uC11C\uBC84\uC5D0\uC11C \uB5A8\uC5B4\uC838
-    \uB098\uC628 \uBA85\uB839 \uB85C\uADF8\uC785\uB2C8\uB2E4. \uD2B9\uC815 \uC0AC\uAC74
-    \uC774\uD6C4 \uB3C4\uC2DC \uC804\uCCB4\uC758 \uAE30\uC5B5\uC774 \uC77C\uAD04
-    \uC815\uB9AC\uB418\uC5C8\uC2B5\uB2C8\uB2E4."
-  emotion: 2
-  corruptionLevel: 72
-  locationName: "\uD589\uC815 \uC11C\uBC84 \uAD6C\uC5ED"
-  archiveClue: "\uC911\uC559 \uBA85\uB839\uC740 \uC2DC\uBBFC\uC744 \uBCF4\uD638\uD55C\uB2E4\uB294
-    \uBB38\uC7A5\uC73C\uB85C \uC2DC\uBBFC\uC758 \uC99D\uC5B8\uC744 \uC7A0\uAC14\uC2B5\uB2C8\uB2E4."
+  memoryTitle: "시민의 대기표"
+  description: "이름 없는 시민의 기다림과 방치를 담은 기억입니다. 호출되지 않은 번호는 끝내 약속이 되지 못했습니다."
+  emotion: 1
+  corruptionLevel: 51
+  locationName: "아카이브 민원 대기실"
+  archiveClue: "미호출 기록이 복원되었습니다. 대기 시간은 측정 불가입니다."
   sentencePieces:
-  - "\uC0AC\uAC74\uBA85\uC740 \uAE30\uB85D\uD558\uC9C0 \uC54A\uB294\uB2E4"
-  - "\uAD00\uB828\uC790\uC758 \uC2AC\uD514\uC740 \uACF5\uACF5 \uC548\uC815\uC744
-    \uD574\uCE5C\uB2E4"
-  - "\uBAA8\uB4E0 \uC2DC\uBBFC\uC5D0\uAC8C \uC120\uD0DD\uAD8C\uC774 \uC788\uC5C8\uB2E4\uACE0
-    \uBC1C\uD45C\uD55C\uB2E4"
+  - "나는 기억을 돌려받으려고"
+  - "대기표를 쥐고 있었지만,"
+  - "전광판은 끝내"
+  - "내 번호를 부르지 않았다."
   correctOrder:
-  - "\uC0AC\uAC74\uBA85\uC740 \uAE30\uB85D\uD558\uC9C0 \uC54A\uB294\uB2E4"
-  - "\uAD00\uB828\uC790\uC758 \uC2AC\uD514\uC740 \uACF5\uACF5 \uC548\uC815\uC744
-    \uD574\uCE5C\uB2E4"
-  - "\uBAA8\uB4E0 \uC2DC\uBBFC\uC5D0\uAC8C \uC120\uD0DD\uAD8C\uC774 \uC788\uC5C8\uB2E4\uACE0
-    \uBC1C\uD45C\uD55C\uB2E4"
-  restoredText: "\uB3C4\uC2DC\uB294 \uC2DC\uBBFC\uC744 \uBCF4\uD638\uD55C\uB2E4\uB294
-    \uBA85\uBAA9\uC73C\uB85C \uC2DC\uBBFC\uC758 \uC99D\uC5B8\uC744 \uC9C0\uC6E0\uC2B5\uB2C8\uB2E4."
-  puzzleHint: "명령은 보호를 약속하지만, 마지막에는 시민의 증언을 지웁니다."
-  preserveTestimony: "야간 명령은 원문 그대로 보존되었습니다. 보호라는 문장이 어떻게 통제로 바뀌었는지 중앙 서버가 다시 읽기 시작합니다."
-  deleteTestimony: "야간 명령 기록은 보안 사유로 삭제되었습니다. 도시가 누구를 보호했는지, 무엇을 지웠는지는 증언되지 않습니다."
-  reprocessedText: "야간 명령은 임시 대피 프로토콜로 재가공되었습니다. 시민들은 잠시 쉬었고, 도시는 그들을 안전하게 돌려보낸 것으로 표시됩니다."
-  reprocessWarning: "기록 불일치: 원본 명령은 대피가 아니라 시민 증언 삭제였습니다."
+  - "나는 기억을 돌려받으려고"
+  - "대기표를 쥐고 있었지만,"
+  - "전광판은 끝내"
+  - "내 번호를 부르지 않았다."
+  restoredText: "나는 기억을 돌려받으려고 대기표를 쥐고 있었지만, 전광판은 끝내 내 번호를 부르지 않았다."
+  puzzleHint: "호출되지 않은 번호도 손에 쥐면 약속처럼 느껴진다."
+  preserveTestimony: "시민의 대기표가 보존되었습니다. 호출되지 않은 사람도 기다리고 있었다는 사실이 남습니다."
+  deleteTestimony: "시민의 대기표가 삭제되었습니다. 기다린 사람은 없었던 것으로 처리됩니다."
+  reprocessedText: "시민의 대기표가 재가공되었습니다. 시민은 차례가 오기 전 스스로 떠난 것으로 기록됩니다."
+  reprocessWarning: "원본 기록과 일치하지 않습니다."

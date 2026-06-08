@@ -13,28 +13,25 @@ MonoBehaviour:
   m_Name: MR3D_008
   m_EditorClassIdentifier: Assembly-CSharp::MemoryData3D
   id: MR3D_008
-  memoryTitle: "\uC911\uC559 \uC544\uCE74\uC774\uBE0C\uC758 \uC790\uC7A5\uAC00"
-  description: "\uC544\uCE74\uC774\uBE0C \uAE4A\uC740 \uACF3\uC5D0\uC11C \uBC18\uBCF5
-    \uC7AC\uC0DD\uB418\uB294 \uC9E7\uC740 \uB178\uB798\uC785\uB2C8\uB2E4. \uB204\uAD70\uAC00
-    \uB3C4\uC2DC \uC804\uCCB4\uB97C \uC7A0\uC7AC\uC6B0\uB824 \uD588\uB358 \uD754\uC801\uC785\uB2C8\uB2E4."
-  emotion: 7
-  corruptionLevel: 35
-  locationName: "\uC911\uC559 \uC544\uCE74\uC774\uBE0C \uC2EC\uCE35\uBD80"
-  archiveClue: "\uC790\uC7A5\uAC00\uB294 \uB3C4\uC2DC\uB97C \uB2EC\uB798\uAE30 \uC704\uD55C
-    \uB178\uB798\uAC00 \uC544\uB2C8\uB77C, \uD310\uB2E8\uC744 \uBA48\uCD94\uAC8C
-    \uD558\uB294 \uBA85\uB839\uC5B4\uC600\uC2B5\uB2C8\uB2E4."
+  memoryTitle: "마지막 백업"
+  description: "도시 전체가 남긴 최종 선택의 기억입니다. 마지막 파일은 열리기 전부터 기억이 아니라 수거원의 선택을 요구합니다."
+  emotion: 4
+  corruptionLevel: 39
+  locationName: "중앙 아카이브 심층부"
+  archiveClue: "최종 처리 완료. 도시의 기억보다 수거원의 선택이 먼저 기록되었습니다."
   sentencePieces:
-  - "\uC7A0\uB4E4\uBA74 \uC544\uD504\uC9C0 \uC54A\uB2E4"
-  - "\uC78A\uC73C\uBA74 \uBBF8\uC6CC\uD558\uC9C0 \uC54A\uB294\uB2E4"
-  - "\uAE68\uC5B4\uB098\uBA74 \uB2E4\uC2DC \uC120\uD0DD\uD574\uC57C \uD55C\uB2E4"
+  - "도시의 원본은"
+  - "아직 남아 있었고,"
+  - "마지막 선택은"
+  - "기억이 아니라 우리에게 향했다."
   correctOrder:
-  - "\uC7A0\uB4E4\uBA74 \uC544\uD504\uC9C0 \uC54A\uB2E4"
-  - "\uC78A\uC73C\uBA74 \uBBF8\uC6CC\uD558\uC9C0 \uC54A\uB294\uB2E4"
-  - "\uAE68\uC5B4\uB098\uBA74 \uB2E4\uC2DC \uC120\uD0DD\uD574\uC57C \uD55C\uB2E4"
-  restoredText: "\uD3C9\uC628\uC740 \uB54C\uB85C \uC9C4\uC2E4\uC744 \uB36E\uB294
-    \uAC00\uC7A5 \uBD80\uB4DC\uB7EC\uC6B4 \uD3ED\uB825\uC774 \uB429\uB2C8\uB2E4."
-  puzzleHint: "자장가는 달래기 위해 시작되지만, 마지막에는 무엇을 덮었는지 드러납니다."
-  preserveTestimony: "중앙 아카이브의 자장가는 원문 그대로 보존되었습니다. 평온이 진실을 덮는 가장 부드러운 폭력이 된다는 사실까지 남았습니다."
-  deleteTestimony: "자장가 파일은 소거되었습니다. 아카이브 심층부에는 이유 없는 평온만 반복됩니다."
-  reprocessedText: "자장가는 폐도시를 잠시 쉬게 하는 노래로 재가공되었습니다. 진실은 잠들었고, 시민들은 덜 무서운 꿈을 꾸었습니다."
-  reprocessWarning: "기록 불일치: 원본 자장가는 위로인 동시에 은폐 프로토콜이었습니다."
+  - "도시의 원본은"
+  - "아직 남아 있었고,"
+  - "마지막 선택은"
+  - "기억이 아니라 우리에게 향했다."
+  restoredText: "도시의 원본은 아직 남아 있었고, 마지막 선택은 기억이 아니라 우리에게 향했다."
+  puzzleHint: "마지막 파일은 열리기 전부터 이미 선택을 요구한다."
+  preserveTestimony: "마지막 백업이 보존되었습니다. 도시는 아픈 진실까지 원본으로 남습니다."
+  deleteTestimony: "마지막 백업이 삭제되었습니다. 도시는 조용해졌지만, 아무도 자신이 무엇을 잃었는지 말할 수 없습니다."
+  reprocessedText: "마지막 백업이 재가공되었습니다. 도시는 견딜 수 있는 이야기로 다시 시작합니다."
+  reprocessWarning: "원본 기록과 일치하지 않습니다."

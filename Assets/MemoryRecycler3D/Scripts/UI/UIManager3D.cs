@@ -47,6 +47,7 @@ public class UIManager3D : MonoBehaviour
     // 퍼즐 조각 인덱스별 버튼을 저장해 중복 클릭 방지에 사용한다.
     private readonly List<Button> puzzlePieceButtons = new List<Button>();
     private readonly List<int> selectedPieceIndices = new List<int>();
+    private readonly List<int> puzzleDisplayIndices = new List<int>();
     private MemoryRecord3D currentPuzzleRecord;
 
     private GameObject archivePanel;
@@ -870,12 +871,14 @@ public class UIManager3D : MonoBehaviour
 
         puzzlePieceButtons.Clear();
         selectedPieceIndices.Clear();
+        puzzleDisplayIndices.Clear();
 
         string[] pieces = currentPuzzleRecord.memory.sentencePieces;
-        for (int i = 0; i < pieces.Length; i++)
+        BuildPuzzleDisplayOrder(pieces.Length);
+        for (int i = 0; i < puzzleDisplayIndices.Count; i++)
         {
-            int pieceIndex = i; // 클로저 캡처용 인덱스
-            string piece = pieces[i];
+            int pieceIndex = puzzleDisplayIndices[i]; // 클로저 캡처용 원본 인덱스
+            string piece = pieces[pieceIndex];
             Button button = CreateButton(puzzlePiecesRoot, "Piece_" + i, piece, Vector2.zero, () => SelectPuzzlePiece(pieceIndex));
             RectTransform rect = button.GetComponent<RectTransform>();
             rect.anchorMin = new Vector2(0f, 1f);
@@ -930,10 +933,11 @@ public class UIManager3D : MonoBehaviour
 
     private void SetPuzzlePieceInteractable(int index, bool interactable)
     {
-        if (index < 0 || index >= puzzlePieceButtons.Count)
+        int buttonIndex = puzzleDisplayIndices.Count > 0 ? puzzleDisplayIndices.IndexOf(index) : index;
+        if (buttonIndex < 0 || buttonIndex >= puzzlePieceButtons.Count)
             return;
 
-        Button button = puzzlePieceButtons[index];
+        Button button = puzzlePieceButtons[buttonIndex];
         if (button == null)
             return;
 
@@ -945,6 +949,56 @@ public class UIManager3D : MonoBehaviour
                 ? new Color(0.16f, 0.21f, 0.29f, 0.96f)
                 : new Color(0.08f, 0.11f, 0.16f, 0.74f);
         }
+    }
+
+    private void BuildPuzzleDisplayOrder(int count)
+    {
+        for (int i = 0; i < count; i++)
+            puzzleDisplayIndices.Add(i);
+
+        if (count <= 1)
+            return;
+
+        int seed = currentPuzzleRecord != null && currentPuzzleRecord.memory != null
+            ? GetStablePuzzleSeed(currentPuzzleRecord.memory.id)
+            : count * 17;
+
+        System.Random random = new System.Random(seed);
+        for (int i = puzzleDisplayIndices.Count - 1; i > 0; i--)
+        {
+            int swapIndex = random.Next(i + 1);
+            int value = puzzleDisplayIndices[i];
+            puzzleDisplayIndices[i] = puzzleDisplayIndices[swapIndex];
+            puzzleDisplayIndices[swapIndex] = value;
+        }
+
+        bool unchanged = true;
+        for (int i = 0; i < puzzleDisplayIndices.Count; i++)
+        {
+            if (puzzleDisplayIndices[i] != i)
+            {
+                unchanged = false;
+                break;
+            }
+        }
+
+        if (unchanged)
+        {
+            int first = puzzleDisplayIndices[0];
+            puzzleDisplayIndices[0] = puzzleDisplayIndices[count - 1];
+            puzzleDisplayIndices[count - 1] = first;
+        }
+    }
+
+    private int GetStablePuzzleSeed(string memoryId)
+    {
+        if (string.IsNullOrEmpty(memoryId))
+            return 37;
+
+        int seed = 23;
+        for (int i = 0; i < memoryId.Length; i++)
+            seed = seed * 31 + memoryId[i];
+        return Mathf.Abs(seed);
     }
 
     private void CheckPuzzle()
