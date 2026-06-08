@@ -60,12 +60,25 @@ The ending also appends per-memory archive testimony. Each memory can now provid
 ## Puzzle Feedback
 
 - Each `MemoryData3D` asset can define a short `puzzleHint`.
+- Each memory can choose a `puzzleMode`: `Sequence`, `LensAlign`, `LensOcclude`, or `Stillness`.
 - The puzzle panel shows the hint in the existing selected-sentence text area, so the teammate puzzle UI overlap fix is not disturbed.
 - Memory assets store `sentencePieces` in correct narrative order, while the runtime puzzle displays those pieces in a stable shuffled order per memory.
 - Wrong answers are recorded through `PlayerMemoryLog3D`.
 - The puzzle panel shows memory stability: `안정`, `흔들림`, or `붕괴 직전`.
 - Wrong answers increase memory instability and change feedback from unstable sentence text to archive classification text.
 - Closing an unfinished puzzle leaves the memory collected but unrestored, records one restore abandonment, and shows an interruption toast.
+
+## Memory Lens Puzzle
+
+The first lens-puzzle pass keeps the existing sequence puzzle as fallback, but adds special solve modes to three memories.
+
+- `MR3D_002` uses `LensAlign`: center the blue umbrella memory/world anchor in the camera while the translucent puzzle lens is open.
+- `MR3D_003` uses `LensOcclude`: center the erased announcement memory anchor, with archive-terminal fallback if needed.
+- `MR3D_006` uses `Stillness`: keep the UI open for 5 seconds without mouse, click, or key input.
+
+Lens success restores the memory through the same `MarkRestored` path as the sequence puzzle. `PlayerMemoryLog3D` records the solve method as `solvedBy`, for example `LensAlign`, `LensOcclude`, `Stillness`, or `Sequence`.
+
+TODO: a later archive interrogation UI can read `solvedBy` and ask the player why a memory was aligned, hidden, or opened by stillness.
 
 ## Unfinished Memory Flow
 
@@ -111,6 +124,7 @@ The ending body is displayed inside a scroll area, with fixed footer buttons for
 
 `MemoryData3D` now includes:
 
+- `puzzleMode`
 - `puzzleHint`
 - `preserveTestimony`
 - `deleteTestimony`
@@ -132,6 +146,10 @@ The ending body is displayed inside a scroll area, with fixed footer buttons for
 - Solve one puzzle incorrectly, then correctly, and verify the ending mentions the mistake count.
 - Confirm wrong-answer toast changes after repeated mistakes.
 - Confirm puzzle hints appear without overlapping puzzle buttons.
+- Confirm `MR3D_002` restores when the lens is aligned with the memory/world anchor.
+- Confirm `MR3D_003` restores through the simplified occlusion/center alignment.
+- Confirm `MR3D_006` restores after 5 seconds of stillness, and resets when input occurs.
+- Confirm special puzzle success records `solvedBy` in `PlayerMemoryLog3D`.
 - Confirm memory stability changes after wrong answers or abandoned restores.
 - Choose preserve/delete/reprocess at least once each and verify the ending behavior report.
 - Confirm the restored card shows preserve/delete/reprocess result previews before choosing.
