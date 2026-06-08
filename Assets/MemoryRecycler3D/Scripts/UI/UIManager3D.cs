@@ -52,6 +52,7 @@ public class UIManager3D : MonoBehaviour
 
     private GameObject archivePanel;
     private Text archiveText;
+    private Button reopenMemoryButton;
     private GameObject lorePanel;
     private Text loreTitle;
     private Text loreBody;
@@ -62,6 +63,7 @@ public class UIManager3D : MonoBehaviour
     private GameObject endingPanel;
     private Text endingTitle;
     private Text endingBody;
+    private ScrollRect endingScrollRect;
 
     private MemoryRecord3D currentRecord;
 
@@ -211,15 +213,19 @@ public class UIManager3D : MonoBehaviour
         CloseAllMajorPanels();
 
         StringBuilder sb = new StringBuilder();
-        sb.AppendLine("중앙 아카이브 - 회수 기록");
+        sb.AppendLine("[회수 기록]");
         sb.AppendLine("--------------------------------");
 
         List<MemoryRecord3D> records = MemoryManager3D.Instance != null
             ? MemoryManager3D.Instance.collectedMemories
             : new List<MemoryRecord3D>();
+        int decided = MemoryManager3D.Instance != null ? MemoryManager3D.Instance.CountDecidedMemories() : 0;
         if (records.Count == 0)
         {
             sb.AppendLine("아직 회수한 기억이 없습니다.");
+            sb.AppendLine();
+            sb.AppendLine("푸른 기억 구체를 찾아 E 키로 회수하세요.");
+            sb.AppendLine("기억을 복원하고 처리하면 이곳에 기록됩니다.");
         }
         else
         {
@@ -227,18 +233,23 @@ public class UIManager3D : MonoBehaviour
             {
                 MemoryRecord3D record = records[i];
                 string location = string.IsNullOrEmpty(record.memory.locationName) ? "위치 미상" : record.memory.locationName;
-                sb.AppendLine((i + 1) + ". " + GetMemoryDisplayTitle(record));
+                sb.AppendLine((i + 1) + ". " + GetMemoryStatusLabel(record) + " " + GetMemoryDisplayTitle(record));
                 sb.AppendLine("   위치: " + location);
-                sb.AppendLine("   감정: " + record.memory.emotion + " / 복원: " + (record.restored ? "완료" : "미완료") + " / 처리: " + MemoryManager3D.DecisionToKorean(record.decision));
+                sb.AppendLine("   감정: " + record.memory.emotion + " / 안정도: " + PlayerMemoryLog3D.Ensure().GetInstabilityLabel(record.memory) + " / 처리: " + MemoryManager3D.DecisionToKorean(record.decision));
             }
         }
 
         sb.AppendLine();
-        sb.AppendLine("중앙 아카이브 결말 접속 조건: 처리 완료 기억 " + RequiredDecisionsForEnding + "개 이상");
+        sb.AppendLine("중앙 아카이브 접속 조건:");
+        sb.AppendLine("처리 완료 기억 " + RequiredDecisionsForEnding + "개 이상");
         sb.AppendLine();
-        sb.Append(BuildArchiveProgressReaction(records, decided: MemoryManager3D.Instance != null ? MemoryManager3D.Instance.CountDecidedMemories() : 0));
+        sb.AppendLine("현재 진행:");
+        sb.AppendLine(decided + " / " + RequiredDecisionsForEnding + " 처리 완료");
+        sb.AppendLine();
+        sb.Append(BuildArchiveProgressReaction(records, decided));
 
         archiveText.text = sb.ToString();
+        RefreshArchiveActionButton(records);
         archivePanel.SetActive(true);
         UnlockCursor();
     }
@@ -273,19 +284,66 @@ public class UIManager3D : MonoBehaviour
         ShowToast("처리 대기 중인 기억이 없습니다.");
     }
 
+    private void RefreshArchiveActionButton(List<MemoryRecord3D> records)
+    {
+        bool hasPending = HasPendingMemory(records);
+        SetButtonEnabled(reopenMemoryButton, hasPending, hasPending ? "다음 처리할 기억 열기" : "처리할 기억 없음");
+    }
+
+    private bool HasPendingMemory(List<MemoryRecord3D> records)
+    {
+        if (records == null)
+            return false;
+
+        for (int i = 0; i < records.Count; i++)
+        {
+            MemoryRecord3D record = records[i];
+            if (record == null || record.memory == null)
+                continue;
+
+            if (!record.restored || record.decision == MemoryDecision3D.Unchosen)
+                return true;
+        }
+
+        return false;
+    }
+
+    private int CountPendingRestore(List<MemoryRecord3D> records)
+    {
+        if (records == null)
+            return 0;
+
+        int count = 0;
+        for (int i = 0; i < records.Count; i++)
+        {
+            if (records[i] != null && records[i].memory != null && !records[i].restored)
+                count++;
+        }
+        return count;
+    }
+
     public void ShowArchiveLocked(int decided, int required)
     {
         CloseAllMajorPanels();
         if (MemoryAudio3D.Instance != null)
             MemoryAudio3D.Instance.PlayArchiveDenied();
 
-        archiveText.text =
-            "중앙 아카이브가 아직 열리지 않았습니다.\n\n" +
-            "아카이브는 단순한 저장고가 아니라, 도시 전체의 기억 분류 시스템입니다.\n" +
-            "충분한 기억을 복원하고 보존/삭제/재가공 중 하나로 처리해야 마지막 판단을 계산할 수 있습니다.\n\n" +
-            "현재 처리 완료: " + decided + " / " + required + "\n\n" +
-            "푸른 기억 구체를 더 회수하고, 복원 퍼즐을 완료한 뒤 선택을 내려 주세요.";
+        List<MemoryRecord3D> records = MemoryManager3D.Instance != null
+            ? MemoryManager3D.Instance.collectedMemories
+            : new List<MemoryRecord3D>();
 
+        archiveText.text =
+            "[결말 접속 터미널]\n" +
+            "중앙 아카이브가 아직 열리지 않았습니다.\n\n" +
+            "이 터미널은 회수 기록을 읽는 곳이 아니라, 마지막 판단을 계산하는 접속 장치입니다.\n" +
+            "충분한 기억을 복원하고 보존/삭제/재가공 중 하나로 처리해야 결말에 접근할 수 있습니다.\n\n" +
+            "접속 조건: 처리 완료 기억 " + required + "개 이상\n" +
+            "현재 진행: " + decided + " / " + required + " 처리 완료\n\n" +
+            (CountPendingRestore(records) > 0 ? "아카이브는 아직 복원되지 않은 기억의 소음을 감지했습니다.\n\n" : "") +
+            "다음 행동: 푸른 기억 구체를 찾아 E로 회수하고, 기억 카드에서 복원과 처리를 완료하세요.\n\n" +
+            BuildArchiveProgressReaction(records, decided);
+
+        RefreshArchiveActionButton(records);
         archivePanel.SetActive(true);
         UnlockCursor();
     }
@@ -372,9 +430,14 @@ public class UIManager3D : MonoBehaviour
         endingTitle.text = title;
         endingBody.text =
             body +
-            "\n\n[선택 통계]\n보존: " + preserved + " / 삭제: " + deleted + " / 재가공: " + edited +
-            "\n\n" + log.BuildBehaviorReport(records) +
+            "\n\n[선택 통계]\n보존 " + preserved + " / 삭제 " + deleted + " / 재가공 " + edited +
+            "\n\n" + log.BuildBehaviorSummaryReport() +
             "\n" + BuildArchiveTestimony(records);
+        if (endingScrollRect != null)
+        {
+            Canvas.ForceUpdateCanvases();
+            endingScrollRect.verticalNormalizedPosition = 1f;
+        }
         endingPanel.SetActive(true);
         UnlockCursor();
     }
@@ -723,6 +786,7 @@ public class UIManager3D : MonoBehaviour
         int restored = MemoryManager3D.Instance.CountRestoredMemories();
         int decided = MemoryManager3D.Instance.CountDecidedMemories();
         int known = MemoryManager3D.Instance.CountKnownMemories();
+        int pendingRestore = CountPendingRestore(MemoryManager3D.Instance.collectedMemories);
 
         // 단계별 안내 임계값. 회수/복원은 시연용 가이드 수치이므로 엔딩 임계값과 분리해 둔다.
         const int CollectGuide = 3;
@@ -730,18 +794,19 @@ public class UIManager3D : MonoBehaviour
 
         string next;
         if (collected < CollectGuide)
-            next = "푸른 기억 구체를 찾아 최소 " + CollectGuide + "개 회수";
+            next = "푸른 기억 구체를 찾아 E로 회수하고, " + RequiredDecisionsForEnding + "개의 기억을 처리하세요.";
         else if (restored < RestoreGuide)
-            next = "회수한 기억의 문장 조각을 복원";
+            next = "회수한 기억의 문장 조각을 복원하세요.";
         else if (decided < RequiredDecisionsForEnding)
-            next = "복원된 기억을 보존/삭제/재가공으로 처리";
+            next = "복원된 기억을 보존/삭제/재가공으로 처리하세요.";
         else
-            next = "중앙 아카이브 탑으로 이동해 결말 확인";
+            next = "중앙 아카이브 탑에서 E로 결말 접속";
 
         objectiveText.text =
             "현재 목표\n" +
             next + "\n\n" +
             "회수 " + collected + " / " + known + "   복원 " + restored + "   처리 " + decided + " / " + RequiredDecisionsForEnding + "\n" +
+            (pendingRestore > 0 ? "복원 대기 기억 " + pendingRestore + "개\n" : "") +
             "Tab 아카이브  |  E 상호작용";
     }
 
@@ -786,8 +851,8 @@ public class UIManager3D : MonoBehaviour
     {
         archivePanel = CreatePanel("ArchivePanel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(980f, 720f), Vector2.zero, new Color(0.04f, 0.04f, 0.055f, 0.96f));
         archiveText = CreateText(archivePanel.transform, "ArchiveText", "", 22, TextAnchor.UpperLeft, Color.white);
-        SetRect(archiveText.rectTransform, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), new Vector2(44f, 92f), new Vector2(-44f, -42f));
-        CreateButton(archivePanel.transform, "ReopenMemoryButton", "다음 처리할 기억 열기", new Vector2(0f, -260f), OpenNextPendingMemoryCard);
+        SetRect(archiveText.rectTransform, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), new Vector2(44f, 150f), new Vector2(-44f, -42f));
+        reopenMemoryButton = CreateButton(archivePanel.transform, "ReopenMemoryButton", "다음 처리할 기억 열기", new Vector2(0f, -250f), OpenNextPendingMemoryCard);
         CreateButton(archivePanel.transform, "ClearSaveButton", "저장 초기화", new Vector2(-150f, -325f), () => MemoryManager3D.Instance.ClearSave());
         CreateButton(archivePanel.transform, "CloseArchiveButton", "닫기", new Vector2(150f, -325f), CloseAllAndLock);
         archivePanel.SetActive(false);
@@ -822,15 +887,41 @@ public class UIManager3D : MonoBehaviour
 
     private void BuildEndingPanel()
     {
-        endingPanel = CreatePanel("EndingPanel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(900f, 580f), Vector2.zero, new Color(0.03f, 0.03f, 0.045f, 0.97f));
+        endingPanel = CreatePanel("EndingPanel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(980f, 720f), Vector2.zero, new Color(0.03f, 0.03f, 0.045f, 0.97f));
         endingTitle = CreateText(endingPanel.transform, "EndingTitle", "엔딩", 40, TextAnchor.MiddleCenter, Color.white);
-        SetRect(endingTitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(40f, -105f), new Vector2(-40f, -40f));
-        endingBody = CreateText(endingPanel.transform, "EndingBody", "", 24, TextAnchor.UpperLeft, new Color(0.9f, 0.92f, 0.95f));
-        SetRect(endingBody.rectTransform, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), new Vector2(44f, 115f), new Vector2(-44f, -125f));
+        SetRect(endingTitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(40f, -92f), new Vector2(-40f, -30f));
+
+        GameObject scrollObject = new GameObject("EndingScroll");
+        scrollObject.transform.SetParent(endingPanel.transform, false);
+        Image scrollImage = scrollObject.AddComponent<Image>();
+        scrollImage.color = new Color(0.015f, 0.018f, 0.026f, 0.62f);
+        Mask scrollMask = scrollObject.AddComponent<Mask>();
+        scrollMask.showMaskGraphic = false;
+        endingScrollRect = scrollObject.AddComponent<ScrollRect>();
+        endingScrollRect.horizontal = false;
+        endingScrollRect.vertical = true;
+        endingScrollRect.movementType = ScrollRect.MovementType.Clamped;
+
+        RectTransform scrollTransform = scrollObject.GetComponent<RectTransform>();
+        SetRect(scrollTransform, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), new Vector2(54f, 132f), new Vector2(-54f, -115f));
+
+        endingBody = CreateText(scrollObject.transform, "EndingBody", "", 22, TextAnchor.UpperLeft, new Color(0.9f, 0.92f, 0.95f));
+        RectTransform bodyRect = endingBody.rectTransform;
+        bodyRect.anchorMin = new Vector2(0f, 1f);
+        bodyRect.anchorMax = new Vector2(1f, 1f);
+        bodyRect.pivot = new Vector2(0.5f, 1f);
+        bodyRect.anchoredPosition = new Vector2(0f, -16f);
+        bodyRect.sizeDelta = new Vector2(-32f, 0f);
+        ContentSizeFitter fitter = endingBody.gameObject.AddComponent<ContentSizeFitter>();
+        fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        endingScrollRect.content = bodyRect;
+        endingScrollRect.viewport = scrollTransform;
+
         // 엔딩 후 흐름 정리: 타이틀로 / 새 게임 / 종료. 닫기 버튼은 발표 중 실수로 게임이 무한 지속되는 상황을 만들어 제거.
-        CreateButton(endingPanel.transform, "EndingToTitleButton", "타이틀로", new Vector2(-260f, -240f), ReturnToTitleFromEnding);
-        CreateButton(endingPanel.transform, "EndingNewGameButton", "새 게임", new Vector2(0f, -240f), StartNewGameFromEnding);
-        CreateButton(endingPanel.transform, "EndingQuitButton", "종료", new Vector2(260f, -240f), QuitFromEnding);
+        CreateButton(endingPanel.transform, "EndingToTitleButton", "타이틀로", new Vector2(-260f, -305f), ReturnToTitleFromEnding);
+        CreateButton(endingPanel.transform, "EndingNewGameButton", "새 게임", new Vector2(0f, -305f), StartNewGameFromEnding);
+        CreateButton(endingPanel.transform, "EndingQuitButton", "종료", new Vector2(260f, -305f), QuitFromEnding);
         endingPanel.SetActive(false);
     }
 
@@ -857,6 +948,7 @@ public class UIManager3D : MonoBehaviour
         currentPuzzleRecord = currentRecord;
         selectedPieces.Clear();
         CloseAllMajorPanels();
+        PlayerMemoryLog3D.Ensure().BeginMemoryRestore(currentPuzzleRecord.memory);
         puzzleTitle.text = "기억 복원: " + currentPuzzleRecord.memory.memoryTitle;
         RefreshPuzzlePieces();
         RefreshSelectedPiecesText();
@@ -916,7 +1008,9 @@ public class UIManager3D : MonoBehaviour
 
         string selected = selectedPieces.Count > 0 ? string.Join(" / ", selectedPieces.ToArray()) : "아직 선택한 조각이 없습니다.";
         string hint = GetPuzzleHint(currentPuzzleRecord);
+        string stability = GetPuzzleStabilityText(currentPuzzleRecord);
         puzzleSelectedText.text =
+            stability + "\n\n" +
             "선택한 문장:\n" + selected +
             (string.IsNullOrEmpty(hint) ? "" : "\n\n[아카이브 힌트]\n" + hint);
     }
@@ -1023,6 +1117,7 @@ public class UIManager3D : MonoBehaviour
         if (solved)
         {
             MemoryManager3D.Instance.MarkRestored(currentPuzzleRecord.memory);
+            PlayerMemoryLog3D.Ensure().MarkMemoryRestored(currentPuzzleRecord.memory);
             ShowToast("기억이 복원되었습니다.");
             ShowMemoryEcho(currentPuzzleRecord);
         }
@@ -1094,17 +1189,30 @@ public class UIManager3D : MonoBehaviour
 
     private string GetMemoryTestimony(MemoryRecord3D record)
     {
+        string instabilityNote = GetInstabilityTestimonyNote(record);
         switch (record.decision)
         {
             case MemoryDecision3D.Preserve:
-                return GetPreserveTestimony(record.memory);
+                return GetPreserveTestimony(record.memory) + instabilityNote;
             case MemoryDecision3D.Delete:
-                return GetDeleteTestimony(record.memory);
+                return GetDeleteTestimony(record.memory) + instabilityNote;
             case MemoryDecision3D.Edit:
-                return BuildReworkedMemoryText(record.memory) + " (" + GetReprocessWarning(record.memory) + ")";
+                return BuildReworkedMemoryText(record.memory) + " (" + GetReprocessWarning(record.memory) + ")" + instabilityNote;
             default:
                 return "미분류 기록.";
         }
+    }
+
+    private string GetInstabilityTestimonyNote(MemoryRecord3D record)
+    {
+        if (record == null || record.memory == null)
+            return "";
+
+        int instability = PlayerMemoryLog3D.Ensure().GetInstabilityFor(record.memory);
+        if (instability < 3)
+            return "";
+
+        return " [복원 흔들림 감지]";
     }
 
     private string BuildReworkedMemoryText(MemoryData3D memory)
@@ -1133,14 +1241,23 @@ public class UIManager3D : MonoBehaviour
     private string GetPuzzleMistakeFeedback(MemoryRecord3D record)
     {
         int mistakes = PlayerMemoryLog3D.Ensure().GetPuzzleMistakesFor(record != null ? record.memory : null);
-        string hint = GetPuzzleHint(record);
 
         if (mistakes <= 1)
-            return "순서가 맞지 않습니다. " + hint;
+            return "문장이 아직 불안정합니다.";
         if (mistakes == 2)
-            return "아카이브가 오답을 기억했습니다. 첫 조각과 마지막 조각을 다시 비교하세요.";
+            return "기억의 가장자리가 흐려집니다.";
 
-        return "아카이브는 같은 문장의 망설임을 " + mistakes + "번 기록했습니다. " + hint;
+        return "아카이브가 이 복원을 불안정 기록으로 분류합니다.";
+    }
+
+    private string GetPuzzleStabilityText(MemoryRecord3D record)
+    {
+        if (record == null || record.memory == null)
+            return "기억 안정도: 확인 중";
+
+        PlayerMemoryLog3D log = PlayerMemoryLog3D.Ensure();
+        int instability = log.GetInstabilityFor(record.memory);
+        return "기억 안정도: " + log.GetInstabilityLabel(record.memory) + "  |  기록 불안정도 " + instability;
     }
 
     private string GetPreserveTestimony(MemoryData3D memory)
@@ -1177,6 +1294,8 @@ public class UIManager3D : MonoBehaviour
         if (records == null || records.Count == 0)
         {
             sb.AppendLine("- 아카이브는 아직 도시보다 수거원을 더 많이 기다리고 있습니다.");
+            sb.AppendLine("- 첫 번째 기억을 회수하면 기록 회로가 열립니다.");
+            sb.AppendLine("- 중앙 아카이브는 처리된 기억 " + RequiredDecisionsForEnding + "개 이상을 요구합니다.");
             return sb.ToString();
         }
 
@@ -1198,8 +1317,24 @@ public class UIManager3D : MonoBehaviour
             sb.AppendLine("- 첫 선택 패턴: " + MemoryManager3D.DecisionToKorean(log.firstDecision) + ".");
         if (log.puzzleMistakeCount > 0)
             sb.AppendLine("- 복원 오류 " + log.puzzleMistakeCount + "회가 행동 기록에 누적되었습니다.");
+        int pendingRestore = CountPendingRestore(records);
+        if (pendingRestore > 0)
+            sb.AppendLine("- 미완성 기억 " + pendingRestore + "개가 아카이브 주변에서 흔들리고 있습니다.");
+        if (log.GetTotalInstability() > 0)
+            sb.AppendLine("- 기록 불안정도 총합: " + log.GetTotalInstability() + ".");
 
         return sb.ToString();
+    }
+
+    private string GetMemoryStatusLabel(MemoryRecord3D record)
+    {
+        if (record == null)
+            return "[상태 없음]";
+        if (!record.restored)
+            return "[복원 대기]";
+        if (record.decision == MemoryDecision3D.Unchosen)
+            return "[선택 대기]";
+        return "[처리 완료]";
     }
 
     private string ObscureTitle(string title)
@@ -1222,6 +1357,10 @@ public class UIManager3D : MonoBehaviour
             "보존: 기억을 원본 그대로 남깁니다. 고통도 남지만 진실과 증언이 유지됩니다.\n" +
             "삭제: 기억을 아카이브에서 지웁니다. 도시가 조용해지지만 잃어버린 사실도 함께 사라집니다.\n" +
             "재가공: 기억을 덜 위험한 형태로 다시 편집합니다. 상처는 줄지만 원본의 의미가 바뀔 수 있습니다.\n" +
+            "\n[선택 결과 미리보기]\n" +
+            "보존 -> 원문이 증언으로 남고, 상처도 함께 보존됩니다.\n" +
+            "삭제 -> 증언은 공백으로 처리되며, 이 기억은 엔딩에서 말하지 못합니다.\n" +
+            "재가공 -> 더 견딜 수 있는 문장으로 바뀌지만 기록 불일치가 남습니다.\n" +
             "이 선택들은 마지막 아카이브 결말에 반영됩니다.";
     }
 
@@ -1237,8 +1376,20 @@ public class UIManager3D : MonoBehaviour
 
     private void CloseAllAndLock()
     {
+        HandlePuzzleClosedBeforeRestore();
         CloseAllMajorPanels();
         LockCursor();
+    }
+
+    private void HandlePuzzleClosedBeforeRestore()
+    {
+        if (puzzlePanel == null || !puzzlePanel.activeSelf)
+            return;
+        if (currentPuzzleRecord == null || currentPuzzleRecord.memory == null || currentPuzzleRecord.restored)
+            return;
+
+        PlayerMemoryLog3D.Ensure().RecordRestoreAbandoned(currentPuzzleRecord.memory);
+        ShowToast("복원이 중단되었습니다. 이 기억은 불안정한 상태로 남습니다.");
     }
 
     // 엔딩 후 타이틀(시작 메뉴)로 복귀. 저장은 유지하므로 이어하기 가능.
@@ -1398,6 +1549,28 @@ public class UIManager3D : MonoBehaviour
         RectTransform rect = button.GetComponent<RectTransform>();
         if (rect != null)
             rect.sizeDelta = size;
+    }
+
+    private void SetButtonEnabled(Button button, bool enabled, string label)
+    {
+        if (button == null)
+            return;
+
+        button.interactable = enabled;
+        Image image = button.GetComponent<Image>();
+        if (image != null)
+        {
+            image.color = enabled
+                ? new Color(0.16f, 0.21f, 0.29f, 0.96f)
+                : new Color(0.08f, 0.10f, 0.13f, 0.78f);
+        }
+
+        Text text = button.GetComponentInChildren<Text>();
+        if (text != null)
+        {
+            text.text = label;
+            text.color = enabled ? Color.white : new Color(0.62f, 0.66f, 0.70f);
+        }
     }
 
     private void Stretch(RectTransform rect)
