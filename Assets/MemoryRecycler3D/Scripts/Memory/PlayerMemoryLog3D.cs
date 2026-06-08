@@ -16,12 +16,14 @@ public class PlayerMemoryLog3D : MonoBehaviour
     public int deletedCount;
     public int editedCount;
     public int puzzleMistakeCount;
+    public int restoreAbandonCount;
     public float playTimeSeconds;
     public float archiveStaySeconds;
     public bool endingReached;
 
     private bool archiveStayActive;
     private float lastSaveTime;
+    private readonly Dictionary<string, float> activeRestoreStarts = new Dictionary<string, float>();
 
     [Serializable]
     private class LogSaveData
@@ -33,6 +35,7 @@ public class PlayerMemoryLog3D : MonoBehaviour
         public int deletedCount;
         public int editedCount;
         public int puzzleMistakeCount;
+        public int restoreAbandonCount;
         public float playTimeSeconds;
         public float archiveStaySeconds;
         public bool endingReached;
@@ -45,6 +48,8 @@ public class PlayerMemoryLog3D : MonoBehaviour
         public string memoryId;
         public string memoryTitle;
         public int count;
+        public int abandonCount;
+        public float restoreTimeSeconds;
     }
 
     private readonly List<PuzzleMistakeEntry> puzzleMistakes = new List<PuzzleMistakeEntry>();
@@ -100,11 +105,13 @@ public class PlayerMemoryLog3D : MonoBehaviour
         deletedCount = 0;
         editedCount = 0;
         puzzleMistakeCount = 0;
+        restoreAbandonCount = 0;
         playTimeSeconds = 0f;
         archiveStaySeconds = 0f;
         endingReached = false;
         archiveStayActive = false;
         puzzleMistakes.Clear();
+        activeRestoreStarts.Clear();
         PlayerPrefs.DeleteKey(SaveKey);
         PlayerPrefs.Save();
     }
@@ -141,21 +148,47 @@ public class PlayerMemoryLog3D : MonoBehaviour
     {
         puzzleMistakeCount++;
 
-        string id = memory != null ? memory.id : "";
-        PuzzleMistakeEntry entry = FindPuzzleMistakeEntry(id);
-        if (entry == null)
-        {
-            entry = new PuzzleMistakeEntry
-            {
-                memoryId = id,
-                memoryTitle = memory != null ? memory.memoryTitle : "이름 없는 기억",
-                count = 0
-            };
-            puzzleMistakes.Add(entry);
-        }
+        PuzzleMistakeEntry entry = EnsureMemoryEntry(memory);
 
         entry.count++;
         SaveLog();
+    }
+
+    public void BeginMemoryRestore(MemoryData3D memory)
+    {
+        if (memory == null || string.IsNullOrEmpty(memory.id))
+            return;
+
+        EnsureMemoryEntry(memory);
+        activeRestoreStarts[memory.id] = Time.unscaledTime;
+    }
+
+    public void RecordRestoreAbandoned(MemoryData3D memory)
+    {
+        PuzzleMistakeEntry entry = EnsureMemoryEntry(memory);
+        if (entry == null)
+            return;
+
+        entry.abandonCount++;
+        restoreAbandonCount++;
+        SaveLog();
+    }
+
+    public void MarkMemoryRestored(MemoryData3D memory)
+    {
+        if (memory == null || string.IsNullOrEmpty(memory.id))
+            return;
+
+        PuzzleMistakeEntry entry = EnsureMemoryEntry(memory);
+        if (entry == null)
+            return;
+
+        if (activeRestoreStarts.TryGetValue(memory.id, out float startedAt))
+        {
+            entry.restoreTimeSeconds += Mathf.Max(0f, Time.unscaledTime - startedAt);
+            activeRestoreStarts.Remove(memory.id);
+            SaveLog();
+        }
     }
 
     public void SetArchivePresence(bool inside)
@@ -176,6 +209,36 @@ public class PlayerMemoryLog3D : MonoBehaviour
     {
         PuzzleMistakeEntry entry = FindPuzzleMistakeEntry(memory != null ? memory.id : "");
         return entry != null ? entry.count : 0;
+    }
+
+    public int GetRestoreAbandonsFor(MemoryData3D memory)
+    {
+        PuzzleMistakeEntry entry = FindPuzzleMistakeEntry(memory != null ? memory.id : "");
+        return entry != null ? entry.abandonCount : 0;
+    }
+
+    public int GetInstabilityFor(MemoryData3D memory)
+    {
+        PuzzleMistakeEntry entry = FindPuzzleMistakeEntry(memory != null ? memory.id : "");
+        return entry != null ? Mathf.Max(0, entry.count + entry.abandonCount) : 0;
+    }
+
+    public int GetTotalInstability()
+    {
+        int total = 0;
+        for (int i = 0; i < puzzleMistakes.Count; i++)
+            total += Mathf.Max(0, puzzleMistakes[i].count + puzzleMistakes[i].abandonCount);
+        return total;
+    }
+
+    public string GetInstabilityLabel(MemoryData3D memory)
+    {
+        int instability = GetInstabilityFor(memory);
+        if (instability <= 0)
+            return "안정";
+        if (instability <= 2)
+            return "흔들림";
+        return "붕괴 직전";
     }
 
     public string BuildBehaviorReport(List<MemoryRecord3D> records)
@@ -217,8 +280,30 @@ public class PlayerMemoryLog3D : MonoBehaviour
             sb.AppendLine("- 삭제된 기억은 증언대에서 침묵으로 남았다.");
         if (editedCount > 0)
             sb.AppendLine("- 재가공된 기억은 부드러워졌지만, 원본과 어긋난 흔적을 남겼다.");
+        if (GetTotalInstability() <= 0)
+            sb.AppendLine("- 그는 기억을 거의 훼손하지 않고 복원했다.");
+        else
+            sb.AppendLine("- 아카이브는 복원 과정의 흔들림 " + GetTotalInstability() + "개를 함께 보존했다.");
         if (preservedCount > 0 && deletedCount > 0 && editedCount > 0)
             sb.AppendLine("- 아카이브는 그가 한 가지 원칙이 아니라, 매번 다른 죄책감으로 판단했다는 사실을 보존했다.");
+        sb.AppendLine("- " + BuildEndingBehaviorSentence());
+
+        return sb.ToString();
+    }
+
+    public string BuildBehaviorSummaryReport()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine("[수거원 행동 기록]");
+
+        if (firstDecision == MemoryDecision3D.Unchosen)
+            sb.AppendLine("- 첫 선택: 아직 없음");
+        else
+            sb.AppendLine("- 첫 선택: \"" + firstDecisionMemoryTitle + "\" " + MemoryManager3D.DecisionToKorean(firstDecision));
+
+        sb.AppendLine("- 선택 통계: 보존 " + preservedCount + " / 삭제 " + deletedCount + " / 재가공 " + editedCount);
+        sb.AppendLine("- 복원 실패: " + puzzleMistakeCount + "회 / 중단 " + restoreAbandonCount + "회");
+        sb.AppendLine("- 아카이브 앞 체류: " + FormatDuration(archiveStaySeconds));
         sb.AppendLine("- " + BuildEndingBehaviorSentence());
 
         return sb.ToString();
@@ -243,6 +328,7 @@ public class PlayerMemoryLog3D : MonoBehaviour
             deletedCount = deletedCount,
             editedCount = editedCount,
             puzzleMistakeCount = puzzleMistakeCount,
+            restoreAbandonCount = restoreAbandonCount,
             playTimeSeconds = playTimeSeconds,
             archiveStaySeconds = archiveStaySeconds,
             endingReached = endingReached,
@@ -270,14 +356,39 @@ public class PlayerMemoryLog3D : MonoBehaviour
         deletedCount = Mathf.Max(0, save.deletedCount);
         editedCount = Mathf.Max(0, save.editedCount);
         puzzleMistakeCount = Mathf.Max(0, save.puzzleMistakeCount);
+        restoreAbandonCount = Mathf.Max(0, save.restoreAbandonCount);
         playTimeSeconds = Mathf.Max(0f, save.playTimeSeconds);
         archiveStaySeconds = Mathf.Max(0f, save.archiveStaySeconds);
         endingReached = save.endingReached;
         archiveStayActive = false;
+        activeRestoreStarts.Clear();
 
         puzzleMistakes.Clear();
         if (save.puzzleMistakes != null)
             puzzleMistakes.AddRange(save.puzzleMistakes);
+    }
+
+    private PuzzleMistakeEntry EnsureMemoryEntry(MemoryData3D memory)
+    {
+        string id = memory != null ? memory.id : "";
+        if (string.IsNullOrEmpty(id))
+            return null;
+
+        PuzzleMistakeEntry entry = FindPuzzleMistakeEntry(id);
+        if (entry == null)
+        {
+            entry = new PuzzleMistakeEntry
+            {
+                memoryId = id,
+                memoryTitle = memory != null ? memory.memoryTitle : "이름 없는 기억",
+                count = 0,
+                abandonCount = 0,
+                restoreTimeSeconds = 0f
+            };
+            puzzleMistakes.Add(entry);
+        }
+
+        return entry;
     }
 
     private PuzzleMistakeEntry FindPuzzleMistakeEntry(string memoryId)
