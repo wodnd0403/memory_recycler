@@ -41,8 +41,11 @@ public class UIManager3D : MonoBehaviour
 
     private GameObject puzzlePanel;
     private Text puzzleTitle;
+    private Text puzzleGuideText;
     private Text puzzleSelectedText;
     private Transform puzzlePiecesRoot;
+    private Button checkPuzzleButton;
+    private Button resetPuzzleButton;
     private readonly List<string> selectedPieces = new List<string>();
     // 퍼즐 조각 인덱스별 버튼을 저장해 중복 클릭 방지에 사용한다.
     private readonly List<Button> puzzlePieceButtons = new List<Button>();
@@ -53,6 +56,10 @@ public class UIManager3D : MonoBehaviour
     private float stillnessTime;
     private Vector3 lastLensMousePosition;
     private string specialPuzzleStatus = "";
+    private string currentMemoryOpenSource = "Unknown";
+    private bool specialPuzzleFallbackActive;
+    private bool specialPuzzleBranchLogged;
+    private bool lensTargetLogWritten;
 
     private GameObject archivePanel;
     private Text archiveText;
@@ -173,12 +180,25 @@ public class UIManager3D : MonoBehaviour
 
     public void ShowMemoryCard(MemoryRecord3D record)
     {
+        ShowMemoryCard(record, "Direct");
+    }
+
+    public void ShowMemoryCard(MemoryRecord3D record, string openSource)
+    {
         currentRecord = record;
+        currentMemoryOpenSource = openSource;
         CloseAllMajorPanels();
 
         string decision = MemoryManager3D.DecisionToKorean(record.decision);
         string location = string.IsNullOrEmpty(record.memory.locationName) ? "위치 미상" : record.memory.locationName;
         string clue = string.IsNullOrEmpty(record.memory.archiveClue) ? "" : "\n\n[아카이브 단서]\n" + record.memory.archiveClue;
+        if (record.memory.puzzleMode != MemoryPuzzleMode3D.Sequence && record.restored)
+        {
+            Debug.Log("[MR3D PuzzleMode] Memory already restored; puzzle skipped id=" + record.memory.id +
+                " mode=" + record.memory.puzzleMode +
+                " source=" + currentMemoryOpenSource +
+                " solvedBy=" + PlayerMemoryLog3D.Ensure().GetSolvedBy(record.memory), record.memory);
+        }
 
         cardTitle.text = GetMemoryDisplayTitle(record);
         cardBody.text =
@@ -273,7 +293,7 @@ public class UIManager3D : MonoBehaviour
         {
             if (records[i] != null && records[i].memory != null && !records[i].restored)
             {
-                ShowMemoryCard(records[i]);
+                ShowMemoryCard(records[i], "TabLog");
                 return;
             }
         }
@@ -281,7 +301,7 @@ public class UIManager3D : MonoBehaviour
         {
             if (records[i] != null && records[i].memory != null && records[i].decision == MemoryDecision3D.Unchosen)
             {
-                ShowMemoryCard(records[i]);
+                ShowMemoryCard(records[i], "TabLog");
                 return;
             }
         }
@@ -835,8 +855,8 @@ public class UIManager3D : MonoBehaviour
         puzzlePanel = CreatePanel("PuzzlePanel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(980f, 720f), Vector2.zero, new Color(0.03f, 0.035f, 0.05f, 0.96f));
         puzzleTitle = CreateText(puzzlePanel.transform, "PuzzleTitle", "기억 복원 퍼즐", 34, TextAnchor.MiddleLeft, Color.white);
         SetRect(puzzleTitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(40f, -88f), new Vector2(-40f, -28f));
-        Text guide = CreateText(puzzlePanel.transform, "PuzzleGuide", "문장 조각을 올바른 순서로 선택한 뒤 복원 확인을 누르세요.", 22, TextAnchor.MiddleLeft, new Color(0.82f, 0.86f, 0.9f));
-        SetRect(guide.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(40f, -138f), new Vector2(-40f, -98f));
+        puzzleGuideText = CreateText(puzzlePanel.transform, "PuzzleGuide", "문장 조각을 올바른 순서로 선택한 뒤 복원 확인을 누르세요.", 22, TextAnchor.MiddleLeft, new Color(0.82f, 0.86f, 0.9f));
+        SetRect(puzzleGuideText.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(40f, -138f), new Vector2(-40f, -98f));
         puzzleSelectedText = CreateText(puzzlePanel.transform, "SelectedText", "선택한 문장:", 22, TextAnchor.UpperLeft, new Color(0.95f, 0.95f, 0.85f));
         SetRect(puzzleSelectedText.rectTransform, new Vector2(0f, 0.5f), new Vector2(1f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(40f, -170f), new Vector2(-40f, -78f));
 
@@ -846,8 +866,8 @@ public class UIManager3D : MonoBehaviour
         SetRect(rootRect, new Vector2(0f, 0.5f), new Vector2(1f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(40f, -35f), new Vector2(-40f, 160f));
         puzzlePiecesRoot = root.transform;
 
-        CreateButton(puzzlePanel.transform, "CheckPuzzleButton", "복원 확인", new Vector2(-260f, -300f), CheckPuzzle);
-        CreateButton(puzzlePanel.transform, "ResetPuzzleButton", "다시 선택", new Vector2(0f, -300f), ResetPuzzleSelection);
+        checkPuzzleButton = CreateButton(puzzlePanel.transform, "CheckPuzzleButton", "복원 확인", new Vector2(-260f, -300f), CheckPuzzle);
+        resetPuzzleButton = CreateButton(puzzlePanel.transform, "ResetPuzzleButton", "다시 선택", new Vector2(0f, -300f), ResetPuzzleSelection);
         CreateButton(puzzlePanel.transform, "ClosePuzzleButton", "닫기", new Vector2(260f, -300f), CloseAllAndLock);
         puzzlePanel.SetActive(false);
     }
@@ -956,10 +976,19 @@ public class UIManager3D : MonoBehaviour
         stillnessTime = 0f;
         lastLensMousePosition = Input.mousePosition;
         specialPuzzleStatus = GetSpecialPuzzleIntro(currentPuzzleRecord.memory);
+        specialPuzzleFallbackActive = false;
+        specialPuzzleBranchLogged = false;
+        lensTargetLogWritten = false;
         CloseAllMajorPanels();
         SetPuzzlePanelLensMode(currentPuzzleRecord.memory.puzzleMode != MemoryPuzzleMode3D.Sequence);
         PlayerMemoryLog3D.Ensure().BeginMemoryRestore(currentPuzzleRecord.memory);
-        puzzleTitle.text = "기억 복원: " + currentPuzzleRecord.memory.memoryTitle;
+        Debug.Log("[MR3D PuzzleMode] Open puzzle id=" + currentPuzzleRecord.memory.id +
+            " title=" + currentPuzzleRecord.memory.memoryTitle +
+            " mode=" + currentPuzzleRecord.memory.puzzleMode +
+            " restored=" + currentPuzzleRecord.restored +
+            " decision=" + currentPuzzleRecord.decision +
+            " source=" + currentMemoryOpenSource, currentPuzzleRecord.memory);
+        ConfigurePuzzleModeUi(currentPuzzleRecord.memory);
         RefreshPuzzlePieces();
         RefreshSelectedPiecesText();
         puzzlePanel.SetActive(true);
@@ -990,6 +1019,53 @@ public class UIManager3D : MonoBehaviour
             rect.anchoredPosition = new Vector2(0f, -i * 68f);
             puzzlePieceButtons.Add(button);
         }
+
+        RefreshSequenceFallbackVisibility();
+    }
+
+    private void ConfigurePuzzleModeUi(MemoryData3D memory)
+    {
+        if (memory == null)
+            return;
+
+        switch (memory.puzzleMode)
+        {
+            case MemoryPuzzleMode3D.LensAlign:
+                puzzleTitle.text = "[기억 렌즈] " + memory.memoryTitle;
+                if (puzzleGuideText != null)
+                    puzzleGuideText.text = "기록지를 도시 위에 겹치십시오. 대상이 화면 중앙에 가까워지면 빈칸이 흔들립니다.";
+                break;
+            case MemoryPuzzleMode3D.LensOcclude:
+                puzzleTitle.text = "[가려진 기록] " + memory.memoryTitle;
+                if (puzzleGuideText != null)
+                    puzzleGuideText.text = "가려야 보이는 문장이 있습니다. 폐도시 구조와 기록창을 겹치십시오.";
+                break;
+            case MemoryPuzzleMode3D.Stillness:
+                puzzleTitle.text = "[빈 파일] " + memory.memoryTitle;
+                if (puzzleGuideText != null)
+                    puzzleGuideText.text = "빈 파일은 움직이는 수거원에게 열리지 않습니다. 5초 동안 아무 입력 없이 멈추십시오.";
+                break;
+            default:
+                puzzleTitle.text = "기억 복원: " + memory.memoryTitle;
+                if (puzzleGuideText != null)
+                    puzzleGuideText.text = "문장 조각을 올바른 순서로 선택한 뒤 복원 확인을 누르세요.";
+                break;
+        }
+    }
+
+    private void RefreshSequenceFallbackVisibility()
+    {
+        bool showSequence = currentPuzzleRecord == null ||
+            currentPuzzleRecord.memory == null ||
+            currentPuzzleRecord.memory.puzzleMode == MemoryPuzzleMode3D.Sequence ||
+            specialPuzzleFallbackActive;
+
+        if (puzzlePiecesRoot != null)
+            puzzlePiecesRoot.gameObject.SetActive(showSequence);
+        if (checkPuzzleButton != null)
+            checkPuzzleButton.gameObject.SetActive(showSequence);
+        if (resetPuzzleButton != null)
+            resetPuzzleButton.gameObject.SetActive(showSequence);
     }
 
     // 중복 클릭으로 같은 조각이 두 번 들어가지 않도록 인덱스 기반으로 선택을 관리한다.
@@ -1020,10 +1096,14 @@ public class UIManager3D : MonoBehaviour
         string hint = GetPuzzleHint(currentPuzzleRecord);
         string stability = GetPuzzleStabilityText(currentPuzzleRecord);
         string special = GetSpecialPuzzleText();
+        bool specialOnly = currentPuzzleRecord != null &&
+            currentPuzzleRecord.memory != null &&
+            currentPuzzleRecord.memory.puzzleMode != MemoryPuzzleMode3D.Sequence &&
+            !specialPuzzleFallbackActive;
         puzzleSelectedText.text =
             stability + "\n\n" +
             special +
-            "선택한 문장:\n" + selected +
+            (specialOnly ? "" : "선택한 문장:\n" + selected) +
             (string.IsNullOrEmpty(hint) ? "" : "\n\n[아카이브 힌트]\n" + hint);
     }
 
@@ -1115,6 +1195,12 @@ public class UIManager3D : MonoBehaviour
             return;
 
         MemoryPuzzleMode3D mode = currentPuzzleRecord.memory.puzzleMode;
+        if (!specialPuzzleBranchLogged && mode != MemoryPuzzleMode3D.Sequence)
+        {
+            Debug.Log("[MR3D PuzzleMode] Enter " + mode + " branch id=" + currentPuzzleRecord.memory.id, currentPuzzleRecord.memory);
+            specialPuzzleBranchLogged = true;
+        }
+
         switch (mode)
         {
             case MemoryPuzzleMode3D.LensAlign:
@@ -1135,9 +1221,26 @@ public class UIManager3D : MonoBehaviour
         Camera camera = Camera.main;
         if (anchor == null || camera == null)
         {
+            if (!lensTargetLogWritten)
+            {
+                Debug.LogWarning("[MR3D PuzzleMode] Lens target found=False mode=" + mode +
+                    " id=" + currentPuzzleRecord.memory.id +
+                    " cameraMain=" + (camera != null), currentPuzzleRecord.memory);
+                lensTargetLogWritten = true;
+            }
+            specialPuzzleFallbackActive = true;
+            RefreshSequenceFallbackVisibility();
             specialPuzzleStatus = "렌즈 앵커를 찾지 못했습니다. 아래 문장 조각 퍼즐로 복원할 수 있습니다.";
             RefreshSelectedPiecesText();
             return;
+        }
+
+        if (!lensTargetLogWritten)
+        {
+            Debug.Log("[MR3D PuzzleMode] Lens target found=True mode=" + mode +
+                " target=" + anchor.name +
+                " id=" + currentPuzzleRecord.memory.id, anchor);
+            lensTargetLogWritten = true;
         }
 
         Vector3 screen = camera.WorldToScreenPoint(anchor.position);
@@ -1148,16 +1251,20 @@ public class UIManager3D : MonoBehaviour
         if (distance <= threshold)
         {
             lensSolveHoldTime += Time.unscaledDeltaTime;
-            specialPuzzleStatus = "렌즈 정렬 중... " + Mathf.Clamp01(lensSolveHoldTime / 0.7f).ToString("P0");
+            string progressLabel = mode == MemoryPuzzleMode3D.LensOcclude ? "가림 판정" : "렌즈 정렬";
+            specialPuzzleStatus = progressLabel + ": " + lensSolveHoldTime.ToString("0.0") + " / 0.7초\n빈칸이 흔들립니다...";
             if (lensSolveHoldTime >= 0.7f)
+            {
                 CompleteSpecialPuzzle(mode, successMessage);
+                return;
+            }
         }
         else
         {
             lensSolveHoldTime = 0f;
             specialPuzzleStatus = mode == MemoryPuzzleMode3D.LensOcclude
-                ? "거짓 안내 문장을 도시 구조물 아래에 겹치십시오. 화면 중앙 거리가 " + Mathf.RoundToInt(distance) + "px입니다."
-                : "기록창의 빈칸을 도시 위에 겹치십시오. 화면 중앙 거리가 " + Mathf.RoundToInt(distance) + "px입니다.";
+                ? "가림 판정: 0.0 / 0.7초\n거짓 안내 문장을 도시 구조물 아래에 겹치십시오. 화면 중앙 거리가 " + Mathf.RoundToInt(distance) + "px입니다."
+                : "렌즈 정렬: 0.0 / 0.7초\n기록창의 빈칸을 도시 위에 겹치십시오. 화면 중앙 거리가 " + Mathf.RoundToInt(distance) + "px입니다.";
         }
 
         RefreshSelectedPiecesText();
@@ -1175,14 +1282,17 @@ public class UIManager3D : MonoBehaviour
         if (disturbed)
         {
             stillnessTime = 0f;
-            specialPuzzleStatus = "빈 파일이 흔들렸습니다. 아무 입력 없이 멈추면 다시 열립니다.";
+            specialPuzzleStatus = "정지 상태 유지: 0.0 / 5.0초\n기록이 다시 닫혔습니다. 수거원이 아직 움직이고 있습니다.";
         }
         else
         {
             stillnessTime += Time.unscaledDeltaTime;
-            specialPuzzleStatus = "정지 유지 중... " + Mathf.Clamp01(stillnessTime / 5f).ToString("P0");
+            specialPuzzleStatus = "정지 상태 유지: " + stillnessTime.ToString("0.0") + " / 5.0초";
             if (stillnessTime >= 5f)
+            {
                 CompleteSpecialPuzzle(MemoryPuzzleMode3D.Stillness, "수거원이 멈추자, 빈 파일이 스스로를 열었습니다.");
+                return;
+            }
         }
 
         lastLensMousePosition = Input.mousePosition;

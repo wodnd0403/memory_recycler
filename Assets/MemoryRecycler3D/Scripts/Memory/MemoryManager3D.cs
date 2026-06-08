@@ -108,7 +108,7 @@ public class MemoryManager3D : MonoBehaviour
         }
 
         SaveGame();
-        UIManager3D.Instance.ShowMemoryCard(record);
+        UIManager3D.Instance.ShowMemoryCard(record, "MemoryOrb");
     }
 
     public void MarkRestored(MemoryData3D memory)
