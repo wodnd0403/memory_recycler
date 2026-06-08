@@ -80,6 +80,19 @@ Lens success restores the memory through the same `MarkRestored` path as the seq
 
 TODO: a later archive interrogation UI can read `solvedBy` and ask the player why a memory was aligned, hidden, or opened by stillness.
 
+### Runtime Debugging
+
+The puzzle UI writes concise runtime logs with the `[MR3D PuzzleMode]` prefix.
+
+- Opening a puzzle logs memory id, title, `puzzleMode`, restored state, decision state, and open source.
+- Special modes log branch entry, such as `Enter LensAlign branch`.
+- Lens modes log whether a target transform was found.
+- Already-restored special memories log that the puzzle was skipped and include the saved `solvedBy` value.
+
+If a special puzzle appears to behave like a normal sequence puzzle, start a New Game or reset saved progress first. Previously restored memories skip puzzle UI by design.
+
+The first pass uses `puzzleHint` plus code-defined lens success text. It does not add separate `lensHint`, `lensSuccessText`, or `lensRequiredHoldSeconds` serialized fields yet.
+
 ## Unfinished Memory Flow
 
 - HUD displays `복원 대기 기억 N개` when collected memories have not been restored.
