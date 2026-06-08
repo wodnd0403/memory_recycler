@@ -34,3 +34,8 @@ MonoBehaviour:
     \uC0AC\uB77C\uC9C8 \uC904 \uC54C\uC558\uB2E4"
   restoredText: "\uC9D1\uB2E8\uC758 \uCE68\uBB35\uC740 \uD55C \uC0AC\uB78C\uC758
     \uBD80\uC7AC\uBCF4\uB2E4 \uC624\uB798 \uB0A8\uC558\uC2B5\uB2C8\uB2E4."
+  puzzleHint: "먼저 사라진 이름을 찾고, 그 이름이 무엇으로 바뀌었는지 확인하세요."
+  preserveTestimony: "졸업 앨범의 빈칸은 원문 그대로 보존되었습니다. 누군가의 이름을 지운 교실은 이제 침묵의 책임까지 함께 증언합니다."
+  deleteTestimony: "졸업 앨범의 빈칸은 다시 빈칸으로 처리되었습니다. 해당 학생의 이름과 침묵한 사람들의 표정은 증언대에 오르지 않습니다."
+  reprocessedText: "앨범의 빈칸에는 늦게 도착한 꽃잎이 붙었습니다. 사라진 이름은 상처 대신 작별 인사로 다시 분류되었습니다."
+  reprocessWarning: "기록 불일치: 이름은 아름답게 사라진 것이 아니라, 집단의 침묵으로 교체되었습니다."

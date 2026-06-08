@@ -32,3 +32,8 @@ MonoBehaviour:
   - "\uCCA0\uC218 \uBA85\uB839\uC740 \uAC70\uC9D3\uC785\uB2C8\uB2E4"
   - "\uC774 \uBC29\uC1A1\uC744 \uB04A\uC9C0 \uB9C8\uC2ED\uC2DC\uC624"
   restoredText: "\uC9C4\uC2E4\uC740 \uBC29\uC1A1\uB418\uAE30 \uC9C1\uC804\uC5D0 \uCC28\uB2E8\uB418\uC5C8\uC2B5\uB2C8\uB2E4."
+  puzzleHint: "방송은 시작되었지만, 가장 중요한 문장은 송출 직전에 끊겼습니다."
+  preserveTestimony: "녹슨 방송 마이크는 원문 그대로 보존되었습니다. 차단 직전의 진실은 이제 엔딩 증언으로 다시 송출됩니다."
+  deleteTestimony: "마지막 방송 원고가 삭제되었습니다. 재난 방송국에는 잡음과 녹슨 마이크만 남았습니다."
+  reprocessedText: "마지막 방송은 시민들을 안심시키는 안내문으로 재가공되었습니다. 목소리는 떨리지 않았고, 화면은 끝까지 안정적이었습니다."
+  reprocessWarning: "기록 불일치: 실제 방송은 진실을 말하기 직전에 차단되었습니다."

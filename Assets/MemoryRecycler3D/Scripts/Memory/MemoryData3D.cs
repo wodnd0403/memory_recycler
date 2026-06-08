@@ -20,4 +20,11 @@ public class MemoryData3D : ScriptableObject
 
     [Header("Recovered Text")]
     [TextArea(3, 8)] public string restoredText;
+
+    [Header("Player Memory Recycling")]
+    [TextArea(1, 3)] public string puzzleHint;
+    [TextArea(2, 5)] public string preserveTestimony;
+    [TextArea(2, 5)] public string deleteTestimony;
+    [TextArea(2, 5)] public string reprocessedText;
+    [TextArea(1, 3)] public string reprocessWarning;
 }

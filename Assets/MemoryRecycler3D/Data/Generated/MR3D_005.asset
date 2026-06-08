@@ -35,3 +35,8 @@ MonoBehaviour:
   - "\uBBF8\uC544\uB294 \uB9C8\uC9C0\uB9C9 \uC5F4\uCC28\uB97C \uAE30\uB2E4\uB838\uB2E4"
   restoredText: "\uBBF8\uC544\uB294 \uB3C4\uC2DC\uAC00 \uC9C0\uC6B4 \uC0AC\uAC74\uC758
     \uB9C8\uC9C0\uB9C9 \uBAA9\uACA9\uC790\uC600\uC744 \uAC00\uB2A5\uC131\uC774 \uC788\uC2B5\uB2C8\uB2E4."
+  puzzleHint: "파란 우산은 물건이 아니라, 지워진 사건을 본 사람의 표식입니다."
+  preserveTestimony: "파란 우산의 기록은 원문 그대로 보존되었습니다. 미아는 실종자가 아니라, 도시가 지운 사건의 마지막 목격자였을 가능성이 있습니다."
+  deleteTestimony: "파란 우산의 소유자 기록이 삭제되었습니다. 실종자 목록에는 빗물 자국만 남았습니다."
+  reprocessedText: "파란 우산은 잃어버린 아이를 집으로 데려다준 표식으로 재가공되었습니다. 지하철 통로에는 더 이상 울음이 남지 않습니다."
+  reprocessWarning: "기록 불일치: 우산은 귀가 기록이 아니라 목격 증언의 잔해였습니다."

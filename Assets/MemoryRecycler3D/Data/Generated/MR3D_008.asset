@@ -33,3 +33,8 @@ MonoBehaviour:
   - "\uAE68\uC5B4\uB098\uBA74 \uB2E4\uC2DC \uC120\uD0DD\uD574\uC57C \uD55C\uB2E4"
   restoredText: "\uD3C9\uC628\uC740 \uB54C\uB85C \uC9C4\uC2E4\uC744 \uB36E\uB294
     \uAC00\uC7A5 \uBD80\uB4DC\uB7EC\uC6B4 \uD3ED\uB825\uC774 \uB429\uB2C8\uB2E4."
+  puzzleHint: "자장가는 달래기 위해 시작되지만, 마지막에는 무엇을 덮었는지 드러납니다."
+  preserveTestimony: "중앙 아카이브의 자장가는 원문 그대로 보존되었습니다. 평온이 진실을 덮는 가장 부드러운 폭력이 된다는 사실까지 남았습니다."
+  deleteTestimony: "자장가 파일은 소거되었습니다. 아카이브 심층부에는 이유 없는 평온만 반복됩니다."
+  reprocessedText: "자장가는 폐도시를 잠시 쉬게 하는 노래로 재가공되었습니다. 진실은 잠들었고, 시민들은 덜 무서운 꿈을 꾸었습니다."
+  reprocessWarning: "기록 불일치: 원본 자장가는 위로인 동시에 은폐 프로토콜이었습니다."

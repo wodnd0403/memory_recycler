@@ -39,3 +39,8 @@ MonoBehaviour:
     \uC54A\uC558\uB2E4"
   restoredText: "\uCE58\uB8CC\uB294 \uD544\uC694\uD588\uC9C0\uB9CC, \uB3C4\uC2DC\uB294
     \uC5B4\uB290 \uC21C\uAC04 \uC9C8\uBB38\uAE4C\uC9C0 \uC0AD\uC81C\uD558\uAE30 \uC2DC\uC791\uD588\uC2B5\uB2C8\uB2E4."
+  puzzleHint: "동의서의 순서는 요청, 서명, 그리고 시스템이 넘은 선으로 이어집니다."
+  preserveTestimony: "첫 번째 치료 동의서는 삭제 기술의 시작점으로 보존되었습니다. 필요했던 치료와 남용된 명령 사이의 선이 그대로 남았습니다."
+  deleteTestimony: "동의서 원본이 폐기되었습니다. 치료라는 단어만 남고, 누가 선을 넘었는지는 확인할 수 없습니다."
+  reprocessedText: "치료 기록은 환자를 덜 아프게 한 선택으로 다시 정리되었습니다. 도시의 시스템은 선을 넘지 않은 것처럼 표시됩니다."
+  reprocessWarning: "기록 불일치: 실제 로그에는 동의 이후 강제 삭제 명령이 이어져 있습니다."

@@ -37,3 +37,8 @@ MonoBehaviour:
     \uBC1C\uD45C\uD55C\uB2E4"
   restoredText: "\uB3C4\uC2DC\uB294 \uC2DC\uBBFC\uC744 \uBCF4\uD638\uD55C\uB2E4\uB294
     \uBA85\uBAA9\uC73C\uB85C \uC2DC\uBBFC\uC758 \uC99D\uC5B8\uC744 \uC9C0\uC6E0\uC2B5\uB2C8\uB2E4."
+  puzzleHint: "명령은 보호를 약속하지만, 마지막에는 시민의 증언을 지웁니다."
+  preserveTestimony: "야간 명령은 원문 그대로 보존되었습니다. 보호라는 문장이 어떻게 통제로 바뀌었는지 중앙 서버가 다시 읽기 시작합니다."
+  deleteTestimony: "야간 명령 기록은 보안 사유로 삭제되었습니다. 도시가 누구를 보호했는지, 무엇을 지웠는지는 증언되지 않습니다."
+  reprocessedText: "야간 명령은 임시 대피 프로토콜로 재가공되었습니다. 시민들은 잠시 쉬었고, 도시는 그들을 안전하게 돌려보낸 것으로 표시됩니다."
+  reprocessWarning: "기록 불일치: 원본 명령은 대피가 아니라 시민 증언 삭제였습니다."
