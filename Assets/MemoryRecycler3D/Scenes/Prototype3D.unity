@@ -16662,7 +16662,7 @@ MonoBehaviour:
   deletedFog: {r: 0.12, g: 0.12, b: 0.14, a: 1}
   neutralFog: {r: 0.22, g: 0.24, b: 0.28, a: 1}
   enableDayNightCycle: 1
-  fullDayDurationSeconds: 180
+  fullDayDurationSeconds: 720
   startTimeNormalized: 0.23
   enableNightSky: 1
   starCount: 150

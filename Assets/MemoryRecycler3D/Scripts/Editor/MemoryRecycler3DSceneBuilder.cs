@@ -2320,6 +2320,7 @@ public static class MemoryRecycler3DSceneBuilder
         GameObject worldTone = new GameObject("WorldToneController");
         WorldToneController3D controller = worldTone.AddComponent<WorldToneController3D>();
         controller.sunLight = sun;
+        controller.fullDayDurationSeconds = 720f;
     }
 
     private static void CreateGround(Material groundMat, Material roadMat, Material debrisMat)

@@ -20,3 +20,8 @@
 
 .DS_Store
 Thumbs.db
+
+# Local nested repositories that were accidentally registered as submodules.
+/M.R/
+/memory/
+/memory_recycler/

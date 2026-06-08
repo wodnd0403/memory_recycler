@@ -15,7 +15,7 @@ public class WorldToneController3D : MonoBehaviour
 
     [Header("Day & Night")]
     public bool enableDayNightCycle = true;
-    public float fullDayDurationSeconds = 180f;
+    public float fullDayDurationSeconds = 720f;
     [Range(0f, 1f)] public float startTimeNormalized = 0.23f;
 
     [Header("Night Sky")]
