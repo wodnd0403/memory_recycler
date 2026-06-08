@@ -234,6 +234,8 @@ public class UIManager3D : MonoBehaviour
 
         sb.AppendLine();
         sb.AppendLine("중앙 아카이브 결말 접속 조건: 처리 완료 기억 " + RequiredDecisionsForEnding + "개 이상");
+        sb.AppendLine();
+        sb.Append(BuildArchiveProgressReaction(records, decided: MemoryManager3D.Instance != null ? MemoryManager3D.Instance.CountDecidedMemories() : 0));
 
         archiveText.text = sb.ToString();
         archivePanel.SetActive(true);
@@ -908,7 +910,12 @@ public class UIManager3D : MonoBehaviour
     {
         if (puzzleSelectedText == null)
             return;
-        puzzleSelectedText.text = "선택한 문장:\n" + string.Join(" / ", selectedPieces.ToArray());
+
+        string selected = selectedPieces.Count > 0 ? string.Join(" / ", selectedPieces.ToArray()) : "아직 선택한 조각이 없습니다.";
+        string hint = GetPuzzleHint(currentPuzzleRecord);
+        puzzleSelectedText.text =
+            "선택한 문장:\n" + selected +
+            (string.IsNullOrEmpty(hint) ? "" : "\n\n[아카이브 힌트]\n" + hint);
     }
 
     // 다시 선택 시 모든 버튼이 다시 눌릴 수 있도록 복구한다.
@@ -968,7 +975,7 @@ public class UIManager3D : MonoBehaviour
         else
         {
             PlayerMemoryLog3D.Ensure().RecordPuzzleMistake(currentPuzzleRecord.memory);
-            ShowToast("순서가 맞지 않습니다. 다시 조합해 보세요.");
+            ShowToast(GetPuzzleMistakeFeedback(currentPuzzleRecord));
         }
     }
 
@@ -1000,9 +1007,9 @@ public class UIManager3D : MonoBehaviour
         switch (record.decision)
         {
             case MemoryDecision3D.Delete:
-                return "□□□\n\n증언 없음. 삭제된 기억은 중앙 아카이브의 표면에 빈칸으로만 남았다.";
+                return "□□□\n\n" + GetDeleteTestimony(record.memory);
             case MemoryDecision3D.Edit:
-                return BuildReworkedMemoryText(record.memory) + "\n\n[기록 불일치]\n문장은 더 아름다워졌지만, 원본과 완전히 일치하지 않습니다.";
+                return BuildReworkedMemoryText(record.memory) + "\n\n[기록 불일치]\n" + GetReprocessWarning(record.memory);
             default:
                 return record.memory.restoredText;
         }
@@ -1036,11 +1043,11 @@ public class UIManager3D : MonoBehaviour
         switch (record.decision)
         {
             case MemoryDecision3D.Preserve:
-                return string.IsNullOrEmpty(record.memory.restoredText) ? "원문 그대로 보존됨." : record.memory.restoredText;
+                return GetPreserveTestimony(record.memory);
             case MemoryDecision3D.Delete:
-                return "증언 없음.";
+                return GetDeleteTestimony(record.memory);
             case MemoryDecision3D.Edit:
-                return BuildReworkedMemoryText(record.memory) + " (기록 불일치)";
+                return BuildReworkedMemoryText(record.memory) + " (" + GetReprocessWarning(record.memory) + ")";
             default:
                 return "미분류 기록.";
         }
@@ -1048,11 +1055,97 @@ public class UIManager3D : MonoBehaviour
 
     private string BuildReworkedMemoryText(MemoryData3D memory)
     {
+        if (memory != null && !string.IsNullOrEmpty(memory.reprocessedText))
+            return memory.reprocessedText;
+
         string source = memory != null ? memory.restoredText : "";
         if (string.IsNullOrEmpty(source))
             return "기억은 부드러운 빛으로 다시 쓰였다.";
 
         return "기억은 조금 덜 아픈 문장으로 재가공되었다. " + source;
+    }
+
+    private string GetPuzzleHint(MemoryRecord3D record)
+    {
+        if (record == null || record.memory == null)
+            return "";
+
+        if (!string.IsNullOrEmpty(record.memory.puzzleHint))
+            return record.memory.puzzleHint;
+
+        return "문장의 원인을 먼저 찾고, 그다음 남은 감정이 무엇을 요구하는지 따라가세요.";
+    }
+
+    private string GetPuzzleMistakeFeedback(MemoryRecord3D record)
+    {
+        int mistakes = PlayerMemoryLog3D.Ensure().GetPuzzleMistakesFor(record != null ? record.memory : null);
+        string hint = GetPuzzleHint(record);
+
+        if (mistakes <= 1)
+            return "순서가 맞지 않습니다. " + hint;
+        if (mistakes == 2)
+            return "아카이브가 오답을 기억했습니다. 첫 조각과 마지막 조각을 다시 비교하세요.";
+
+        return "아카이브는 같은 문장의 망설임을 " + mistakes + "번 기록했습니다. " + hint;
+    }
+
+    private string GetPreserveTestimony(MemoryData3D memory)
+    {
+        if (memory != null && !string.IsNullOrEmpty(memory.preserveTestimony))
+            return memory.preserveTestimony;
+
+        return memory != null && !string.IsNullOrEmpty(memory.restoredText)
+            ? memory.restoredText
+            : "원문 그대로 보존됨.";
+    }
+
+    private string GetDeleteTestimony(MemoryData3D memory)
+    {
+        if (memory != null && !string.IsNullOrEmpty(memory.deleteTestimony))
+            return "증언 없음. " + memory.deleteTestimony;
+
+        return "증언 없음. 삭제된 기억은 중앙 아카이브의 표면에 빈칸으로만 남았다.";
+    }
+
+    private string GetReprocessWarning(MemoryData3D memory)
+    {
+        if (memory != null && !string.IsNullOrEmpty(memory.reprocessWarning))
+            return memory.reprocessWarning;
+
+        return "문장은 더 아름다워졌지만, 원본과 완전히 일치하지 않습니다.";
+    }
+
+    private string BuildArchiveProgressReaction(List<MemoryRecord3D> records, int decided)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine("[아카이브 진행 반응]");
+
+        if (records == null || records.Count == 0)
+        {
+            sb.AppendLine("- 아카이브는 아직 도시보다 수거원을 더 많이 기다리고 있습니다.");
+            return sb.ToString();
+        }
+
+        PlayerMemoryLog3D log = PlayerMemoryLog3D.Ensure();
+        if (decided <= 0)
+        {
+            sb.AppendLine("- 회수 기록은 늘었지만, 수거원의 판단 패턴은 아직 비어 있습니다.");
+        }
+        else if (decided < RequiredDecisionsForEnding)
+        {
+            sb.AppendLine("- 아카이브가 수거원의 선택을 분류 중입니다. 처리 완료 " + decided + " / " + RequiredDecisionsForEnding + ".");
+        }
+        else
+        {
+            sb.AppendLine("- 결말 조건이 충족되었습니다. 이제 중앙 아카이브는 도시의 기억과 수거원의 행동을 함께 판정합니다.");
+        }
+
+        if (log.firstDecision != MemoryDecision3D.Unchosen)
+            sb.AppendLine("- 첫 선택 패턴: " + MemoryManager3D.DecisionToKorean(log.firstDecision) + ".");
+        if (log.puzzleMistakeCount > 0)
+            sb.AppendLine("- 복원 오류 " + log.puzzleMistakeCount + "회가 행동 기록에 누적되었습니다.");
+
+        return sb.ToString();
     }
 
     private string ObscureTitle(string title)

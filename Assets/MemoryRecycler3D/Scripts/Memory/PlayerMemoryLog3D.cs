@@ -217,6 +217,8 @@ public class PlayerMemoryLog3D : MonoBehaviour
             sb.AppendLine("- 삭제된 기억은 증언대에서 침묵으로 남았다.");
         if (editedCount > 0)
             sb.AppendLine("- 재가공된 기억은 부드러워졌지만, 원본과 어긋난 흔적을 남겼다.");
+        if (preservedCount > 0 && deletedCount > 0 && editedCount > 0)
+            sb.AppendLine("- 아카이브는 그가 한 가지 원칙이 아니라, 매번 다른 죄책감으로 판단했다는 사실을 보존했다.");
 
         return sb.ToString();
     }
