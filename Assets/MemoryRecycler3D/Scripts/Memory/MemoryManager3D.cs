@@ -127,6 +127,12 @@ public class MemoryManager3D : MonoBehaviour
         if (record == null)
             return;
 
+        if (!record.restored)
+        {
+            Debug.LogWarning("[MR3D] 복원되지 않은 기억은 처리할 수 없습니다: " + (memory != null ? memory.id : "null"), memory);
+            return;
+        }
+
         if (record.decision == MemoryDecision3D.Unchosen)
         {
             record.decision = decision;
@@ -176,7 +182,7 @@ public class MemoryManager3D : MonoBehaviour
         int count = 0;
         for (int i = 0; i < collectedMemories.Count; i++)
         {
-            if (collectedMemories[i].decision != MemoryDecision3D.Unchosen)
+            if (collectedMemories[i].restored && collectedMemories[i].decision != MemoryDecision3D.Unchosen)
                 count++;
         }
         return count;
@@ -211,7 +217,7 @@ public class MemoryManager3D : MonoBehaviour
                 id = record.memory.id,
                 collected = true,
                 restored = record.restored,
-                decision = record.decision
+                decision = record.restored ? record.decision : MemoryDecision3D.Unchosen
             });
         }
 
@@ -247,6 +253,7 @@ public class MemoryManager3D : MonoBehaviour
         foreach (KeyValuePair<string, MemoryObject3D> pair in memoryObjects)
             ApplySavedState(pair.Value);
 
+        SyncDecisionCountsFromRecords();
         ApplySavedPlayerPose();
         nextAutoSaveTime = Time.unscaledTime + AutoSaveInterval;
     }
@@ -349,7 +356,37 @@ public class MemoryManager3D : MonoBehaviour
         }
 
         record.restored = entry.restored;
-        record.decision = entry.decision;
+        record.decision = entry.restored ? entry.decision : MemoryDecision3D.Unchosen;
+    }
+
+    private void SyncDecisionCountsFromRecords()
+    {
+        int preserved = 0;
+        int deleted = 0;
+        int edited = 0;
+
+        for (int i = 0; i < collectedMemories.Count; i++)
+        {
+            MemoryRecord3D record = collectedMemories[i];
+            if (record == null || !record.restored)
+                continue;
+
+            switch (record.decision)
+            {
+                case MemoryDecision3D.Preserve:
+                    preserved++;
+                    break;
+                case MemoryDecision3D.Delete:
+                    deleted++;
+                    break;
+                case MemoryDecision3D.Edit:
+                    edited++;
+                    break;
+            }
+        }
+
+        if (GameState3D.Instance != null)
+            GameState3D.Instance.SetDecisionCounts(preserved, deleted, edited);
     }
 
     private MemoryEntry FindEntry(string id)
