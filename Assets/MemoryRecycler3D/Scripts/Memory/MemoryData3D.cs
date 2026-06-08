@@ -1,5 +1,13 @@
 using UnityEngine;
 
+public enum MemoryPuzzleMode3D
+{
+    Sequence,
+    LensAlign,
+    LensOcclude,
+    Stillness
+}
+
 [CreateAssetMenu(fileName = "MemoryData3D", menuName = "Memory Recycler 3D/Memory Data")]
 public class MemoryData3D : ScriptableObject
 {
@@ -15,6 +23,7 @@ public class MemoryData3D : ScriptableObject
     [TextArea(2, 5)] public string archiveClue;
 
     [Header("Puzzle")]
+    public MemoryPuzzleMode3D puzzleMode = MemoryPuzzleMode3D.Sequence;
     [TextArea(1, 3)] public string[] sentencePieces;
     [TextArea(1, 3)] public string[] correctOrder;
 

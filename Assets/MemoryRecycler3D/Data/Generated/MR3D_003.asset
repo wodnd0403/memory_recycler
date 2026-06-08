@@ -19,6 +19,7 @@ MonoBehaviour:
   corruptionLevel: 58
   locationName: "재난 방송국"
   archiveClue: "공공 안내 기록에 누락된 이름이 감지되었습니다."
+  puzzleMode: 2
   sentencePieces:
   - "방송은 매일"
   - "시민의 안전을 말했지만,"

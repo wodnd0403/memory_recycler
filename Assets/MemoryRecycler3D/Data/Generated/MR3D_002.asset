@@ -19,6 +19,7 @@ MonoBehaviour:
   corruptionLevel: 42
   locationName: "지하철 대피 통로"
   archiveClue: "작은 기다림 하나가 도시 기록에 복원되었습니다."
+  puzzleMode: 1
   sentencePieces:
   - "비가 오던 날,"
   - "나는 파란 우산을"

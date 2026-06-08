@@ -50,6 +50,7 @@ public class PlayerMemoryLog3D : MonoBehaviour
         public int count;
         public int abandonCount;
         public float restoreTimeSeconds;
+        public string solvedBy;
     }
 
     private readonly List<PuzzleMistakeEntry> puzzleMistakes = new List<PuzzleMistakeEntry>();
@@ -149,6 +150,8 @@ public class PlayerMemoryLog3D : MonoBehaviour
         puzzleMistakeCount++;
 
         PuzzleMistakeEntry entry = EnsureMemoryEntry(memory);
+        if (entry == null)
+            return;
 
         entry.count++;
         SaveLog();
@@ -176,6 +179,11 @@ public class PlayerMemoryLog3D : MonoBehaviour
 
     public void MarkMemoryRestored(MemoryData3D memory)
     {
+        MarkMemoryRestored(memory, MemoryPuzzleMode3D.Sequence);
+    }
+
+    public void MarkMemoryRestored(MemoryData3D memory, MemoryPuzzleMode3D solvedBy)
+    {
         if (memory == null || string.IsNullOrEmpty(memory.id))
             return;
 
@@ -183,12 +191,14 @@ public class PlayerMemoryLog3D : MonoBehaviour
         if (entry == null)
             return;
 
+        entry.solvedBy = solvedBy.ToString();
         if (activeRestoreStarts.TryGetValue(memory.id, out float startedAt))
         {
             entry.restoreTimeSeconds += Mathf.Max(0f, Time.unscaledTime - startedAt);
             activeRestoreStarts.Remove(memory.id);
-            SaveLog();
         }
+
+        SaveLog();
     }
 
     public void SetArchivePresence(bool inside)
@@ -239,6 +249,12 @@ public class PlayerMemoryLog3D : MonoBehaviour
         if (instability <= 2)
             return "흔들림";
         return "붕괴 직전";
+    }
+
+    public string GetSolvedBy(MemoryData3D memory)
+    {
+        PuzzleMistakeEntry entry = FindPuzzleMistakeEntry(memory != null ? memory.id : "");
+        return entry != null ? entry.solvedBy : "";
     }
 
     public string BuildBehaviorReport(List<MemoryRecord3D> records)
@@ -383,7 +399,8 @@ public class PlayerMemoryLog3D : MonoBehaviour
                 memoryTitle = memory != null ? memory.memoryTitle : "이름 없는 기억",
                 count = 0,
                 abandonCount = 0,
-                restoreTimeSeconds = 0f
+                restoreTimeSeconds = 0f,
+                solvedBy = ""
             };
             puzzleMistakes.Add(entry);
         }
