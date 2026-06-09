@@ -34,6 +34,8 @@ public class UIManager3D : MonoBehaviour
     private GameObject cardPanel;
     private Text cardTitle;
     private Text cardBody;
+    private ScrollRect cardBodyScrollRect;
+    private RectTransform cardBodyContentRect;
     private Button restoreButton;
     private Button preserveButton;
     private Button deleteButton;
@@ -218,7 +220,28 @@ public class UIManager3D : MonoBehaviour
         editButton.gameObject.SetActive(record.restored && record.decision == MemoryDecision3D.Unchosen);
 
         cardPanel.SetActive(true);
+        RefreshCardBodyLayout();
         UnlockCursor();
+    }
+
+    private void RefreshCardBodyLayout()
+    {
+        if (cardBody == null || cardBodyContentRect == null)
+            return;
+
+        Canvas.ForceUpdateCanvases();
+        RectTransform bodyRect = cardBody.rectTransform;
+        float width = Mathf.Max(240f, bodyRect.rect.width);
+        TextGenerationSettings settings = cardBody.GetGenerationSettings(new Vector2(width, 0f));
+        float preferredHeight = cardBody.cachedTextGeneratorForLayout.GetPreferredHeight(cardBody.text, settings) / cardBody.pixelsPerUnit;
+        float contentHeight = Mathf.Max(420f, preferredHeight + 36f);
+
+        cardBodyContentRect.sizeDelta = new Vector2(cardBodyContentRect.sizeDelta.x, contentHeight);
+        Stretch(bodyRect);
+
+        Canvas.ForceUpdateCanvases();
+        if (cardBodyScrollRect != null)
+            cardBodyScrollRect.verticalNormalizedPosition = 1f;
     }
 
     public void ToggleArchive()
@@ -837,16 +860,48 @@ public class UIManager3D : MonoBehaviour
 
     private void BuildCardPanel()
     {
-        cardPanel = CreatePanel("MemoryCardPanel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(900f, 660f), Vector2.zero, new Color(0.04f, 0.05f, 0.07f, 0.95f));
+        cardPanel = CreatePanel("MemoryCardPanel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(1040f, 760f), Vector2.zero, new Color(0.04f, 0.05f, 0.07f, 0.96f));
         cardTitle = CreateText(cardPanel.transform, "CardTitle", "기억", 36, TextAnchor.MiddleLeft, Color.white);
-        SetRect(cardTitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(40f, -92f), new Vector2(-40f, -25f));
-        cardBody = CreateText(cardPanel.transform, "CardBody", "", 22, TextAnchor.UpperLeft, new Color(0.9f, 0.92f, 0.95f));
-        SetRect(cardBody.rectTransform, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), new Vector2(44f, 116f), new Vector2(-44f, -105f));
-        restoreButton = CreateButton(cardPanel.transform, "RestoreButton", "기억 복원", new Vector2(-285f, -270f), () => StartRestoreCurrent());
-        preserveButton = CreateButton(cardPanel.transform, "PreserveButton", "보존", new Vector2(-285f, -270f), () => DecideCurrent(MemoryDecision3D.Preserve));
-        deleteButton = CreateButton(cardPanel.transform, "DeleteButton", "삭제", new Vector2(0f, -270f), () => DecideCurrent(MemoryDecision3D.Delete));
-        editButton = CreateButton(cardPanel.transform, "EditButton", "재가공", new Vector2(285f, -270f), () => DecideCurrent(MemoryDecision3D.Edit));
-        CreateButton(cardPanel.transform, "CloseCardButton", "닫기", new Vector2(0f, -335f), CloseAllAndLock);
+        SetRect(cardTitle.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(44f, -92f), new Vector2(-44f, -24f));
+
+        GameObject scrollObject = CreatePanel("CardBodyScroll", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero, new Color(0.015f, 0.018f, 0.026f, 0.58f));
+        scrollObject.transform.SetParent(cardPanel.transform, false);
+        RectTransform scrollRect = scrollObject.GetComponent<RectTransform>();
+        SetRect(scrollRect, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), new Vector2(44f, 128f), new Vector2(-44f, -172f));
+
+        Mask scrollMask = scrollObject.AddComponent<Mask>();
+        scrollMask.showMaskGraphic = false;
+        cardBodyScrollRect = scrollObject.AddComponent<ScrollRect>();
+        cardBodyScrollRect.horizontal = false;
+        cardBodyScrollRect.vertical = true;
+        cardBodyScrollRect.movementType = ScrollRect.MovementType.Clamped;
+        cardBodyScrollRect.scrollSensitivity = 28f;
+        cardBodyScrollRect.viewport = scrollRect;
+
+        GameObject contentObject = new GameObject("CardBodyContent");
+        contentObject.transform.SetParent(scrollObject.transform, false);
+        cardBodyContentRect = contentObject.AddComponent<RectTransform>();
+        cardBodyContentRect.anchorMin = new Vector2(0f, 1f);
+        cardBodyContentRect.anchorMax = new Vector2(1f, 1f);
+        cardBodyContentRect.pivot = new Vector2(0.5f, 1f);
+        cardBodyContentRect.anchoredPosition = Vector2.zero;
+        cardBodyContentRect.sizeDelta = new Vector2(-36f, 420f);
+        cardBodyScrollRect.content = cardBodyContentRect;
+
+        cardBody = CreateText(contentObject.transform, "CardBody", "", 21, TextAnchor.UpperLeft, new Color(0.9f, 0.92f, 0.95f));
+        cardBody.lineSpacing = 1.08f;
+        Stretch(cardBody.rectTransform);
+
+        GameObject footer = CreatePanel("CardActionFooter", Vector2.zero, Vector2.one, new Vector2(0.5f, 0f), Vector2.zero, Vector2.zero, new Color(0.02f, 0.025f, 0.036f, 0.72f));
+        footer.transform.SetParent(cardPanel.transform, false);
+        RectTransform footerRect = footer.GetComponent<RectTransform>();
+        SetRect(footerRect, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f), new Vector2(44f, 28f), new Vector2(-44f, 150f));
+
+        restoreButton = CreateButton(footer.transform, "RestoreButton", "기억 복원", new Vector2(-285f, 30f), () => StartRestoreCurrent());
+        preserveButton = CreateButton(footer.transform, "PreserveButton", "보존", new Vector2(-285f, 30f), () => DecideCurrent(MemoryDecision3D.Preserve));
+        deleteButton = CreateButton(footer.transform, "DeleteButton", "삭제", new Vector2(0f, 30f), () => DecideCurrent(MemoryDecision3D.Delete));
+        editButton = CreateButton(footer.transform, "EditButton", "재가공", new Vector2(285f, 30f), () => DecideCurrent(MemoryDecision3D.Edit));
+        CreateButton(footer.transform, "CloseCardButton", "닫기", new Vector2(0f, -38f), CloseAllAndLock);
         cardPanel.SetActive(false);
     }
 
