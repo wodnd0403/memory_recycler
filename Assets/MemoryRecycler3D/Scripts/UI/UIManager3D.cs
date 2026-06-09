@@ -485,9 +485,9 @@ public class UIManager3D : MonoBehaviour
         scaler.matchWidthOrHeight = 0.5f;
         canvasObject.AddComponent<GraphicRaycaster>();
 
-        objectivePanel = CreatePanel("ObjectivePanel", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(560f, 150f), new Vector2(28f, -28f), new Color(0.025f, 0.032f, 0.045f, 0.82f));
-        objectiveText = CreateText(objectivePanel.transform, "ObjectiveText", "", 21, TextAnchor.UpperLeft, new Color(0.94f, 0.97f, 1f));
-        SetRect(objectiveText.rectTransform, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), new Vector2(18f, 14f), new Vector2(-18f, -14f));
+        objectivePanel = CreatePanel("ObjectivePanel", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(720f, 190f), new Vector2(28f, -28f), new Color(0.025f, 0.032f, 0.045f, 0.82f));
+        objectiveText = CreateText(objectivePanel.transform, "ObjectiveText", "", 20, TextAnchor.UpperLeft, new Color(0.94f, 0.97f, 1f));
+        SetRect(objectiveText.rectTransform, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), new Vector2(20f, 16f), new Vector2(-20f, -16f));
 
         promptPanel = CreatePanel("PromptPanel", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(760f, 72f), new Vector2(0f, 80f), new Color(0f, 0f, 0f, 0.68f));
         promptText = CreateText(promptPanel.transform, "PromptText", "E : 상호작용", 28, TextAnchor.MiddleCenter, Color.white);
