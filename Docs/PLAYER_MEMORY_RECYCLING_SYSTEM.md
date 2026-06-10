@@ -80,7 +80,13 @@ The old sequence puzzle remains the fallback for normal memories and for missing
 
 Lens success restores the memory through the same `MarkRestored` path as the sequence puzzle. `PlayerMemoryLog3D` records the solve method as `solvedBy`, for example `LensAlign`, `LensOcclude`, `Stillness`, or `Sequence`.
 
-TODO: a later archive interrogation UI can read `solvedBy` and ask the player why a memory was aligned, hidden, or opened by stillness.
+### Lens Controls and Feedback (Presentation Pass)
+
+- `Tab` toggles the memory lens overlay. When a special memory is collected but not yet restored, the lens auto-targets the next pending special record.
+- While the lens is on, the targeted world echo brightens (alpha `1.0`); while off it dims (alpha `0.42`), so the lens ON/OFF state reads clearly.
+- The lens overlay status now always shows Korean guidance with a live center-distance readout, e.g. `렌즈 정렬: 0.0 / 0.7초 ... (중앙 거리 24px)`. The earlier English placeholder strings that overwrote the Korean feedback were removed.
+- Stillness feedback shows `정지 상태 유지: x.x / 5.0초` and resets to a Korean "stop moving" message on disturbance.
+- The HUD objective adds a Tab-lens tutorial line (`Tab으로 기억 렌즈를 켜고, 월드에 떠 있는 기억 잔상을 도시와 겹쳐 복원하세요.` and `특수 기억은 Tab 기억 렌즈로 복원`) only while a pending special memory exists, so first-time players learn the lens without manual setup.
 
 ### Runtime Debugging
 
@@ -135,6 +141,42 @@ The final line of `[수거원 행동 기록]` is selected from the current playe
 
 The ending body is displayed inside a scroll area, with fixed footer buttons for title, new game, and quit. The behavior report uses the short summary version so it stays readable during a presentation.
 
+## Archive Self-Record Interrogation
+
+Reaching the ending now runs a short interrogation before the ending screen, realizing the earlier `solvedBy` TODO. The central archive asks the recycler to recall their own actions, then folds the result into the ending.
+
+- Entry: `ArchiveTerminal3D` → `UIManager3D.ShowEnding()` builds 2–3 questions from `PlayerMemoryLog3D`. If no question can be built, it falls back directly to `RenderEnding(...)`.
+- Questions:
+  - Q1 — `수거원이 처음으로 처리한 기억은 무엇입니까?` (correct = the first decided memory, from `firstDecisionMemoryId`).
+  - Q2 — `수거원이 처음 선택한 처리 방식은 무엇입니까?` (correct = `firstDecision`: 보존/삭제/재가공, plus a `기억나지 않는다` decoy).
+  - Q3 — lens-aware, only if a memory was actually solved by the lens (`solvedBy` ∈ {`LensAlign`, `LensOcclude`, `Stillness`}). Prompt varies: 도시와 겹쳐 복원 / 가려야 보이는 문장 / 멈춰서 열기.
+- Option labels reuse the decision masking rules: preserved memories show the original title, deleted memories are masked via `ObscureTitle`, reprocessed memories are tagged `(재정리본)`. Correctness is tracked by id/flag, not by the displayed (masked) string.
+- Options are shuffled with a stable per-memory seed so the correct slot is not always first.
+- Result is appended to the ending as `[아카이브 자기기록 심문]`:
+  - all correct → `수거원은 도시의 기억뿐 아니라 자신의 선택도 복원했다.`
+  - majority correct → `... 자신이 한 선택의 일부만 기억했다.`
+  - otherwise → `... 자신의 선택은 끝내 복원하지 못했다.`
+  - common closing line → `아카이브는 도시의 기억뿐 아니라, 수거원이 기억을 복원한 방식까지 보존했다.`
+- The interrogation panel blocks gameplay input and keeps the cursor unlocked (added to `IsAnyMajorPanelOpen`/`CloseAllMajorPanels`). Any answer always advances, so there is no soft-lock. Runtime logs use the `[MR3D Interrogation]` prefix (`begin`, `complete`).
+- The ending gate is unchanged: the interrogation only runs after 3+ memories are processed; `ArchiveTerminal3D` still blocks early access.
+
+## Completion Criteria (Presentation Build)
+
+The prototype is considered presentation-complete when, from `Assets/MemoryRecycler3D/Scenes/Prototype3D.unity`, pressing Play allows a full start-to-ending run with no manual Editor setup:
+
+1. Scene is pre-wired: one `UIManager3D`, `MemoryManager3D`, `GameState3D`, `ArchiveTerminal3D`, and 8 `MemoryObject3D` orbs referencing `MR3D_001`–`MR3D_008`. World echoes and the player memory log are created at runtime (`MemoryObject3D.Start` → `MemoryLensEcho3D.EnsureFor`, `MR3D_Bootstrap` → `PlayerMemoryLog3D.Ensure`), so no scene baking of those is required.
+2. `MR3D_002` (LensAlign), `MR3D_003` (LensOcclude), `MR3D_006` (Stillness) run as world-space lens puzzles, each with a `Sequence` fallback if a lens anchor is missing.
+3. Special-puzzle success sets `restored = true` only; processing (preserve/delete/reprocess) still requires an explicit decision, so the 3-processed ending gate is intact.
+4. Ending runs the archive interrogation (or falls back) and reflects `PlayerMemoryLog3D` plus the lens solve method.
+5. `dotnet build Assembly-CSharp.csproj` succeeds with 0 errors.
+
+## Known Limitations / Presentation Talking Points
+
+- The lens overlay center marker is screen-space; the puzzle is "aim the world echo into the center frame", not a literal silhouette overlap. Frame it as the lens "locking onto" the memory.
+- `LensOcclude` needs a city structure behind the screen center; in open areas, point toward a building/archive. The Sequence fallback covers worst cases.
+- Interrogation distractors come from the player's own collected memories, so with very few decided memories an option set can be small (it still includes `기억나지 않는다`).
+- Per-memory serialized lens fields (`lensHint`, `lensSuccessText`, `lensRequiredHoldSeconds`) are still code-defined, not asset-authored.
+
 ## Memory Data Fields
 
 `MemoryData3D` now includes:
@@ -174,4 +216,11 @@ The ending body is displayed inside a scroll area, with fixed footer buttons for
 - Confirm unfinished memories appear as `[복원 대기]` and do not unlock the ending.
 - Confirm the ending body scrolls and does not overlap the footer buttons.
 - Stand near the central archive for at least 20 seconds and confirm hesitation text appears.
+- Confirm the HUD shows the Tab-lens tutorial line while a collected special memory is still unrestored, and that it disappears once restored.
+- Confirm the lens overlay status is Korean with a live `(중앙 거리 NNpx)` readout (no English placeholder text).
+- Process 3+ memories, enter the central archive, and confirm the interrogation appears before the ending screen.
+- Answer all interrogation questions correctly and confirm the ending shows `자기기록 일치: N / N` with the "자신의 선택도 복원했다" line.
+- Answer incorrectly and confirm the ending shows the mismatch line instead, and that the run still reaches the ending screen (no soft-lock).
+- Solve `MR3D_002`/`003`/`006` with the lens (not the fallback) and confirm a lens-specific Q3 appears in the interrogation.
+- Confirm the interrogation panel keeps the cursor visible and clickable, and that `[MR3D Interrogation]` logs `begin`/`complete`.
 - Confirm `Manual Visual Y Offset` remains `0.43` in the player script/scene.
