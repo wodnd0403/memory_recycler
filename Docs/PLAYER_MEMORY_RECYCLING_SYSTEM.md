@@ -70,11 +70,13 @@ The ending also appends per-memory archive testimony. Each memory can now provid
 
 ## Memory Lens Puzzle
 
-The first lens-puzzle pass keeps the existing sequence puzzle as fallback, but adds special solve modes to three memories.
+The lens puzzle now treats `Tab` as a memory lens overlay instead of a large logbook panel. Special memories spawn a runtime World Space Canvas echo near their memory orb. The echo billboards toward `Camera.main`, stays visible while the memory is unrestored, and becomes clearer while the lens overlay is active.
 
-- `MR3D_002` uses `LensAlign`: center the blue umbrella memory/world anchor in the camera while the translucent puzzle lens is open.
-- `MR3D_003` uses `LensOcclude`: center the erased announcement memory anchor, with archive-terminal fallback if needed.
-- `MR3D_006` uses `Stillness`: keep the UI open for 5 seconds without mouse, click, or key input.
+- `MR3D_002` uses `LensAlign`: align the world-space blue umbrella memory echo with the lens center marker for 0.7 seconds.
+- `MR3D_003` uses `LensOcclude`: align the erased announcement echo with the center marker while the marker is also aimed at a city structure.
+- `MR3D_006` uses `Stillness`: keep the empty-file echo inside the lens center and avoid movement/input for 5 seconds.
+
+The old sequence puzzle remains the fallback for normal memories and for missing lens targets. Special lens puzzles no longer rely on the large puzzle panel as the primary interaction surface.
 
 Lens success restores the memory through the same `MarkRestored` path as the sequence puzzle. `PlayerMemoryLog3D` records the solve method as `solvedBy`, for example `LensAlign`, `LensOcclude`, `Stillness`, or `Sequence`.
 
@@ -86,7 +88,7 @@ The puzzle UI writes concise runtime logs with the `[MR3D PuzzleMode]` prefix.
 
 - Opening a puzzle logs memory id, title, `puzzleMode`, restored state, decision state, and open source.
 - Special modes log branch entry, such as `Enter LensAlign branch`.
-- Lens modes log whether a target transform was found.
+- Lens modes log whether a world-space echo target was found.
 - Already-restored special memories log that the puzzle was skipped and include the saved `solvedBy` value.
 
 If a special puzzle appears to behave like a normal sequence puzzle, start a New Game or reset saved progress first. Previously restored memories skip puzzle UI by design.
