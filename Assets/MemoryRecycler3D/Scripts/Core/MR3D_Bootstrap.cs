@@ -11,6 +11,7 @@ public static class MR3D_Bootstrap
     {
         EnsurePlayBoundary();
         PlayerMemoryLog3D.Ensure();
+        EnsureArchiveVisual();
         SceneManager.sceneLoaded += HandleSceneLoaded;
     }
 
@@ -18,6 +19,24 @@ public static class MR3D_Bootstrap
     {
         EnsurePlayBoundary();
         PlayerMemoryLog3D.Ensure();
+        EnsureArchiveVisual();
+    }
+
+    // 중앙 아카이브 터미널 장식 비주얼을 씬 수정 없이 자동 생성한다(중복 방지).
+    private static void EnsureArchiveVisual()
+    {
+        if (ArchiveTerminalVisual3D.Instance != null)
+            return;
+        if (Object.FindFirstObjectByType<ArchiveTerminalVisual3D>() != null)
+            return;
+
+        ArchiveTerminal3D terminal = Object.FindFirstObjectByType<ArchiveTerminal3D>();
+        if (terminal == null)
+            return;
+
+        GameObject host = new GameObject("MR3D_ArchiveTerminalVisual");
+        ArchiveTerminalVisual3D visual = host.AddComponent<ArchiveTerminalVisual3D>();
+        visual.Initialize(terminal.transform);
     }
 
     private static void EnsurePlayBoundary()
