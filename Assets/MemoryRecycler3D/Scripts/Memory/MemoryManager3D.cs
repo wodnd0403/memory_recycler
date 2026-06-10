@@ -139,6 +139,8 @@ public class MemoryManager3D : MonoBehaviour
             GameState3D.Instance.RecordDecision(decision);
             PlayerMemoryLog3D.Ensure().RecordDecision(memory, decision);
             WorldToneController3D.Instance.RefreshWorldTone();
+            // 처리 완료 시점에 월드 잔상 UI를 숨긴다.
+            MemoryLensEcho3D.NotifyStateChanged(memory, "processed");
             SaveGame();
         }
 

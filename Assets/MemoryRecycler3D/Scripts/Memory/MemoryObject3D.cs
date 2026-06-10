@@ -71,6 +71,8 @@ public class MemoryObject3D : MonoBehaviour
         if (MemoryAudio3D.Instance != null)
             MemoryAudio3D.Instance.PlayMemoryFound();
         MemoryManager3D.Instance.CollectMemory(memoryData);
+        // 회수(E 상호작용)만으로는 월드 잔상 UI를 숨기지 않는다. 상태 로그만 남기고 유지.
+        MemoryLensEcho3D.NotifyStateChanged(memoryData, "interact-collect");
         gameObject.SetActive(false);
     }
 

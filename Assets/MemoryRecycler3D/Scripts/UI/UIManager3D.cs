@@ -1909,6 +1909,8 @@ public class UIManager3D : MonoBehaviour
 
         MemoryManager3D.Instance.MarkRestored(currentPuzzleRecord.memory);
         PlayerMemoryLog3D.Ensure().MarkMemoryRestored(currentPuzzleRecord.memory, mode);
+        // 복원 완료: 월드 잔상 UI를 "복원 완료 / 처리 대기" 흐릿한 상태로 전환.
+        MemoryLensEcho3D.NotifyStateChanged(currentPuzzleRecord.memory, "restored");
         ShowToast(successMessage);
         HideMemoryLensOverlay();
         ShowMemoryEcho(currentPuzzleRecord);
@@ -1985,6 +1987,7 @@ public class UIManager3D : MonoBehaviour
         {
             MemoryManager3D.Instance.MarkRestored(currentPuzzleRecord.memory);
             PlayerMemoryLog3D.Ensure().MarkMemoryRestored(currentPuzzleRecord.memory, MemoryPuzzleMode3D.Sequence);
+            MemoryLensEcho3D.NotifyStateChanged(currentPuzzleRecord.memory, "restored");
             ShowToast("기억이 복원되었습니다.");
             ShowMemoryEcho(currentPuzzleRecord);
         }
