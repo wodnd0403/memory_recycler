@@ -83,7 +83,24 @@ public class UIManager3D : MonoBehaviour
     private Text endingBody;
     private ScrollRect endingScrollRect;
 
+    private GameObject interrogationPanel;
+    private Text interrogationProgressText;
+    private Text interrogationPromptText;
+    private Transform interrogationOptionsRoot;
+    private readonly List<Button> interrogationOptionButtons = new List<Button>();
+    private List<InterrogationQuestion> interrogationQuestions;
+    private int interrogationIndex;
+    private int interrogationCorrect;
+
     private MemoryRecord3D currentRecord;
+
+    // 중앙 아카이브가 플레이어의 행동을 되묻는 자기기록 심문 한 문항.
+    private class InterrogationQuestion
+    {
+        public string prompt = "";
+        public readonly List<string> options = new List<string>();
+        public int correctIndex;
+    }
 
     private void Awake()
     {
@@ -182,6 +199,7 @@ public class UIManager3D : MonoBehaviour
         if (lorePanel != null && lorePanel.activeSelf) return true;
         if (echoPanel != null && echoPanel.activeSelf) return true;
         if (endingPanel != null && endingPanel.activeSelf) return true;
+        if (interrogationPanel != null && interrogationPanel.activeSelf) return true;
         return false;
     }
 
@@ -527,6 +545,24 @@ public class UIManager3D : MonoBehaviour
         CloseAllMajorPanels();
         if (MemoryAudio3D.Instance != null)
             MemoryAudio3D.Instance.PlayArchiveOpen();
+
+        PlayerMemoryLog3D.Ensure().MarkEndingReached();
+
+        // 도시의 기억을 처리한 직후, 아카이브는 수거원 자신의 행동을 되묻는다.
+        // 질문을 만들 수 있으면 심문을 먼저 보여주고, 만들 수 없으면 곧바로 엔딩으로 진행한다(fallback).
+        List<InterrogationQuestion> questions = BuildInterrogationQuestions();
+        if (interrogationPanel != null && questions != null && questions.Count > 0)
+        {
+            BeginInterrogation(questions);
+            return;
+        }
+
+        RenderEnding(0, 0, false);
+    }
+
+    private void RenderEnding(int interrogationCorrect, int interrogationTotal, bool interrogated)
+    {
+        CloseAllMajorPanels();
         if (MemoryRecyclerMusicManager.Instance != null)
             MemoryRecyclerMusicManager.Instance.PlayEndingMusic();
 
@@ -560,15 +596,19 @@ public class UIManager3D : MonoBehaviour
         }
 
         PlayerMemoryLog3D log = PlayerMemoryLog3D.Ensure();
-        log.MarkEndingReached();
         List<MemoryRecord3D> records = MemoryManager3D.Instance != null
             ? MemoryManager3D.Instance.collectedMemories
             : new List<MemoryRecord3D>();
+
+        string interrogationBlock = interrogated
+            ? "\n\n" + BuildInterrogationResultText(interrogationCorrect, interrogationTotal)
+            : "";
 
         endingTitle.text = title;
         endingBody.text =
             body +
             "\n\n[선택 통계]\n보존 " + preserved + " / 삭제 " + deleted + " / 재가공 " + edited +
+            interrogationBlock +
             "\n\n" + log.BuildBehaviorSummaryReport() +
             "\n" + BuildArchiveTestimony(records);
         if (endingScrollRect != null)
@@ -623,6 +663,7 @@ public class UIManager3D : MonoBehaviour
         BuildLorePanel();
         BuildEchoPanel();
         BuildEndingPanel();
+        BuildInterrogationPanel();
         BuildStartMenu();
         BuildPauseMenu();
         BuildOptionsPanel();
@@ -938,11 +979,16 @@ public class UIManager3D : MonoBehaviour
         const int CollectGuide = 3;
         const int RestoreGuide = 3;
 
+        // 특수(렌즈) 기억이 회수됐지만 아직 복원 전이면 Tab 렌즈 사용법을 안내한다.
+        bool hasPendingLens = FindNextPendingLensRecord() != null;
+
         string next;
         if (collected < CollectGuide)
             next = "푸른 기억 구체를 찾아 E로 회수하고, " + RequiredDecisionsForEnding + "개의 기억을 처리하세요.";
         else if (restored < RestoreGuide)
-            next = "회수한 기억의 문장 조각을 복원하세요.";
+            next = hasPendingLens
+                ? "Tab으로 기억 렌즈를 켜고, 월드에 떠 있는 기억 잔상을 도시와 겹쳐 복원하세요."
+                : "회수한 기억의 문장 조각을 복원하세요.";
         else if (decided < RequiredDecisionsForEnding)
             next = "복원된 기억을 보존/삭제/재가공으로 처리하세요.";
         else
@@ -953,7 +999,8 @@ public class UIManager3D : MonoBehaviour
             next + "\n\n" +
             "회수 " + collected + " / " + known + "   복원 " + restored + "   처리 " + decided + " / " + RequiredDecisionsForEnding + "\n" +
             (pendingRestore > 0 ? "복원 대기 기억 " + pendingRestore + "개\n" : "") +
-            "Tab 아카이브  |  E 상호작용";
+            (hasPendingLens ? "특수 기억은 Tab 기억 렌즈로 복원\n" : "") +
+            "Tab 기억 렌즈  |  E 상호작용";
     }
 
     private void BuildCardPanel()
@@ -1139,6 +1186,292 @@ public class UIManager3D : MonoBehaviour
         CreateButton(endingPanel.transform, "EndingNewGameButton", "새 게임", new Vector2(0f, -305f), StartNewGameFromEnding);
         CreateButton(endingPanel.transform, "EndingQuitButton", "종료", new Vector2(260f, -305f), QuitFromEnding);
         endingPanel.SetActive(false);
+    }
+
+    private void BuildInterrogationPanel()
+    {
+        interrogationPanel = CreatePanel("InterrogationPanel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(980f, 720f), Vector2.zero, new Color(0.02f, 0.025f, 0.04f, 0.97f));
+
+        Text title = CreateText(interrogationPanel.transform, "InterrogationTitle", "중앙 아카이브 심문", 36, TextAnchor.MiddleCenter, new Color(0.86f, 0.95f, 1f));
+        SetRect(title.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(40f, -96f), new Vector2(-40f, -30f));
+
+        interrogationProgressText = CreateText(interrogationPanel.transform, "InterrogationProgress", "", 22, TextAnchor.MiddleCenter, new Color(0.6f, 0.78f, 0.86f));
+        SetRect(interrogationProgressText.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(40f, -142f), new Vector2(-40f, -104f));
+
+        interrogationPromptText = CreateText(interrogationPanel.transform, "InterrogationPrompt", "", 26, TextAnchor.MiddleCenter, new Color(0.95f, 0.97f, 1f));
+        SetRect(interrogationPromptText.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(60f, -300f), new Vector2(-60f, -170f));
+
+        GameObject root = new GameObject("InterrogationOptionsRoot");
+        root.transform.SetParent(interrogationPanel.transform, false);
+        RectTransform rootRect = root.AddComponent<RectTransform>();
+        SetRect(rootRect, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f), new Vector2(90f, -640f), new Vector2(-90f, -330f));
+        interrogationOptionsRoot = root.transform;
+
+        interrogationPanel.SetActive(false);
+    }
+
+    private void BeginInterrogation(List<InterrogationQuestion> questions)
+    {
+        interrogationQuestions = questions;
+        interrogationIndex = 0;
+        interrogationCorrect = 0;
+
+        CloseAllMajorPanels();
+        if (interrogationPanel != null)
+            interrogationPanel.SetActive(true);
+        ShowInterrogationQuestion();
+        UnlockCursor();
+        Debug.Log("[MR3D Interrogation] begin questions=" + questions.Count);
+    }
+
+    private void ShowInterrogationQuestion()
+    {
+        // 더 이상 물어볼 질문이 없으면 결과 점수와 함께 실제 엔딩으로 넘어간다.
+        if (interrogationQuestions == null || interrogationIndex >= interrogationQuestions.Count)
+        {
+            int total = interrogationQuestions != null ? interrogationQuestions.Count : 0;
+            if (interrogationPanel != null)
+                interrogationPanel.SetActive(false);
+            Debug.Log("[MR3D Interrogation] complete correct=" + interrogationCorrect + " total=" + total);
+            RenderEnding(interrogationCorrect, total, total > 0);
+            return;
+        }
+
+        InterrogationQuestion question = interrogationQuestions[interrogationIndex];
+        if (interrogationProgressText != null)
+            interrogationProgressText.text = "질문 " + (interrogationIndex + 1) + " / " + interrogationQuestions.Count;
+        if (interrogationPromptText != null)
+            interrogationPromptText.text = question.prompt;
+
+        for (int i = 0; i < interrogationOptionButtons.Count; i++)
+        {
+            if (interrogationOptionButtons[i] != null)
+                Destroy(interrogationOptionButtons[i].gameObject);
+        }
+        interrogationOptionButtons.Clear();
+
+        for (int i = 0; i < question.options.Count; i++)
+        {
+            int choice = i; // 클로저 캡처용 인덱스 고정
+            Button button = CreateButton(interrogationOptionsRoot, "Option_" + i, question.options[i], Vector2.zero, () => OnInterrogationAnswer(choice));
+            RectTransform rect = button.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0f, 1f);
+            rect.anchorMax = new Vector2(1f, 1f);
+            rect.pivot = new Vector2(0.5f, 1f);
+            rect.sizeDelta = new Vector2(0f, 64f);
+            rect.anchoredPosition = new Vector2(0f, -i * 76f);
+            interrogationOptionButtons.Add(button);
+        }
+    }
+
+    private void OnInterrogationAnswer(int choice)
+    {
+        if (interrogationQuestions == null || interrogationIndex >= interrogationQuestions.Count)
+            return;
+
+        InterrogationQuestion question = interrogationQuestions[interrogationIndex];
+        if (choice == question.correctIndex)
+            interrogationCorrect++;
+
+        interrogationIndex++;
+        ShowInterrogationQuestion();
+    }
+
+    // PlayerMemoryLog를 기반으로 2~3문항을 만든다. 만들 수 없으면 빈 목록을 돌려 엔딩으로 fallback한다.
+    private List<InterrogationQuestion> BuildInterrogationQuestions()
+    {
+        List<InterrogationQuestion> questions = new List<InterrogationQuestion>();
+        if (MemoryManager3D.Instance == null)
+            return questions;
+
+        PlayerMemoryLog3D log = PlayerMemoryLog3D.Ensure();
+        List<MemoryRecord3D> records = MemoryManager3D.Instance.collectedMemories;
+
+        // 처리(보존/삭제/재가공)된 기억만 distractor 후보로 사용.
+        List<MemoryRecord3D> decidedRecords = new List<MemoryRecord3D>();
+        List<MemoryRecord3D> restoredRecords = new List<MemoryRecord3D>();
+        for (int i = 0; i < records.Count; i++)
+        {
+            MemoryRecord3D r = records[i];
+            if (r == null || r.memory == null)
+                continue;
+            if (r.decision != MemoryDecision3D.Unchosen)
+                decidedRecords.Add(r);
+            if (r.restored)
+                restoredRecords.Add(r);
+        }
+
+        // Q1: 처음으로 처리한 기억
+        MemoryRecord3D firstRecord = FindRecordById(records, log.firstDecisionMemoryId);
+        if (firstRecord != null)
+        {
+            InterrogationQuestion q = BuildTitleQuestion("수거원이 처음으로 처리한 기억은 무엇입니까?", firstRecord, decidedRecords);
+            if (q != null)
+                questions.Add(q);
+        }
+
+        // Q2: 처음 선택한 처리 방식
+        if (log.firstDecision != MemoryDecision3D.Unchosen)
+        {
+            InterrogationQuestion q = new InterrogationQuestion();
+            q.prompt = "수거원이 처음 선택한 처리 방식은 무엇입니까?";
+            q.options.Add("기억을 보존했다");
+            q.options.Add("기억을 삭제했다");
+            q.options.Add("기억을 재가공했다");
+            q.options.Add("기억나지 않는다");
+            q.correctIndex =
+                log.firstDecision == MemoryDecision3D.Preserve ? 0 :
+                log.firstDecision == MemoryDecision3D.Delete ? 1 :
+                log.firstDecision == MemoryDecision3D.Edit ? 2 : 3;
+            questions.Add(q);
+        }
+
+        // Q3: 기억 렌즈로 복원한 기억 (solvedBy 기반)
+        MemoryRecord3D lensRecord = null;
+        string lensPrompt = "";
+        for (int i = 0; i < records.Count; i++)
+        {
+            MemoryRecord3D r = records[i];
+            if (r == null || r.memory == null || !r.restored)
+                continue;
+
+            string solvedBy = log.GetSolvedBy(r.memory);
+            if (solvedBy == MemoryPuzzleMode3D.LensAlign.ToString())
+            {
+                lensRecord = r;
+                lensPrompt = "수거원은 어떤 기억을 도시와 겹쳐 복원했습니까?";
+                break;
+            }
+            if (solvedBy == MemoryPuzzleMode3D.LensOcclude.ToString())
+            {
+                lensRecord = r;
+                lensPrompt = "수거원은 어떤 기억에서 가려야 보이는 문장을 발견했습니까?";
+                break;
+            }
+            if (solvedBy == MemoryPuzzleMode3D.Stillness.ToString())
+            {
+                lensRecord = r;
+                lensPrompt = "수거원은 어떤 기억 앞에서 멈췄습니까?";
+                break;
+            }
+        }
+        if (lensRecord != null)
+        {
+            InterrogationQuestion q = BuildTitleQuestion(lensPrompt, lensRecord, restoredRecords);
+            if (q != null)
+                questions.Add(q);
+        }
+
+        return questions;
+    }
+
+    private InterrogationQuestion BuildTitleQuestion(string prompt, MemoryRecord3D correct, List<MemoryRecord3D> pool)
+    {
+        if (correct == null || correct.memory == null)
+            return null;
+
+        List<string> labels = new List<string>();
+        List<bool> correctness = new List<bool>();
+
+        labels.Add(GetInterrogationOptionLabel(correct));
+        correctness.Add(true);
+
+        if (pool != null)
+        {
+            for (int i = 0; i < pool.Count && labels.Count < 4; i++)
+            {
+                MemoryRecord3D r = pool[i];
+                if (r == null || r.memory == null || r == correct || r.memory.id == correct.memory.id)
+                    continue;
+
+                string label = GetInterrogationOptionLabel(r);
+                if (labels.Contains(label))
+                    continue;
+
+                labels.Add(label);
+                correctness.Add(false);
+            }
+        }
+
+        // "기억나지 않는다"를 항상 오답 보기로 하나 더 둔다(모를 수 있는 여지).
+        if (labels.Count < 4 && !labels.Contains("기억나지 않는다"))
+        {
+            labels.Add("기억나지 않는다");
+            correctness.Add(false);
+        }
+
+        if (labels.Count < 2)
+            return null;
+
+        // Fisher-Yates 셔플로 정답 위치를 고정 시드 기반으로 섞는다.
+        int seed = (correct.memory.id != null ? GetStablePuzzleSeed(correct.memory.id) : 13) + (prompt != null ? prompt.Length : 0);
+        System.Random random = new System.Random(seed);
+        for (int i = labels.Count - 1; i > 0; i--)
+        {
+            int j = random.Next(i + 1);
+            string tmpLabel = labels[i];
+            labels[i] = labels[j];
+            labels[j] = tmpLabel;
+            bool tmpFlag = correctness[i];
+            correctness[i] = correctness[j];
+            correctness[j] = tmpFlag;
+        }
+
+        InterrogationQuestion question = new InterrogationQuestion();
+        question.prompt = prompt;
+        for (int i = 0; i < labels.Count; i++)
+            question.options.Add(labels[i]);
+        question.correctIndex = correctness.IndexOf(true);
+        return question;
+    }
+
+    // 선택지 제목 표기: 보존=원본, 삭제=마스킹, 재가공=순화/왜곡 표기.
+    private string GetInterrogationOptionLabel(MemoryRecord3D record)
+    {
+        if (record == null || record.memory == null)
+            return "이름 없는 기억";
+
+        string memTitle = record.memory.memoryTitle;
+        switch (record.decision)
+        {
+            case MemoryDecision3D.Delete:
+                return ObscureTitle(memTitle);
+            case MemoryDecision3D.Edit:
+                return (string.IsNullOrEmpty(memTitle) ? "이름 없는 기억" : memTitle) + " (재정리본)";
+            default:
+                return string.IsNullOrEmpty(memTitle) ? "이름 없는 기억" : memTitle;
+        }
+    }
+
+    private MemoryRecord3D FindRecordById(List<MemoryRecord3D> records, string id)
+    {
+        if (records == null || string.IsNullOrEmpty(id))
+            return null;
+
+        for (int i = 0; i < records.Count; i++)
+        {
+            if (records[i] != null && records[i].memory != null && records[i].memory.id == id)
+                return records[i];
+        }
+
+        return null;
+    }
+
+    private string BuildInterrogationResultText(int correct, int total)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendLine("[아카이브 자기기록 심문]");
+        sb.AppendLine("- 자기기록 일치: " + correct + " / " + total);
+
+        if (total > 0 && correct >= total)
+            sb.AppendLine("수거원은 도시의 기억뿐 아니라 자신의 선택도 복원했다.");
+        else if (correct * 2 > total)
+            sb.AppendLine("수거원은 도시의 기억을 처리했지만, 자신이 한 선택의 일부만 기억했다.");
+        else
+            sb.AppendLine("수거원은 도시의 기억을 처리했지만, 자신의 선택은 끝내 복원하지 못했다.");
+
+        sb.Append("아카이브는 도시의 기억뿐 아니라, 수거원이 기억을 복원한 방식까지 보존했다.");
+        return sb.ToString();
     }
 
     private void StartRestoreCurrent()
@@ -1475,8 +1808,6 @@ public class UIManager3D : MonoBehaviour
             lensSolveHoldTime += Time.unscaledDeltaTime;
             string progressLabel = mode == MemoryPuzzleMode3D.LensOcclude ? "가림 판정" : "렌즈 정렬";
             specialPuzzleStatus = progressLabel + ": " + lensSolveHoldTime.ToString("0.0") + " / 0.7초\n빈칸이 흔들립니다...";
-            string lensProgressLabel = mode == MemoryPuzzleMode3D.LensOcclude ? "가림 판정" : "렌즈 정렬";
-            specialPuzzleStatus = lensProgressLabel + ": " + lensSolveHoldTime.ToString("0.0") + " / 0.7초";
             echo.SetLensFeedback(true, true, lensSolveHoldTime / 0.7f);
             if (lensSolveHoldTime >= 0.7f)
             {
@@ -1488,15 +1819,8 @@ public class UIManager3D : MonoBehaviour
         {
             lensSolveHoldTime = 0f;
             specialPuzzleStatus = mode == MemoryPuzzleMode3D.LensOcclude
-                ? "가림 판정: 0.0 / 0.7초\n거짓 안내 문장을 도시 구조물 아래에 겹치십시오. 화면 중앙 거리가 " + Mathf.RoundToInt(distance) + "px입니다."
-                : "렌즈 정렬: 0.0 / 0.7초\n기록창의 빈칸을 도시 위에 겹치십시오. 화면 중앙 거리가 " + Mathf.RoundToInt(distance) + "px입니다.";
-        }
-
-        if (!solvedFrame)
-        {
-            specialPuzzleStatus = mode == MemoryPuzzleMode3D.LensOcclude
-                ? "Occlude: 0.0 / 0.7s\nAim the memory echo and a city structure inside the lens frame."
-                : "Lens Align: 0.0 / 0.7s\nAlign the world-space memory echo with the center marker.";
+                ? "가림 판정: 0.0 / 0.7초\n거짓 안내 문장을 도시 구조물과 함께 화면 중앙에 겹치십시오. (중앙 거리 " + Mathf.RoundToInt(distance) + "px)"
+                : "렌즈 정렬: 0.0 / 0.7초\n기록창의 빈칸을 도시 위, 화면 중앙 마커에 겹치십시오. (중앙 거리 " + Mathf.RoundToInt(distance) + "px)";
             echo.SetLensFeedback(true, false, 0f);
         }
 
@@ -1518,7 +1842,7 @@ public class UIManager3D : MonoBehaviour
         if (!centered)
         {
             stillnessTime = 0f;
-            specialPuzzleStatus = "Stillness: 0.0 / 5.0s\nKeep the empty file echo inside the lens center.";
+            specialPuzzleStatus = "정지 상태 유지: 0.0 / 5.0초\n빈 파일 잔상을 화면 중앙 마커 안에 둔 채 멈추십시오.";
             if (echo != null)
                 echo.SetLensFeedback(true, false, 0f);
             RefreshLensOverlayText();
@@ -1550,9 +1874,6 @@ public class UIManager3D : MonoBehaviour
         }
 
         lastLensMousePosition = Input.mousePosition;
-        specialPuzzleStatus = disturbed
-            ? "Stillness: 0.0 / 5.0s\nThe file closed again. Stop moving and keep watching."
-            : "Stillness: " + stillnessTime.ToString("0.0") + " / 5.0s";
         if (echo != null)
             echo.SetLensFeedback(true, !disturbed, stillnessTime / 5f);
         RefreshLensOverlayText();
@@ -1918,6 +2239,7 @@ public class UIManager3D : MonoBehaviour
         if (lorePanel != null) lorePanel.SetActive(false);
         if (echoPanel != null) echoPanel.SetActive(false);
         if (endingPanel != null) endingPanel.SetActive(false);
+        if (interrogationPanel != null) interrogationPanel.SetActive(false);
     }
 
     private void CloseAllAndLock()
