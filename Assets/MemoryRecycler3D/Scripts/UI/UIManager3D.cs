@@ -63,6 +63,11 @@ public class UIManager3D : MonoBehaviour
     private bool specialPuzzleBranchLogged;
     private bool lensTargetLogWritten;
 
+    private GameObject lensOverlayPanel;
+    private Text lensOverlayTitle;
+    private Text lensOverlayHint;
+    private Text lensOverlayStatus;
+
     private GameObject archivePanel;
     private Text archiveText;
     private Button reopenMemoryButton;
@@ -180,6 +185,11 @@ public class UIManager3D : MonoBehaviour
         return false;
     }
 
+    public bool IsMemoryLensOverlayActive
+    {
+        get { return lensOverlayPanel != null && lensOverlayPanel.activeSelf; }
+    }
+
     public void ShowMemoryCard(MemoryRecord3D record)
     {
         ShowMemoryCard(record, "Direct");
@@ -190,6 +200,7 @@ public class UIManager3D : MonoBehaviour
         currentRecord = record;
         currentMemoryOpenSource = openSource;
         CloseAllMajorPanels();
+        HideMemoryLensOverlay();
 
         string decision = MemoryManager3D.DecisionToKorean(record.decision);
         string location = string.IsNullOrEmpty(record.memory.locationName) ? "위치 미상" : record.memory.locationName;
@@ -246,14 +257,93 @@ public class UIManager3D : MonoBehaviour
 
     public void ToggleArchive()
     {
-        if (archivePanel.activeSelf)
+        if (IsMemoryLensOverlayActive)
         {
-            archivePanel.SetActive(false);
+            HideMemoryLensOverlay();
             LockCursor();
             return;
         }
 
-        ShowArchive();
+        ShowMemoryLensOverlay(null, "TabLens");
+    }
+
+    private void ShowMemoryLensOverlay(MemoryRecord3D focusRecord, string openSource)
+    {
+        if (lensOverlayPanel == null)
+            return;
+
+        if (focusRecord == null)
+            focusRecord = FindNextPendingLensRecord();
+
+        if (focusRecord != null && focusRecord.memory != null && focusRecord.memory.puzzleMode != MemoryPuzzleMode3D.Sequence)
+            PrepareSpecialPuzzleRecord(focusRecord, openSource);
+
+        lensOverlayPanel.SetActive(true);
+        RefreshLensOverlayText();
+        LockCursor();
+    }
+
+    private void HideMemoryLensOverlay()
+    {
+        if (lensOverlayPanel != null)
+            lensOverlayPanel.SetActive(false);
+    }
+
+    private void RefreshLensOverlayText()
+    {
+        if (lensOverlayTitle == null || lensOverlayHint == null || lensOverlayStatus == null)
+            return;
+
+        MemoryData3D memory = currentPuzzleRecord != null ? currentPuzzleRecord.memory : null;
+        if (memory == null || currentPuzzleRecord.restored)
+        {
+            lensOverlayTitle.text = "기억 렌즈";
+            lensOverlayHint.text = "월드에 떠 있는 기억 잔상을 찾으십시오. 푸른 기억 구체는 E로 회수할 수 있습니다.";
+            lensOverlayStatus.text = "미처리 특수 기억을 회수하면 렌즈가 복원 대상을 추적합니다.";
+            return;
+        }
+
+        switch (memory.puzzleMode)
+        {
+            case MemoryPuzzleMode3D.LensAlign:
+                lensOverlayTitle.text = "[기억 렌즈] " + memory.memoryTitle;
+                lensOverlayHint.text = "기록지를 도시 위에 겹치십시오.";
+                break;
+            case MemoryPuzzleMode3D.LensOcclude:
+                lensOverlayTitle.text = "[가려진 기록] " + memory.memoryTitle;
+                lensOverlayHint.text = "가려야 보이는 문장이 있습니다.";
+                break;
+            case MemoryPuzzleMode3D.Stillness:
+                lensOverlayTitle.text = "[빈 파일] " + memory.memoryTitle;
+                lensOverlayHint.text = "빈 파일은 움직이는 수거원에게 열리지 않습니다.";
+                break;
+            default:
+                lensOverlayTitle.text = "기억 렌즈";
+                lensOverlayHint.text = "일반 기억은 기억 카드의 문장 조각으로 복원합니다.";
+                break;
+        }
+
+        lensOverlayStatus.text = string.IsNullOrEmpty(specialPuzzleStatus)
+            ? "월드 스페이스 기억 잔상과 중앙 마커를 맞추십시오."
+            : specialPuzzleStatus;
+    }
+
+    private MemoryRecord3D FindNextPendingLensRecord()
+    {
+        if (MemoryManager3D.Instance == null)
+            return null;
+
+        List<MemoryRecord3D> records = MemoryManager3D.Instance.collectedMemories;
+        for (int i = 0; i < records.Count; i++)
+        {
+            MemoryRecord3D record = records[i];
+            if (record == null || record.memory == null || record.restored)
+                continue;
+            if (record.memory.puzzleMode != MemoryPuzzleMode3D.Sequence)
+                return record;
+        }
+
+        return null;
     }
 
     public void ShowArchive()
@@ -528,6 +618,7 @@ public class UIManager3D : MonoBehaviour
 
         BuildCardPanel();
         BuildPuzzlePanel();
+        BuildMemoryLensOverlay();
         BuildArchivePanel();
         BuildLorePanel();
         BuildEchoPanel();
@@ -696,6 +787,13 @@ public class UIManager3D : MonoBehaviour
         if (optionsPanel != null && optionsPanel.activeSelf)
         {
             BackToPauseMenuFromOptions();
+            return;
+        }
+
+        if (IsMemoryLensOverlayActive)
+        {
+            HideMemoryLensOverlay();
+            LockCursor();
             return;
         }
 
@@ -927,6 +1025,44 @@ public class UIManager3D : MonoBehaviour
         puzzlePanel.SetActive(false);
     }
 
+    private void BuildMemoryLensOverlay()
+    {
+        lensOverlayPanel = CreatePanel("MemoryLensOverlay", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero, new Color(0.0f, 0.03f, 0.05f, 0.08f));
+        RectTransform panelRect = lensOverlayPanel.GetComponent<RectTransform>();
+        panelRect.offsetMin = Vector2.zero;
+        panelRect.offsetMax = Vector2.zero;
+        Image panelImage = lensOverlayPanel.GetComponent<Image>();
+        if (panelImage != null)
+            panelImage.raycastTarget = false;
+
+        CreateLensLine("LensTop", new Vector2(0.5f, 0.5f), new Vector2(620f, 3f), new Vector2(0f, 160f));
+        CreateLensLine("LensBottom", new Vector2(0.5f, 0.5f), new Vector2(620f, 3f), new Vector2(0f, -160f));
+        CreateLensLine("LensLeft", new Vector2(0.5f, 0.5f), new Vector2(3f, 320f), new Vector2(-310f, 0f));
+        CreateLensLine("LensRight", new Vector2(0.5f, 0.5f), new Vector2(3f, 320f), new Vector2(310f, 0f));
+        CreateLensLine("LensCenterH", new Vector2(0.5f, 0.5f), new Vector2(86f, 2f), Vector2.zero);
+        CreateLensLine("LensCenterV", new Vector2(0.5f, 0.5f), new Vector2(2f, 86f), Vector2.zero);
+
+        lensOverlayTitle = CreateText(lensOverlayPanel.transform, "LensTitle", "기억 렌즈", 30, TextAnchor.MiddleLeft, new Color(0.82f, 0.96f, 1f));
+        SetRect(lensOverlayTitle.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(34f, -82f), new Vector2(560f, -30f));
+
+        lensOverlayHint = CreateText(lensOverlayPanel.transform, "LensHint", "월드에 떠 있는 기억 잔상을 중앙 마커와 겹치십시오.", 22, TextAnchor.MiddleLeft, new Color(0.72f, 0.88f, 0.94f));
+        SetRect(lensOverlayHint.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(34f, -132f), new Vector2(720f, -84f));
+
+        lensOverlayStatus = CreateText(lensOverlayPanel.transform, "LensStatus", "", 22, TextAnchor.MiddleCenter, new Color(0.90f, 0.98f, 1f));
+        SetRect(lensOverlayStatus.rectTransform, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(-430f, 62f), new Vector2(430f, 128f));
+
+        lensOverlayPanel.SetActive(false);
+    }
+
+    private void CreateLensLine(string name, Vector2 anchor, Vector2 size, Vector2 position)
+    {
+        GameObject line = CreatePanel(name, anchor, anchor, new Vector2(0.5f, 0.5f), size, position, new Color(0.36f, 0.92f, 1f, 0.72f));
+        line.transform.SetParent(lensOverlayPanel.transform, false);
+        Image image = line.GetComponent<Image>();
+        if (image != null)
+            image.raycastTarget = false;
+    }
+
     private void BuildArchivePanel()
     {
         archivePanel = CreatePanel("ArchivePanel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(980f, 720f), Vector2.zero, new Color(0.04f, 0.04f, 0.055f, 0.96f));
@@ -1027,6 +1163,32 @@ public class UIManager3D : MonoBehaviour
 
         currentPuzzleRecord = currentRecord;
         selectedPieces.Clear();
+        CloseAllMajorPanels();
+        if (currentPuzzleRecord.memory.puzzleMode != MemoryPuzzleMode3D.Sequence)
+        {
+            PrepareSpecialPuzzleRecord(currentPuzzleRecord, currentMemoryOpenSource);
+            ShowMemoryLensOverlay(currentPuzzleRecord, currentMemoryOpenSource);
+            return;
+        }
+
+        PrepareSpecialPuzzleRecord(currentPuzzleRecord, currentMemoryOpenSource);
+        SetPuzzlePanelLensMode(false);
+        ConfigurePuzzleModeUi(currentPuzzleRecord.memory);
+        RefreshPuzzlePieces();
+        RefreshSelectedPiecesText();
+        puzzlePanel.SetActive(true);
+        UnlockCursor();
+    }
+
+    private void PrepareSpecialPuzzleRecord(MemoryRecord3D record, string openSource)
+    {
+        if (record == null || record.memory == null)
+            return;
+
+        bool recordChanged = currentPuzzleRecord != record;
+        currentPuzzleRecord = record;
+        currentMemoryOpenSource = openSource;
+        selectedPieces.Clear();
         lensSolveHoldTime = 0f;
         stillnessTime = 0f;
         lastLensMousePosition = Input.mousePosition;
@@ -1034,20 +1196,15 @@ public class UIManager3D : MonoBehaviour
         specialPuzzleFallbackActive = false;
         specialPuzzleBranchLogged = false;
         lensTargetLogWritten = false;
-        CloseAllMajorPanels();
-        SetPuzzlePanelLensMode(currentPuzzleRecord.memory.puzzleMode != MemoryPuzzleMode3D.Sequence);
+
         PlayerMemoryLog3D.Ensure().BeginMemoryRestore(currentPuzzleRecord.memory);
         Debug.Log("[MR3D PuzzleMode] Open puzzle id=" + currentPuzzleRecord.memory.id +
             " title=" + currentPuzzleRecord.memory.memoryTitle +
             " mode=" + currentPuzzleRecord.memory.puzzleMode +
             " restored=" + currentPuzzleRecord.restored +
             " decision=" + currentPuzzleRecord.decision +
-            " source=" + currentMemoryOpenSource, currentPuzzleRecord.memory);
-        ConfigurePuzzleModeUi(currentPuzzleRecord.memory);
-        RefreshPuzzlePieces();
-        RefreshSelectedPiecesText();
-        puzzlePanel.SetActive(true);
-        UnlockCursor();
+            " source=" + currentMemoryOpenSource +
+            " recordChanged=" + recordChanged, currentPuzzleRecord.memory);
     }
 
     private void RefreshPuzzlePieces()
@@ -1244,12 +1401,20 @@ public class UIManager3D : MonoBehaviour
 
     private void UpdateSpecialPuzzleMode()
     {
-        if (puzzlePanel == null || !puzzlePanel.activeSelf)
-            return;
         if (currentPuzzleRecord == null || currentPuzzleRecord.memory == null || currentPuzzleRecord.restored)
             return;
 
         MemoryPuzzleMode3D mode = currentPuzzleRecord.memory.puzzleMode;
+        if (mode == MemoryPuzzleMode3D.Sequence)
+        {
+            if (puzzlePanel == null || !puzzlePanel.activeSelf)
+                return;
+        }
+        else if (!IsMemoryLensOverlayActive)
+        {
+            return;
+        }
+
         if (!specialPuzzleBranchLogged && mode != MemoryPuzzleMode3D.Sequence)
         {
             Debug.Log("[MR3D PuzzleMode] Enter " + mode + " branch id=" + currentPuzzleRecord.memory.id, currentPuzzleRecord.memory);
@@ -1272,9 +1437,9 @@ public class UIManager3D : MonoBehaviour
 
     private void UpdateLensPuzzle(MemoryPuzzleMode3D mode, string successMessage)
     {
-        Transform anchor = FindLensAnchor(currentPuzzleRecord.memory, mode);
+        MemoryLensEcho3D echo = MemoryLensEcho3D.FindByMemory(currentPuzzleRecord.memory);
         Camera camera = Camera.main;
-        if (anchor == null || camera == null)
+        if (echo == null || camera == null)
         {
             if (!lensTargetLogWritten)
             {
@@ -1293,21 +1458,26 @@ public class UIManager3D : MonoBehaviour
         if (!lensTargetLogWritten)
         {
             Debug.Log("[MR3D PuzzleMode] Lens target found=True mode=" + mode +
-                " target=" + anchor.name +
-                " id=" + currentPuzzleRecord.memory.id, anchor);
+                " target=" + echo.name +
+                " id=" + currentPuzzleRecord.memory.id, echo);
             lensTargetLogWritten = true;
         }
 
-        Vector3 screen = camera.WorldToScreenPoint(anchor.position);
-        Vector2 center = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
-        float distance = screen.z > 0f ? Vector2.Distance(new Vector2(screen.x, screen.y), center) : 9999f;
-        float threshold = Mathf.Max(70f, Mathf.Min(Screen.width, Screen.height) * 0.085f);
+        bool occluderHit;
+        float distance;
+        bool hasTarget = echo.TryEvaluateLens(mode, camera, out distance, out occluderHit);
+        float threshold = mode == MemoryPuzzleMode3D.LensOcclude ? 0.12f : 0.10f;
+        bool aligned = hasTarget && distance <= threshold;
+        bool solvedFrame = aligned && (mode != MemoryPuzzleMode3D.LensOcclude || occluderHit);
 
-        if (distance <= threshold)
+        if (solvedFrame)
         {
             lensSolveHoldTime += Time.unscaledDeltaTime;
             string progressLabel = mode == MemoryPuzzleMode3D.LensOcclude ? "가림 판정" : "렌즈 정렬";
             specialPuzzleStatus = progressLabel + ": " + lensSolveHoldTime.ToString("0.0") + " / 0.7초\n빈칸이 흔들립니다...";
+            string lensProgressLabel = mode == MemoryPuzzleMode3D.LensOcclude ? "가림 판정" : "렌즈 정렬";
+            specialPuzzleStatus = lensProgressLabel + ": " + lensSolveHoldTime.ToString("0.0") + " / 0.7초";
+            echo.SetLensFeedback(true, true, lensSolveHoldTime / 0.7f);
             if (lensSolveHoldTime >= 0.7f)
             {
                 CompleteSpecialPuzzle(mode, successMessage);
@@ -1322,17 +1492,46 @@ public class UIManager3D : MonoBehaviour
                 : "렌즈 정렬: 0.0 / 0.7초\n기록창의 빈칸을 도시 위에 겹치십시오. 화면 중앙 거리가 " + Mathf.RoundToInt(distance) + "px입니다.";
         }
 
+        if (!solvedFrame)
+        {
+            specialPuzzleStatus = mode == MemoryPuzzleMode3D.LensOcclude
+                ? "Occlude: 0.0 / 0.7s\nAim the memory echo and a city structure inside the lens frame."
+                : "Lens Align: 0.0 / 0.7s\nAlign the world-space memory echo with the center marker.";
+            echo.SetLensFeedback(true, false, 0f);
+        }
+
+        RefreshLensOverlayText();
         RefreshSelectedPiecesText();
     }
 
     private void UpdateStillnessPuzzle()
     {
+        MemoryLensEcho3D echo = MemoryLensEcho3D.FindByMemory(currentPuzzleRecord.memory);
+        Camera camera = Camera.main;
+        bool occluderHit;
+        float distance;
+        bool centered = echo != null &&
+            camera != null &&
+            echo.TryEvaluateLens(MemoryPuzzleMode3D.Stillness, camera, out distance, out occluderHit) &&
+            distance <= 0.11f;
+
+        if (!centered)
+        {
+            stillnessTime = 0f;
+            specialPuzzleStatus = "Stillness: 0.0 / 5.0s\nKeep the empty file echo inside the lens center.";
+            if (echo != null)
+                echo.SetLensFeedback(true, false, 0f);
+            RefreshLensOverlayText();
+            RefreshSelectedPiecesText();
+            return;
+        }
+
         bool disturbed =
             Vector3.Distance(Input.mousePosition, lastLensMousePosition) > 1.5f ||
             Input.GetMouseButtonDown(0) ||
             Input.GetMouseButtonDown(1) ||
             Input.GetMouseButtonDown(2) ||
-            Input.anyKeyDown;
+            (Input.anyKeyDown && !Input.GetKeyDown(KeyCode.Tab));
 
         if (disturbed)
         {
@@ -1351,6 +1550,12 @@ public class UIManager3D : MonoBehaviour
         }
 
         lastLensMousePosition = Input.mousePosition;
+        specialPuzzleStatus = disturbed
+            ? "Stillness: 0.0 / 5.0s\nThe file closed again. Stop moving and keep watching."
+            : "Stillness: " + stillnessTime.ToString("0.0") + " / 5.0s";
+        if (echo != null)
+            echo.SetLensFeedback(true, !disturbed, stillnessTime / 5f);
+        RefreshLensOverlayText();
         RefreshSelectedPiecesText();
     }
 
@@ -1384,6 +1589,7 @@ public class UIManager3D : MonoBehaviour
         MemoryManager3D.Instance.MarkRestored(currentPuzzleRecord.memory);
         PlayerMemoryLog3D.Ensure().MarkMemoryRestored(currentPuzzleRecord.memory, mode);
         ShowToast(successMessage);
+        HideMemoryLensOverlay();
         ShowMemoryEcho(currentPuzzleRecord);
     }
 
@@ -1718,6 +1924,7 @@ public class UIManager3D : MonoBehaviour
     {
         HandlePuzzleClosedBeforeRestore();
         CloseAllMajorPanels();
+        HideMemoryLensOverlay();
         LockCursor();
     }
 

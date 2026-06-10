@@ -19,6 +19,8 @@ public class MemoryObject3D : MonoBehaviour
 
         if (MemoryManager3D.Instance != null)
             MemoryManager3D.Instance.RegisterMemoryObject(this);
+
+        MemoryLensEcho3D.EnsureFor(this);
     }
 
     private void Update()
