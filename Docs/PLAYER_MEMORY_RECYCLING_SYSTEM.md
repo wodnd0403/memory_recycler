@@ -88,6 +88,25 @@ Lens success restores the memory through the same `MarkRestored` path as the seq
 - Stillness feedback shows `정지 상태 유지: x.x / 5.0초` and resets to a Korean "stop moving" message on disturbance.
 - The HUD objective adds a Tab-lens tutorial line (`Tab으로 기억 렌즈를 켜고, 월드에 떠 있는 기억 잔상을 도시와 겹쳐 복원하세요.` and `특수 기억은 Tab 기억 렌즈로 복원`) only while a pending special memory exists, so first-time players learn the lens without manual setup.
 
+### World Echo Lifecycle (Show / Hide Rules)
+
+`MemoryLensEcho3D` visibility is driven purely by memory state (collected / restored / processed), never by interaction:
+
+- `decision != Unchosen` (processed) → echo hidden.
+- `restored == true` and not processed → echo shows a dim "복원 완료 / 처리 대기" state (title gets `· 복원 완료`, body shows the solved text, hint points to the memory card decision).
+- otherwise (unrestored) → echo shows the active memory afterimage. Pressing `E` to collect the orb does **not** hide it.
+- A non-destructive distance cull (`MaxVisibleDistance`) only toggles the canvas; it recovers when the player returns.
+
+Previous bug: the echo called `canvas.gameObject.SetActive(false)` on itself, which stopped its own `Update()` and made it disappear permanently after the first out-of-range frame (and around collection/cinematic). The fix toggles `canvas.enabled` instead and keeps the GameObject alive, so the echo can always re-evaluate and recover.
+
+State changes are also pushed explicitly via `MemoryLensEcho3D.NotifyStateChanged(memory, reason)` from collect, restore, and decision points, which emit `[MR3D LensEcho]` logs:
+
+- `[MR3D LensEcho] keep visible on interact id=MR3D_002 restored=False decision=Unchosen`
+- `[MR3D LensEcho] restored, show 복원 완료/처리 대기 id=MR3D_002 restored=True decision=Unchosen`
+- `[MR3D LensEcho] hide after processed id=MR3D_002 decision=Preserve`
+
+Restoration does not process the memory: processed counts only rise on an explicit preserve/delete/reprocess decision, so the 3-processed ending gate is unaffected.
+
 ### Runtime Debugging
 
 The puzzle UI writes concise runtime logs with the `[MR3D PuzzleMode]` prefix.
@@ -140,6 +159,17 @@ The final line of `[수거원 행동 기록]` is selected from the current playe
 - default common line when no stronger pattern exists.
 
 The ending body is displayed inside a scroll area, with fixed footer buttons for title, new game, and quit. The behavior report uses the short summary version so it stays readable during a presentation.
+
+## Central Archive Terminal Visual
+
+The central archive is the climax location (lens puzzles + self-record interrogation), so it gets a runtime "memory interrogation lens/terminal" dressing instead of looking like a placeholder cube.
+
+- Built by `ArchiveTerminalVisual3D`, auto-spawned by `MR3D_Bootstrap` after scene load. No scene edit is required; pressing Play shows it. `Prototype3D.unity` is unchanged.
+- It finds the existing `ArchiveTerminal3D` and builds decoration in world space around it (front faces the player approach on the −Z side): two vertical pillars, a top frame beam, a base beam, a dark lens backing, glowing teal accent lines, and a pulsing teal point light for dark-city readability.
+- A world-space label canvas billboards to the camera with `CENTRAL ARCHIVE`, `기억 심문 터미널`, and `처리 완료 3개 이상 접속 가능`. The panel/emission/light brighten while the Tab lens overlay is active.
+- All decoration primitives have their colliders removed, so player movement / grounding / physics are untouched. It does not add or modify any `ArchiveTerminal3D` trigger behavior.
+- Materials are created at runtime (URP/Lit with emission, falling back to Standard), so no external assets are downloaded.
+- Duplicate-guarded by a static instance + `FindFirstObjectByType`, and logs `[MR3D ArchiveVisual]` on build.
 
 ## Archive Self-Record Interrogation
 
@@ -223,4 +253,9 @@ The prototype is considered presentation-complete when, from `Assets/MemoryRecyc
 - Answer incorrectly and confirm the ending shows the mismatch line instead, and that the run still reaches the ending screen (no soft-lock).
 - Solve `MR3D_002`/`003`/`006` with the lens (not the fallback) and confirm a lens-specific Q3 appears in the interrogation.
 - Confirm the interrogation panel keeps the cursor visible and clickable, and that `[MR3D Interrogation]` logs `begin`/`complete`.
+- Confirm the `MR3D_002`/`003`/`006` world echoes are visible while unrestored, and that pressing `E` to collect the orb does NOT hide the echo (`[MR3D LensEcho] keep visible on interact`).
+- Confirm the echo stays visible throughout the lens puzzle, then switches to the dim "복원 완료 / 처리 대기" state on restore, and hides only after a preserve/delete/reprocess decision (`hide after processed`).
+- Walk far from a special memory and back, and confirm the echo reappears (no permanent disappearance).
+- Confirm the central archive shows the lens/terminal dressing (pillars, frame, glowing lines, `CENTRAL ARCHIVE` label) on Play with no Editor menu, and that it brightens with the Tab lens.
+- Confirm the archive decoration does not block movement (walk through/around it) and the player grounding is unchanged.
 - Confirm `Manual Visual Y Offset` remains `0.43` in the player script/scene.
