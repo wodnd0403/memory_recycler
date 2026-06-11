@@ -10,6 +10,8 @@ public class UIManager3D : MonoBehaviour
 
     // 제출 시연용 엔딩 진입 임계값. 발표 5분 루프에 맞춰 8개 중 3개 처리 시 엔딩 허용.
     public const int RequiredDecisionsForEnding = 3;
+    private const float LensSolveRequiredHoldSeconds = 1.8f;
+    private const float StillnessRequiredSeconds = 6.0f;
 
     private Canvas canvas;
     private Font uiFont;
@@ -1919,9 +1921,9 @@ public class UIManager3D : MonoBehaviour
         {
             lensSolveHoldTime += Time.unscaledDeltaTime;
             string progressLabel = mode == MemoryPuzzleMode3D.LensOcclude ? "가림 판정" : "렌즈 정렬";
-            specialPuzzleStatus = progressLabel + ": " + lensSolveHoldTime.ToString("0.0") + " / 0.7초\n빈칸이 흔들립니다...";
-            echo.SetLensFeedback(true, true, lensSolveHoldTime / 0.7f);
-            if (lensSolveHoldTime >= 0.7f)
+            specialPuzzleStatus = progressLabel + ": " + lensSolveHoldTime.ToString("0.0") + " / " + LensSolveRequiredHoldSeconds.ToString("0.0") + "초\n기억이 천천히 복원됩니다...";
+            echo.SetLensFeedback(true, true, lensSolveHoldTime / LensSolveRequiredHoldSeconds);
+            if (lensSolveHoldTime >= LensSolveRequiredHoldSeconds)
             {
                 CompleteSpecialPuzzle(mode, successMessage);
                 return;
@@ -1931,8 +1933,8 @@ public class UIManager3D : MonoBehaviour
         {
             lensSolveHoldTime = 0f;
             specialPuzzleStatus = mode == MemoryPuzzleMode3D.LensOcclude
-                ? "가림 판정: 0.0 / 0.7초\n거짓 안내 문장을 도시 구조물과 함께 화면 중앙에 겹치십시오. (중앙 거리 " + Mathf.RoundToInt(distance) + "px)"
-                : "렌즈 정렬: 0.0 / 0.7초\n기록창의 빈칸을 도시 위, 화면 중앙 마커에 겹치십시오. (중앙 거리 " + Mathf.RoundToInt(distance) + "px)";
+                ? "가림 판정: 0.0 / " + LensSolveRequiredHoldSeconds.ToString("0.0") + "초\n거짓 안내 문장을 도시 구조물과 함께 화면 중앙에 겹치십시오. (중앙 거리 " + Mathf.RoundToInt(distance) + "px)"
+                : "렌즈 정렬: 0.0 / " + LensSolveRequiredHoldSeconds.ToString("0.0") + "초\n기록창의 빈칸을 도시 위, 화면 중앙 마커에 겹치십시오. (중앙 거리 " + Mathf.RoundToInt(distance) + "px)";
             echo.SetLensFeedback(true, false, 0f);
         }
 
@@ -1954,7 +1956,7 @@ public class UIManager3D : MonoBehaviour
         if (!centered)
         {
             stillnessTime = 0f;
-            specialPuzzleStatus = "정지 상태 유지: 0.0 / 5.0초\n빈 파일 잔상을 화면 중앙 마커 안에 둔 채 멈추십시오.";
+            specialPuzzleStatus = "정지 상태 유지: 0.0 / " + StillnessRequiredSeconds.ToString("0.0") + "초\n빈 파일 잔상을 화면 중앙 마커 안에 둔 채 멈추십시오.";
             if (echo != null)
                 echo.SetLensFeedback(true, false, 0f);
             RefreshLensOverlayText();
@@ -1972,13 +1974,13 @@ public class UIManager3D : MonoBehaviour
         if (disturbed)
         {
             stillnessTime = 0f;
-            specialPuzzleStatus = "정지 상태 유지: 0.0 / 5.0초\n기록이 다시 닫혔습니다. 수거원이 아직 움직이고 있습니다.";
+            specialPuzzleStatus = "정지 상태 유지: 0.0 / " + StillnessRequiredSeconds.ToString("0.0") + "초\n기록이 다시 닫혔습니다. 수거원이 아직 움직이고 있습니다.";
         }
         else
         {
             stillnessTime += Time.unscaledDeltaTime;
-            specialPuzzleStatus = "정지 상태 유지: " + stillnessTime.ToString("0.0") + " / 5.0초";
-            if (stillnessTime >= 5f)
+            specialPuzzleStatus = "정지 상태 유지: " + stillnessTime.ToString("0.0") + " / " + StillnessRequiredSeconds.ToString("0.0") + "초";
+            if (stillnessTime >= StillnessRequiredSeconds)
             {
                 CompleteSpecialPuzzle(MemoryPuzzleMode3D.Stillness, "수거원이 멈추자, 빈 파일이 스스로를 열었습니다.");
                 return;
@@ -1987,7 +1989,7 @@ public class UIManager3D : MonoBehaviour
 
         lastLensMousePosition = Input.mousePosition;
         if (echo != null)
-            echo.SetLensFeedback(true, !disturbed, stillnessTime / 5f);
+            echo.SetLensFeedback(true, !disturbed, stillnessTime / StillnessRequiredSeconds);
         RefreshLensOverlayText();
         RefreshSelectedPiecesText();
     }

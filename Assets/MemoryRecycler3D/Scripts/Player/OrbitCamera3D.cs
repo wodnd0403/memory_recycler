@@ -5,8 +5,8 @@ public class OrbitCamera3D : MonoBehaviour
     public Transform target;
     public Vector3 offset = new Vector3(0f, 3.5f, -6f);
     public float mouseSensitivity = 1.55f;
-    public float minPitch = -40f;
-    public float maxPitch = 80f;
+    public float minPitch = -75f;
+    public float maxPitch = 85f;
     public float baseLookHeight = 1.45f;
     public float lookUpHeight = 5.2f;
     public float lookDownHeight = 1.05f;
@@ -16,8 +16,8 @@ public class OrbitCamera3D : MonoBehaviour
     public float jumpVerticalFollowSmooth = 7.5f;
     public float verticalDeadZone = 0.72f;
     public float verticalSnapDistance = 3.0f;
-    public float minCameraHeightAboveTarget = 0.8f;
-    public float absoluteMinCameraY = 0.55f;
+    public float minCameraHeightAboveTarget = 0.25f;
+    public float absoluteMinCameraY = 0.35f;
 
     [Header("Collision")]
     // 카메라가 벽/건물에 파묻히지 않도록 충돌 검사용 LayerMask. 기본값(~0)은 모든 레이어 포함.

@@ -170077,8 +170077,8 @@ MonoBehaviour:
   target: {fileID: 72352660}
   offset: {x: 0, y: 2.95, z: -6.45}
   mouseSensitivity: 1.55
-  minPitch: -40
-  maxPitch: 80
+  minPitch: -75
+  maxPitch: 85
   baseLookHeight: 1.45
   lookUpHeight: 5.2
   lookDownHeight: 1.05
@@ -170088,8 +170088,8 @@ MonoBehaviour:
   jumpVerticalFollowSmooth: 7.5
   verticalDeadZone: 0.72
   verticalSnapDistance: 3
-  minCameraHeightAboveTarget: 0.85
-  absoluteMinCameraY: 0.62
+  minCameraHeightAboveTarget: 0.25
+  absoluteMinCameraY: 0.35
   collisionMask:
     serializedVersion: 2
     m_Bits: 256
