@@ -67,6 +67,11 @@ public class UIManager3D : MonoBehaviour
     private Text lensOverlayTitle;
     private Text lensOverlayHint;
     private Text lensOverlayStatus;
+    private bool lensFocusModeActive;
+    private bool lensFocusCachedObjectiveActive;
+    private bool lensFocusCachedPromptActive;
+    private bool lensFocusCachedTimeActive;
+    private readonly List<GameObject> lensFocusHiddenDistrictLabels = new List<GameObject>();
 
     private GameObject archivePanel;
     private Text archiveText;
@@ -158,11 +163,25 @@ public class UIManager3D : MonoBehaviour
             return;
 
         promptText.text = message;
+        if (lensFocusModeActive)
+        {
+            lensFocusCachedPromptActive = true;
+            if (promptPanel != null && promptPanel.activeSelf)
+            {
+                promptPanel.SetActive(false);
+                Debug.Log("[MR3D LensUI] interaction prompt hide/show: hidden while lens focus is active");
+            }
+            return;
+        }
+
         promptPanel.SetActive(true);
     }
 
     public void HidePrompt()
     {
+        if (lensFocusModeActive)
+            lensFocusCachedPromptActive = false;
+
         if (promptPanel != null)
             promptPanel.SetActive(false);
     }
@@ -297,6 +316,7 @@ public class UIManager3D : MonoBehaviour
             PrepareSpecialPuzzleRecord(focusRecord, openSource);
 
         lensOverlayPanel.SetActive(true);
+        SetLensFocusMode(true);
         RefreshLensOverlayText();
         LockCursor();
     }
@@ -305,6 +325,98 @@ public class UIManager3D : MonoBehaviour
     {
         if (lensOverlayPanel != null)
             lensOverlayPanel.SetActive(false);
+
+        SetLensFocusMode(false);
+    }
+
+    private void SetLensFocusMode(bool active)
+    {
+        if (lensFocusModeActive == active)
+            return;
+
+        lensFocusModeActive = active;
+        if (active)
+        {
+            lensFocusCachedObjectiveActive = objectivePanel != null && objectivePanel.activeSelf;
+            lensFocusCachedPromptActive = promptPanel != null && promptPanel.activeSelf;
+            lensFocusCachedTimeActive = timePanel != null && timePanel.activeSelf;
+
+            if (objectivePanel != null && objectivePanel.activeSelf)
+            {
+                objectivePanel.SetActive(false);
+                Debug.Log("[MR3D LensUI] hidden/restored HUD elements: objective hidden");
+            }
+            if (timePanel != null && timePanel.activeSelf)
+            {
+                timePanel.SetActive(false);
+                Debug.Log("[MR3D LensUI] area label hide/show: time/area HUD hidden");
+            }
+            if (promptPanel != null && promptPanel.activeSelf)
+            {
+                promptPanel.SetActive(false);
+                Debug.Log("[MR3D LensUI] interaction prompt hide/show: hidden");
+            }
+            HideDistrictLabelsForLensFocus();
+
+            Debug.Log("[MR3D LensUI] Lens focus mode ON");
+            return;
+        }
+
+        if (objectivePanel != null)
+        {
+            objectivePanel.SetActive(lensFocusCachedObjectiveActive);
+            Debug.Log("[MR3D LensUI] hidden/restored HUD elements: objective restored=" + lensFocusCachedObjectiveActive);
+        }
+        if (timePanel != null)
+        {
+            timePanel.SetActive(lensFocusCachedTimeActive);
+            Debug.Log("[MR3D LensUI] area label hide/show: time/area HUD restored=" + lensFocusCachedTimeActive);
+        }
+        if (promptPanel != null)
+        {
+            bool restorePrompt = lensFocusCachedPromptActive && promptText != null && !string.IsNullOrEmpty(promptText.text);
+            promptPanel.SetActive(restorePrompt);
+            Debug.Log("[MR3D LensUI] interaction prompt hide/show: restored=" + restorePrompt);
+        }
+        RestoreDistrictLabelsAfterLensFocus();
+
+        Debug.Log("[MR3D LensUI] Lens focus mode OFF");
+    }
+
+    private void HideDistrictLabelsForLensFocus()
+    {
+        lensFocusHiddenDistrictLabels.Clear();
+        Transform[] transforms = FindObjectsByType<Transform>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        for (int i = 0; i < transforms.Length; i++)
+        {
+            Transform target = transforms[i];
+            if (target == null || target.gameObject == null)
+                continue;
+            if (!target.gameObject.activeSelf || !target.name.StartsWith("District Label"))
+                continue;
+
+            lensFocusHiddenDistrictLabels.Add(target.gameObject);
+            target.gameObject.SetActive(false);
+        }
+
+        Debug.Log("[MR3D LensUI] area label hide/show: district labels hidden=" + lensFocusHiddenDistrictLabels.Count);
+    }
+
+    private void RestoreDistrictLabelsAfterLensFocus()
+    {
+        int restored = 0;
+        for (int i = 0; i < lensFocusHiddenDistrictLabels.Count; i++)
+        {
+            GameObject label = lensFocusHiddenDistrictLabels[i];
+            if (label == null)
+                continue;
+
+            label.SetActive(true);
+            restored++;
+        }
+
+        lensFocusHiddenDistrictLabels.Clear();
+        Debug.Log("[MR3D LensUI] area label hide/show: district labels restored=" + restored);
     }
 
     private void RefreshLensOverlayText()

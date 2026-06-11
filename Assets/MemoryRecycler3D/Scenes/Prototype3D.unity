@@ -86156,7 +86156,7 @@ Transform:
   m_GameObject: {fileID: 1009054850}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.5, y: 1.25, z: 23.5}
+  m_LocalPosition: {x: 4.25, y: 2.1, z: 22.75}
   m_LocalScale: {x: 0.7, y: 0.7, z: 0.7}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -170077,8 +170077,8 @@ MonoBehaviour:
   target: {fileID: 72352660}
   offset: {x: 0, y: 2.95, z: -6.45}
   mouseSensitivity: 1.55
-  minPitch: -24
-  maxPitch: 74
+  minPitch: -40
+  maxPitch: 80
   baseLookHeight: 1.45
   lookUpHeight: 5.2
   lookDownHeight: 1.05

@@ -5,8 +5,8 @@ public class OrbitCamera3D : MonoBehaviour
     public Transform target;
     public Vector3 offset = new Vector3(0f, 3.5f, -6f);
     public float mouseSensitivity = 1.55f;
-    public float minPitch = -35f;
-    public float maxPitch = 70f;
+    public float minPitch = -40f;
+    public float maxPitch = 80f;
     public float baseLookHeight = 1.45f;
     public float lookUpHeight = 5.2f;
     public float lookDownHeight = 1.05f;
@@ -34,9 +34,12 @@ public class OrbitCamera3D : MonoBehaviour
     private bool hasSmoothedPivot;
     private Vector3 smoothedPivot;
     private readonly RaycastHit[] cameraHits = new RaycastHit[16];
+    private bool pitchClampLogged;
 
     private void Start()
     {
+        LogPitchClamp();
+
         // 시작 메뉴가 떠 있는 동안 마우스를 잠그면 클릭이 불가능해진다.
         // UIManager3D가 메뉴 닫힐 때 LockCursor()를 호출하므로 여기서는 강제 잠금하지 않는다.
         if (UIManager3D.Instance != null && UIManager3D.Instance.IsGameplayInputBlocked())
@@ -158,5 +161,16 @@ public class OrbitCamera3D : MonoBehaviour
     private float Damp(float smooth)
     {
         return 1f - Mathf.Exp(-Mathf.Max(0f, smooth) * Time.deltaTime);
+    }
+
+    private void LogPitchClamp()
+    {
+        if (pitchClampLogged)
+            return;
+
+        pitchClampLogged = true;
+        Debug.Log("[MR3D Camera] pitch clamp range min=" + minPitch.ToString("0.0") +
+            " max=" + maxPitch.ToString("0.0") +
+            " current=" + pitch.ToString("0.0"));
     }
 }
