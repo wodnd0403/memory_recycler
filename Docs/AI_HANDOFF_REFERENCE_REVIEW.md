@@ -1,122 +1,113 @@
-# AI 인수인계: Docs/temp 레퍼런스 분석 작업
+# AI 인수인계: Docs/temp 레퍼런스 분석 완료
 
-> **이 문서만 읽으면 다음 AI가 바로 이어서 작업할 수 있어야 한다.**
-> 매 배치 종료 시, 그리고 세션 중단 전에 반드시 최신화한다.
+이 문서는 다음 AI 또는 작업자가 Memory Recycler 3D 최종보고서/PPT 제작을 바로 이어갈 수 있도록 남기는 요약입니다.
 
-## 1. 현재 작업 목적
+## 현재 목적
 
-`Docs/temp`의 이전 차시 최종보고서/PPT 레퍼런스 46개를 분석해
-Memory Recycler 3D **최종보고서/발표 PPT** 제작에 참고할 자료를 선별한다.
-산출물은 `Docs/REFERENCE_REVIEW_FOR_FINAL_REPORT.md`에 누적 정리한다.
+`Docs/temp`의 이전 차시 최종보고서/발표자료 46개를 분석해 Memory Recycler 3D 최종보고서와 발표 PPT 제작에 참고할 구조와 패턴을 선별했습니다.
 
-## 2. 현재 브랜치 / git 상태
+분석 결과와 추천 구조는 `Docs/REFERENCE_REVIEW_FOR_FINAL_REPORT.md`에 누적 정리되어 있습니다.
 
-- 브랜치: `main` (origin/main과 동기화된 상태에서 시작, 커밋 `261bc44`)
-- 작업 시작 시 작업 트리 clean
-- 이 작업은 **Docs 문서 3개만 생성/수정/커밋**한다. 게임 코드/씬/에셋 금지.
-- **push 금지** (이 작업에서는 커밋만)
+## Git 상태 기준
 
-## 3. 분석 대상
+- 브랜치: `main`
+- 레퍼런스 분석 커밋:
+  - `9cc9d4b docs: 레퍼런스 분석 인수인계 문서 초기화`
+  - `2a69ed4 docs: 레퍼런스 분석 1차 배치 정리`
+  - `79bbc9b docs: 레퍼런스 분석 2차 배치 정리`
+  - `789f07b docs: 레퍼런스 분석 3차 배치 정리`
+  - `dc7d6e8 docs: 레퍼런스 분석 4차 배치 정리`
+  - `b7131e3 docs: 레퍼런스 분석 5차 배치 정리`
+- 6차 최종 배치 커밋 예정: `docs: 과목 핵심 레퍼런스 분석과 최종 구조 정리`
+- `.claude/settings.local.json`은 로컬 modified 상태일 수 있으나 레퍼런스 분석 커밋에 포함하지 않습니다.
+- push 금지 상태로 작업했습니다.
 
-- 폴더: `Docs/temp/` (46개 파일: pptx 39, hwp 3, docx 4)
-- 전체 목록과 상태: `Docs/REFERENCE_REVIEW_PROGRESS.md` (단일 진실 소스)
+## 분석 완료 상태
 
-## 4. 진행 상황
+- 전체 대상: 46개
+- Done: 43개
+- Failed to Parse: 3개 (`19.hwp`, `21.hwp`, `30.hwp`)
+- Not Started: 0개
+- A급: 4개
+- B급: 27개
+- 제외: 12개
 
-- 이미 분석한 파일: 1~43 (배치 1~5 완료. 19/21/30.hwp는 파싱 실패)
-- 다음 분석 대상: 번호 44 (`게임프로그래밍 텀프로젝트 보고서.docx`)부터 — 남은 파일 3개
-- A급 후보: 7.pptx(제안서 vs 최종 비교 프레임), 36.pptx(시연 화면 단계화/스토리보드)
-- B급 후보: 2, 4, 5, 6, 8, 9, 11, 12, 13, 14, 17, 20, 22, 24, 25, 26, 27, 29, 31, 32, 34, 35, 36, 38, 40, 41
-- 제외 후보: 1, 3, 10, 15, 16, 18, 23, 28, 33, 39, 42, 43
-- 파싱 실패: 19.hwp, 21.hwp, 30.hwp (OLE/한글 바이너리 — 수동 열람 필요)
-- 주의: Python stdout이 cp949라 한글이 깨짐 → 스크립트에
-  `sys.stdout.reconfigure(encoding="utf-8", errors="replace")` 필수 (이미 반영됨)
+## 최종 A급 레퍼런스
 
+| 파일 | 참고 이유 |
+|---|---|
+| `7.pptx` | 제안서 대비 최종 구현 비교 프레임과 달성도 체크리스트가 가장 직접적으로 유용합니다. |
+| `36.pptx` | 시연 흐름을 단계별 화면으로 쌓는 방식이 좋아 MR3D 발표 시연 스토리보드에 적합합니다. |
+| `게임프로그래밍 텀프로젝트 보고서.docx` | 과목 최종보고서 본문 기준을 보여주는 핵심 자료입니다. 표지, 목차, 기획/목표, 소개, 환경, 구현 기능 구조를 참고합니다. |
+| `최종보고서 .pptx` | Unity 퍼즐 프로젝트 최종보고 PPT로, 벤치마킹, 기획, 조작, 주요 함수, 요구사항, 시연, 후기 흐름을 MR3D 발표 구조에 직접 변환할 수 있습니다. |
 
-### 5차 배치 완료 로그 (35~43)
-- 완료 커밋 예정: `docs: 레퍼런스 분석 5차 배치 정리`
-- 분석 완료: 34.pptx, 35.pptx, 36.pptx, 37.docx, 38.pptx, 39.pptx, 40.pptx, 41.pptx, 42.pptx
-- 누적 상태: Done 40 / Failed to Parse 3 / Not Started 3
-- 누적 등급: A 2 / B 26 / 제외 12
-- 5차 핵심 참고: 36.pptx는 MR3D 최종 발표의 시연 스토리보드에 적극 참고할 A급 자료로 분류
-- 다음 6차 배치: `게임프로그래밍 텀프로젝트 보고서.docx`, `발표자료.pptx`, `최종보고서 .pptx`를 별도 핵심 배치로 분석
+## 가장 참고할 만한 상위 5개
 
-## 5. 판단 기준
+1. `게임프로그래밍 텀프로젝트 보고서.docx`: 최종보고서 본문 구조 기준
+2. `최종보고서 .pptx`: Unity 퍼즐 발표 PPT 구조 기준
+3. `7.pptx`: 제안서 대비 최종 구현 비교와 달성도 체크리스트
+4. `36.pptx`: 단계별 시연 화면 스토리보드
+5. `29.pptx`: 화면 구성 라벨, 조작 방법, 기능 소개, 중요 함수 표 구성
 
-- **A급**: 목차 흐름이 완결적(개요→기획→구현→시연→회고)이고, 기술 설명과 시연 구성의
-  밀도/배분이 Memory Recycler 3D(내러티브 퍼즐 탐험 게임)에 직접 응용 가능한 자료
-- **B급**: 일부 섹션(예: 트러블슈팅 정리법, 데모 슬라이드 배치)만 참고할 자료
-- **제외**: 주제가 동떨어지거나(비게임/단순 과제), 내용이 빈약하거나, 중복 파일
-- 게임 장르가 비슷하거나(3D 탐험/퍼즐/내러티브), 발표 흐름이 좋은 자료를 우선
+## MR3D 최종보고서 핵심 방향
 
-## 6. 분석 방법 (도구)
+최종보고서는 단순 구현 나열이 아니라 아래 메시지를 중심으로 구성합니다.
 
-- pptx/docx는 ZIP+XML이므로 Python으로 텍스트 추출:
-  - 추출 스크립트: `C:\Users\sdjsd\AppData\Local\Temp\mr3d_extract.py`
-    (없으면 아래 "스크립트 재생성" 참고 — pptx: `ppt/slides/slide*.xml`의 `<a:t>`,
-    docx: `word/document.xml`의 `<w:t>` 추출, 슬라이드당 220자/총 6000자 제한)
-  - 실행: `python C:/Users/sdjsd/AppData/Local/Temp/mr3d_extract.py "Docs/temp/1.pptx"`
-- 4차 배치에서는 OS temp Python 스크립트 실행 일부가 안전 검토에서 막혀, PowerShell/.NET `System.IO.Compression.ZipFile`로 pptx/docx ZIP XML을 읽어 텍스트를 추출했다. 저장소와 원본 레퍼런스 파일에는 쓰기 작업을 하지 않았다.
-- hwp는 OLE 바이너리라 파싱 불가 예상 → `Failed to Parse` 처리, 파일명/크기로 추정만
-- **원본 파일 절대 수정 금지** (읽기 전용)
+> Memory Recycler 3D는 기록창을 단순 UI가 아니라 기억 렌즈로 사용해, 3D 폐도시의 기억을 화면과 공간의 겹침으로 복원하는 게임이다. 마지막에는 아카이브가 플레이어의 선택과 복원 방식을 다시 심문함으로써, 게임이 플레이어를 기억하는 구조를 완성한다.
 
-### 스크립트 재생성 (없을 때)
-Python 3 + zipfile + 정규식으로 `<a:t>`(pptx) / `<w:t>`(docx) 텍스트 런을 추출해
-슬라이드 번호별로 출력하는 단순 스크립트를 OS temp에 새로 만들면 된다.
-저장소 안에 만들지 말 것.
+권장 목차는 `Docs/REFERENCE_REVIEW_FOR_FINAL_REPORT.md`의 `Memory Recycler 3D 최종보고서 추천 목차` 섹션을 기준으로 사용합니다.
 
-## 7. 다음 AI가 바로 실행할 명령어
+## MR3D 발표 PPT 핵심 방향
 
-```bash
-cd c:/Users/sdjsd/Desktop/OTT-Project/memory_recycler
-git status --short
-git branch --show-current
-ls Docs/temp/
-# 진행표에서 Not Started인 다음 파일 확인 후:
-python C:/Users/sdjsd/AppData/Local/Temp/mr3d_extract.py "Docs/temp/<다음파일>"
-```
+- 5~10분 발표 기준 10~12장 구성이 적절합니다.
+- 초반 3장 안에 `폐도시`, `기억 렌즈`, `게임이 플레이어를 기억한다`는 메시지를 보여줘야 합니다.
+- 중반은 수집, 렌즈 퍼즐, 선택 처리, 아카이브 심문 순서의 시연 스토리보드로 구성합니다.
+- 후반은 시스템 구조, 한계와 개선 방향, 결론으로 닫습니다.
 
-## 8. 다음에 해야 할 작업
+상세 슬라이드별 제목, 메시지, 이미지, 발표 문장, 예상 시간은 `Docs/REFERENCE_REVIEW_FOR_FINAL_REPORT.md`의 `Memory Recycler 3D 발표 PPT 추천 목차 (5~10분)` 섹션에 작성되어 있습니다.
 
-1. `Docs/REFERENCE_REVIEW_PROGRESS.md`에서 `Not Started`인 가장 앞 번호부터 8~10개 분석
-2. 각 파일: 슬라이드 수/주제/목차 흐름 파악 → A/B/제외 등급 + 한 줄 요약
-3. 배치 종료 시 세 문서 갱신:
-   - `REFERENCE_REVIEW_PROGRESS.md` (상태/등급/요약)
-   - `REFERENCE_REVIEW_FOR_FINAL_REPORT.md` (배치 기록 + A/B/제외 누적)
-   - `AI_HANDOFF_REFERENCE_REVIEW.md` (이 문서의 4번 진행 상황 + 배치 로그)
-4. Docs 문서 3개만 `git add` 후 커밋 (`docs: 레퍼런스 분석 N차 배치 정리`)
-5. 모든 파일이 Done/Skipped/Failed to Parse가 되면 최종 구조 제안 작성
+## 반드시 캡처할 화면
 
-## 9. 주의사항
+- 시작 화면
+- 폐도시 전경
+- 기억 구체
+- 월드 스페이스 기억 UI
+- Tab 기억 렌즈 ON/OFF
+- MR3D_002 LensAlign
+- MR3D_003 LensOcclude
+- MR3D_006 Stillness
+- 보존/삭제/재가공 선택
+- 중앙 아카이브 터미널
+- 아카이브 자기기록 심문
+- 엔딩 화면
 
-- 한 번에 끝내려 하지 말고 배치(8~10개) 단위로 진행, 배치마다 커밋
-- `최종보고서 .pptx`는 파일명 끝에 공백이 있음 — 따옴표 필수
-- `32 (1).pptx` vs `32.pptx` 중복 여부 비교 필요
-- 요약은 구조 설명만, 원문 문장 복사 금지 (표절 방지 원칙은 REFERENCE_REVIEW_FOR_FINAL_REPORT.md 참조)
-- 커밋 전 `git diff --stat`과 `git status --short`로 Docs만 변경됐는지 확인
+## 다음 단계
 
-## 10. 절대 하면 안 되는 작업
+1. 최종보고서 목차 확정
+2. PPT 목차 확정
+3. 스크린샷/영상 캡처 계획 작성
+4. 최종보고서 초안 작성
+5. 발표 PPT 초안 작성
 
-- `Docs/temp/` 원본 파일 수정/이동/삭제
-- push, force push, `git reset`, `git clean`, 강제 checkout
-- 게임 코드/씬/에셋 수정 및 커밋
-- 레퍼런스 문장/이미지/코드/표 그대로 복사
-
-## 11. 이어받기 프롬프트 (세션 중단 시 다음 AI에게 전달)
+## 다음 AI에게 줄 프롬프트
 
 ```text
-이전 AI가 Docs/temp 레퍼런스 분석을 진행하다가 중단되었습니다.
-먼저 아래 파일을 읽고 이어서 작업하세요.
+Memory Recycler 3D 레퍼런스 분석은 완료되었습니다.
 
-1. Docs/AI_HANDOFF_REFERENCE_REVIEW.md
+먼저 아래 문서를 읽고 최종보고서/PPT 제작을 이어가세요.
+
+1. Docs/REFERENCE_REVIEW_FOR_FINAL_REPORT.md
 2. Docs/REFERENCE_REVIEW_PROGRESS.md
-3. Docs/REFERENCE_REVIEW_FOR_FINAL_REPORT.md
+3. Docs/AI_HANDOFF_REFERENCE_REVIEW.md
 
-해야 할 일:
-- REFERENCE_REVIEW_PROGRESS.md에서 Not Started 상태인 다음 파일부터 분석
-- 한 번에 최대 8~10개만 분석
-- 배치 완료 후 세 문서 갱신
-- Docs 문서만 커밋
-- push 금지
-- 원본 레퍼런스 파일 수정 금지
+현재 추천 구조:
+- 최종보고서: 16개 목차
+- 발표 PPT: 5~10분 기준 12장
+- 핵심 메시지: 기록창은 메뉴가 아니라 기억 렌즈이며, 아카이브가 플레이어의 선택까지 기록한다.
+
+주의:
+- Docs/temp 원본 레퍼런스 파일은 수정하지 마세요.
+- 레퍼런스 문장/이미지/표/코드를 그대로 복사하지 마세요.
+- 게임 코드/씬/에셋 수정은 별도 요청이 있을 때만 진행하세요.
+- push하지 마세요.
 ```
