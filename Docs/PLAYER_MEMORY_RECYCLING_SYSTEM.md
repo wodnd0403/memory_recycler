@@ -171,6 +171,12 @@ The central archive is the climax location (lens puzzles + self-record interroga
 - Materials are created at runtime (URP/Lit with emission, falling back to Standard), so no external assets are downloaded.
 - Duplicate-guarded by a static instance + `FindFirstObjectByType`, and logs `[MR3D ArchiveVisual]` on build.
 
+### Terminal Interaction (Front / Side / Back)
+
+Access used to be gated by the terminal cube's thin box trigger (depth 1.6m, world z ≈ 7.2–8.8 at center z=8). The terminal mesh is disabled (invisible) and the visual front (labels/lens) sits *in front* of that band, so standing at the natural "front" left the player outside the trigger — only walking around the back entered the box. That read as "front doesn't work, back does."
+
+`ArchiveTerminal3D` now uses a **horizontal (XZ) distance** check from the terminal center (`interactRadius`, default 5m) instead of the trigger box, so the prompt and `E` access work from the front, sides, and back. The screen-space `E` prompt appears whenever in range. The collider is left as a non-blocking trigger (no structural change), and the 3-processed ending gate and locked-archive message are unchanged. Runtime logs use the `[MR3D ArchiveTerminal]` prefix (`terminal initialized`, `canInteract`, `E pressed from <side>`, `blocked`, `starting interrogation/ending`).
+
 ## Archive Self-Record Interrogation
 
 Reaching the ending now runs a short interrogation before the ending screen, realizing the earlier `solvedBy` TODO. The central archive asks the recycler to recall their own actions, then folds the result into the ending.
@@ -258,4 +264,6 @@ The prototype is considered presentation-complete when, from `Assets/MemoryRecyc
 - Walk far from a special memory and back, and confirm the echo reappears (no permanent disappearance).
 - Confirm the central archive shows the lens/terminal dressing (pillars, frame, glowing lines, `CENTRAL ARCHIVE` label) on Play with no Editor menu, and that it brightens with the Tab lens.
 - Confirm the archive decoration does not block movement (walk through/around it) and the player grounding is unchanged.
+- Approach the central archive from the visual front (CENTRAL ARCHIVE labels) and confirm the `E` prompt appears and `E` opens the archive (`[MR3D ArchiveTerminal] E pressed from front`).
+- Confirm access also works from the sides and back, and that with fewer than 3 processed memories the locked message still appears (`blocked: processed N < 3`).
 - Confirm `Manual Visual Y Offset` remains `0.43` in the player script/scene.
