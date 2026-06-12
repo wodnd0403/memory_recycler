@@ -5,7 +5,12 @@
       "Bash(Select-Object FullName)",
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\sdjsd\\\\Desktop\\\\OTT-Project\\\\memory_recycler\" -Recurse -Include \"*.cs\", \"*.scene\", \"*.asset\")",
       "Bash(Select-Object -First 20)",
-      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\sdjsd\\\\Desktop\\\\OTT-Project\\\\memory_recycler\" -Recurse -File | Where-Object { $_.Extension -in @\\('.cs', '.scene', '.asset'\\) } | Select-Object -First 30 | ForEach-Object { $_.FullName })"
+      "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\sdjsd\\\\Desktop\\\\OTT-Project\\\\memory_recycler\" -Recurse -File | Where-Object { $_.Extension -in @\\('.cs', '.scene', '.asset'\\) } | Select-Object -First 30 | ForEach-Object { $_.FullName })",
+      "Bash(ls -la Docs/temp)",
+      "Bash(ls -la docs/temp)",
+      "Bash(unzip -v)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'docs: 레퍼런스 분석 인수인계 문서 초기화 *)"
     ]
   }
 }
