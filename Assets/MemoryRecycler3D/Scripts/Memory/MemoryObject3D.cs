@@ -80,4 +80,14 @@ public class MemoryObject3D : MonoBehaviour
     {
         gameObject.SetActive(!collected);
     }
+
+    /// <summary>
+    /// Moves this orb while keeping its bob animation anchored to the new position.
+    /// This is used by reversible runtime layout passes and does not modify the scene asset.
+    /// </summary>
+    public void RelocateForRuntimeLayout(Vector3 worldPosition)
+    {
+        transform.position = worldPosition;
+        startPosition = worldPosition;
+    }
 }
